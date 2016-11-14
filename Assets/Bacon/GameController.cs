@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Maria;
 using UnityEngine;
+using Sproto;
 
 namespace Bacon
 {
@@ -16,7 +17,7 @@ namespace Bacon
         // 进入房间
         public override void Enter()
         {
-            LoadScene("sky");
+            //_ctx.GetController<Init>
 
         }
 
@@ -29,10 +30,8 @@ namespace Bacon
         {
         }
 
-        public override void Run()
-        {
-            base.Run();
-            _ctx.Push("game");
+        public SprotoTypeBase OnJoin(uint session, SprotoTypeBase requestObj) {
+            return null;
         }
     }
 }

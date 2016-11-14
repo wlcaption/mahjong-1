@@ -1,37 +1,41 @@
-﻿using System;
+﻿using Maria;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace Bacon
-{
-    public class Card
-    {
+namespace Bacon {
+    public class Card : Actor {
         private int _value;
         private int _type;
         private int _num;
         private int _idx;
-        private GameObject _go = null;
 
-        public Card(int v, GameObject go)
-        {
-            _go = go;
-            _value = v;
+        public Card(Context ctx, Controller controller, int value)
+            : base(ctx, controller) {
+            _value = value;
+            _ctx.EnqueueRenderQueue(RenderInitCard);
         }
 
-        public void SetIdx(int idx)
-        {
+        public void SetIdx(int idx) {
             _idx = idx;
         }
 
-        public int GetIdx()
-        {
+        public int GetIdx() {
             return _idx;
         }
 
-        public void SetPosition()
-        {
+        public void SetPosition() {
+        }
+
+        private void RenderInitCard() {
+
+            string path = "Prefabs/App/";
+            string pathname = path + string.Format("");
+
+            UnityEngine.Object o = Resources.Load(pathname, typeof(GameObject));
+            _go = GameObject.Instantiate(o) as GameObject;
         }
     }
 }
