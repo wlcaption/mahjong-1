@@ -1,38 +1,30 @@
 ﻿using Maria;
-using System.Collections.Generic;
-using UnityEngine;
+using Maria.Network;
 
-namespace Bacon {
+namespace Bacon
+{
     public class AppContext : Context {
-        private List<Card> _cards = new List<Card>();
-        private int _idx = 0;
-        private Assets _assets = new Assets();
-        private GameObject _cardsParent = null;
+        
+        private InitService _initService = null;
+        private Request _request = null;
+        private Response _response = null;
 
-        public AppContext(Maria.Application application, Config config) : base(application, config) {
-            GameController gctl = new GameController(this);
-            _hash["game"] = gctl;
+        public AppContext(Application application, Config config, TimeSync ts) : base(application, config, ts) {
+            _hash["start"] = new StartController(this);
+            _hash["login"] = new LoginController(this);
+            _hash["main"] = new MainController(this);
+            _hash["game"] = new GameController(this);
 
-            _cardsParent = new GameObject();
-            _cardsParent.transform.SetParent(Assets.transform);
-            for (int i = 0; i < 3; i++) {
-                GameObject go = _assets.GetCard("Card");
-                go.transform.SetParent(_cardsParent.transform);
-                go.SetActive(false);
+            RegService(InitService.Name, new InitService(this));
+            RegService(GameService.Name, new GameService(this));
 
-                Card c = new Card(i, go);
-                _cards.Add(c);
-            }
+            _request = new Request(this, _client);
+            _response = new Response(this, _client);
+
+            Push("start");
         }
 
-        public void Put() {
-        }
-
-        public Card Next() {
-            var card = _cards[_idx];
-            return card;
-        }
-
+        public global::App GApp { get { return ((App)_application).GApp; } }
 
     }
 }

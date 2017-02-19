@@ -6,244 +6,218 @@ using Sproto;
 using System.Collections.Generic;
 
 namespace C2sSprotoType { 
-	public class ball : SprotoTypeBase {
-		private static int max_field_count = 13;
-		
-		
-		private Int64 _session; // tag 0
-		public Int64 session {
-			get { return _session; }
-			set { base.has_field.set_field (0, true); _session = value; }
-		}
-		public bool HasSession {
-			get { return base.has_field.has_field (0); }
-		}
+	public class call {
+	
+		public class request : SprotoTypeBase {
+			private static int max_field_count = 2;
+			
+			
+			private Int64 _sid; // tag 0
+			public Int64 sid {
+				get { return _sid; }
+				set { base.has_field.set_field (0, true); _sid = value; }
+			}
+			public bool HasSid {
+				get { return base.has_field.has_field (0); }
+			}
 
-		private Int64 _ballid; // tag 1
-		public Int64 ballid {
-			get { return _ballid; }
-			set { base.has_field.set_field (1, true); _ballid = value; }
-		}
-		public bool HasBallid {
-			get { return base.has_field.has_field (1); }
-		}
+			private Int64 _opcode; // tag 1
+			public Int64 opcode {
+				get { return _opcode; }
+				set { base.has_field.set_field (1, true); _opcode = value; }
+			}
+			public bool HasOpcode {
+				get { return base.has_field.has_field (1); }
+			}
 
-		private Int64 _radis; // tag 2
-		public Int64 radis {
-			get { return _radis; }
-			set { base.has_field.set_field (2, true); _radis = value; }
-		}
-		public bool HasRadis {
-			get { return base.has_field.has_field (2); }
-		}
+			public request () : base(max_field_count) {}
 
-		private Int64 _length; // tag 3
-		public Int64 length {
-			get { return _length; }
-			set { base.has_field.set_field (3, true); _length = value; }
-		}
-		public bool HasLength {
-			get { return base.has_field.has_field (3); }
-		}
+			public request (byte[] buffer) : base(max_field_count, buffer) {
+				this.decode ();
+			}
 
-		private Int64 _width; // tag 4
-		public Int64 width {
-			get { return _width; }
-			set { base.has_field.set_field (4, true); _width = value; }
-		}
-		public bool HasWidth {
-			get { return base.has_field.has_field (4); }
-		}
-
-		private Int64 _height; // tag 5
-		public Int64 height {
-			get { return _height; }
-			set { base.has_field.set_field (5, true); _height = value; }
-		}
-		public bool HasHeight {
-			get { return base.has_field.has_field (5); }
-		}
-
-		private Int64 _px; // tag 6
-		public Int64 px {
-			get { return _px; }
-			set { base.has_field.set_field (6, true); _px = value; }
-		}
-		public bool HasPx {
-			get { return base.has_field.has_field (6); }
-		}
-
-		private Int64 _py; // tag 7
-		public Int64 py {
-			get { return _py; }
-			set { base.has_field.set_field (7, true); _py = value; }
-		}
-		public bool HasPy {
-			get { return base.has_field.has_field (7); }
-		}
-
-		private Int64 _pz; // tag 8
-		public Int64 pz {
-			get { return _pz; }
-			set { base.has_field.set_field (8, true); _pz = value; }
-		}
-		public bool HasPz {
-			get { return base.has_field.has_field (8); }
-		}
-
-		private Int64 _dx; // tag 9
-		public Int64 dx {
-			get { return _dx; }
-			set { base.has_field.set_field (9, true); _dx = value; }
-		}
-		public bool HasDx {
-			get { return base.has_field.has_field (9); }
-		}
-
-		private Int64 _dy; // tag 10
-		public Int64 dy {
-			get { return _dy; }
-			set { base.has_field.set_field (10, true); _dy = value; }
-		}
-		public bool HasDy {
-			get { return base.has_field.has_field (10); }
-		}
-
-		private Int64 _dz; // tag 11
-		public Int64 dz {
-			get { return _dz; }
-			set { base.has_field.set_field (11, true); _dz = value; }
-		}
-		public bool HasDz {
-			get { return base.has_field.has_field (11); }
-		}
-
-		private Int64 _vel; // tag 12
-		public Int64 vel {
-			get { return _vel; }
-			set { base.has_field.set_field (12, true); _vel = value; }
-		}
-		public bool HasVel {
-			get { return base.has_field.has_field (12); }
-		}
-
-		public ball () : base(max_field_count) {}
-
-		public ball (byte[] buffer) : base(max_field_count, buffer) {
-			this.decode ();
-		}
-
-		protected override void decode () {
-			int tag = -1;
-			while (-1 != (tag = base.deserialize.read_tag ())) {
-				switch (tag) {
-				case 0:
-					this.session = base.deserialize.read_integer ();
-					break;
-				case 1:
-					this.ballid = base.deserialize.read_integer ();
-					break;
-				case 2:
-					this.radis = base.deserialize.read_integer ();
-					break;
-				case 3:
-					this.length = base.deserialize.read_integer ();
-					break;
-				case 4:
-					this.width = base.deserialize.read_integer ();
-					break;
-				case 5:
-					this.height = base.deserialize.read_integer ();
-					break;
-				case 6:
-					this.px = base.deserialize.read_integer ();
-					break;
-				case 7:
-					this.py = base.deserialize.read_integer ();
-					break;
-				case 8:
-					this.pz = base.deserialize.read_integer ();
-					break;
-				case 9:
-					this.dx = base.deserialize.read_integer ();
-					break;
-				case 10:
-					this.dy = base.deserialize.read_integer ();
-					break;
-				case 11:
-					this.dz = base.deserialize.read_integer ();
-					break;
-				case 12:
-					this.vel = base.deserialize.read_integer ();
-					break;
-				default:
-					base.deserialize.read_unknow_data ();
-					break;
+			protected override void decode () {
+				int tag = -1;
+				while (-1 != (tag = base.deserialize.read_tag ())) {
+					switch (tag) {
+					case 0:
+						this.sid = base.deserialize.read_integer ();
+						break;
+					case 1:
+						this.opcode = base.deserialize.read_integer ();
+						break;
+					default:
+						base.deserialize.read_unknow_data ();
+						break;
+					}
 				}
 			}
+
+			public override int encode (SprotoStream stream) {
+				base.serialize.open (stream);
+
+				if (base.has_field.has_field (0)) {
+					base.serialize.write_integer (this.sid, 0);
+				}
+
+				if (base.has_field.has_field (1)) {
+					base.serialize.write_integer (this.opcode, 1);
+				}
+
+				return base.serialize.close ();
+			}
 		}
 
-		public override int encode (SprotoStream stream) {
-			base.serialize.open (stream);
 
-			if (base.has_field.has_field (0)) {
-				base.serialize.write_integer (this.session, 0);
+		public class response : SprotoTypeBase {
+			private static int max_field_count = 1;
+			
+			
+			private Int64 _errorcode; // tag 0
+			public Int64 errorcode {
+				get { return _errorcode; }
+				set { base.has_field.set_field (0, true); _errorcode = value; }
+			}
+			public bool HasErrorcode {
+				get { return base.has_field.has_field (0); }
 			}
 
-			if (base.has_field.has_field (1)) {
-				base.serialize.write_integer (this.ballid, 1);
+			public response () : base(max_field_count) {}
+
+			public response (byte[] buffer) : base(max_field_count, buffer) {
+				this.decode ();
 			}
 
-			if (base.has_field.has_field (2)) {
-				base.serialize.write_integer (this.radis, 2);
+			protected override void decode () {
+				int tag = -1;
+				while (-1 != (tag = base.deserialize.read_tag ())) {
+					switch (tag) {
+					case 0:
+						this.errorcode = base.deserialize.read_integer ();
+						break;
+					default:
+						base.deserialize.read_unknow_data ();
+						break;
+					}
+				}
 			}
 
-			if (base.has_field.has_field (3)) {
-				base.serialize.write_integer (this.length, 3);
-			}
+			public override int encode (SprotoStream stream) {
+				base.serialize.open (stream);
 
-			if (base.has_field.has_field (4)) {
-				base.serialize.write_integer (this.width, 4);
-			}
+				if (base.has_field.has_field (0)) {
+					base.serialize.write_integer (this.errorcode, 0);
+				}
 
-			if (base.has_field.has_field (5)) {
-				base.serialize.write_integer (this.height, 5);
+				return base.serialize.close ();
 			}
-
-			if (base.has_field.has_field (6)) {
-				base.serialize.write_integer (this.px, 6);
-			}
-
-			if (base.has_field.has_field (7)) {
-				base.serialize.write_integer (this.py, 7);
-			}
-
-			if (base.has_field.has_field (8)) {
-				base.serialize.write_integer (this.pz, 8);
-			}
-
-			if (base.has_field.has_field (9)) {
-				base.serialize.write_integer (this.dx, 9);
-			}
-
-			if (base.has_field.has_field (10)) {
-				base.serialize.write_integer (this.dy, 10);
-			}
-
-			if (base.has_field.has_field (11)) {
-				base.serialize.write_integer (this.dz, 11);
-			}
-
-			if (base.has_field.has_field (12)) {
-				base.serialize.write_integer (this.vel, 12);
-			}
-
-			return base.serialize.close ();
 		}
+
+
 	}
 
 
-	public class born {
+	public class checkindaily {
+	
+		public class response : SprotoTypeBase {
+			private static int max_field_count = 1;
+			
+			
+			private Int64 _errorcode; // tag 0
+			public Int64 errorcode {
+				get { return _errorcode; }
+				set { base.has_field.set_field (0, true); _errorcode = value; }
+			}
+			public bool HasErrorcode {
+				get { return base.has_field.has_field (0); }
+			}
+
+			public response () : base(max_field_count) {}
+
+			public response (byte[] buffer) : base(max_field_count, buffer) {
+				this.decode ();
+			}
+
+			protected override void decode () {
+				int tag = -1;
+				while (-1 != (tag = base.deserialize.read_tag ())) {
+					switch (tag) {
+					case 0:
+						this.errorcode = base.deserialize.read_integer ();
+						break;
+					default:
+						base.deserialize.read_unknow_data ();
+						break;
+					}
+				}
+			}
+
+			public override int encode (SprotoStream stream) {
+				base.serialize.open (stream);
+
+				if (base.has_field.has_field (0)) {
+					base.serialize.write_integer (this.errorcode, 0);
+				}
+
+				return base.serialize.close ();
+			}
+		}
+
+
+	}
+
+
+	public class cmatch {
+	
+		public class response : SprotoTypeBase {
+			private static int max_field_count = 1;
+			
+			
+			private Int64 _errorcode; // tag 0
+			public Int64 errorcode {
+				get { return _errorcode; }
+				set { base.has_field.set_field (0, true); _errorcode = value; }
+			}
+			public bool HasErrorcode {
+				get { return base.has_field.has_field (0); }
+			}
+
+			public response () : base(max_field_count) {}
+
+			public response (byte[] buffer) : base(max_field_count, buffer) {
+				this.decode ();
+			}
+
+			protected override void decode () {
+				int tag = -1;
+				while (-1 != (tag = base.deserialize.read_tag ())) {
+					switch (tag) {
+					case 0:
+						this.errorcode = base.deserialize.read_integer ();
+						break;
+					default:
+						base.deserialize.read_unknow_data ();
+						break;
+					}
+				}
+			}
+
+			public override int encode (SprotoStream stream) {
+				base.serialize.open (stream);
+
+				if (base.has_field.has_field (0)) {
+					base.serialize.write_integer (this.errorcode, 0);
+				}
+
+				return base.serialize.close ();
+			}
+		}
+
+
+	}
+
+
+	public class create {
 	
 		public class response : SprotoTypeBase {
 			private static int max_field_count = 2;
@@ -258,12 +232,12 @@ namespace C2sSprotoType {
 				get { return base.has_field.has_field (0); }
 			}
 
-			private ball _b; // tag 1
-			public ball b {
-				get { return _b; }
-				set { base.has_field.set_field (1, true); _b = value; }
+			private Int64 _roomid; // tag 1
+			public Int64 roomid {
+				get { return _roomid; }
+				set { base.has_field.set_field (1, true); _roomid = value; }
 			}
-			public bool HasB {
+			public bool HasRoomid {
 				get { return base.has_field.has_field (1); }
 			}
 
@@ -281,7 +255,7 @@ namespace C2sSprotoType {
 						this.errorcode = base.deserialize.read_integer ();
 						break;
 					case 1:
-						this.b = base.deserialize.read_obj<ball> ();
+						this.roomid = base.deserialize.read_integer ();
 						break;
 					default:
 						base.deserialize.read_unknow_data ();
@@ -298,7 +272,201 @@ namespace C2sSprotoType {
 				}
 
 				if (base.has_field.has_field (1)) {
-					base.serialize.write_obj (this.b, 1);
+					base.serialize.write_integer (this.roomid, 1);
+				}
+
+				return base.serialize.close ();
+			}
+		}
+
+
+	}
+
+
+	public class first {
+	
+		public class response : SprotoTypeBase {
+			private static int max_field_count = 10;
+			
+			
+			private Int64 _errorcode; // tag 0
+			public Int64 errorcode {
+				get { return _errorcode; }
+				set { base.has_field.set_field (0, true); _errorcode = value; }
+			}
+			public bool HasErrorcode {
+				get { return base.has_field.has_field (0); }
+			}
+
+			private outbox _outbox; // tag 1
+			public outbox outbox {
+				get { return _outbox; }
+				set { base.has_field.set_field (1, true); _outbox = value; }
+			}
+			public bool HasOutbox {
+				get { return base.has_field.has_field (1); }
+			}
+
+			private inbox _inbox; // tag 2
+			public inbox inbox {
+				get { return _inbox; }
+				set { base.has_field.set_field (2, true); _inbox = value; }
+			}
+			public bool HasInbox {
+				get { return base.has_field.has_field (2); }
+			}
+
+			private string _name; // tag 3
+			public string name {
+				get { return _name; }
+				set { base.has_field.set_field (3, true); _name = value; }
+			}
+			public bool HasName {
+				get { return base.has_field.has_field (3); }
+			}
+
+			private Int64 _gold; // tag 4
+			public Int64 gold {
+				get { return _gold; }
+				set { base.has_field.set_field (4, true); _gold = value; }
+			}
+			public bool HasGold {
+				get { return base.has_field.has_field (4); }
+			}
+
+			private Int64 _diamond; // tag 5
+			public Int64 diamond {
+				get { return _diamond; }
+				set { base.has_field.set_field (5, true); _diamond = value; }
+			}
+			public bool HasDiamond {
+				get { return base.has_field.has_field (5); }
+			}
+
+			private bool _checkin_today; // tag 6
+			public bool checkin_today {
+				get { return _checkin_today; }
+				set { base.has_field.set_field (6, true); _checkin_today = value; }
+			}
+			public bool HasCheckin_today {
+				get { return base.has_field.has_field (6); }
+			}
+
+			private Int64 _checkin_cm; // tag 7
+			public Int64 checkin_cm {
+				get { return _checkin_cm; }
+				set { base.has_field.set_field (7, true); _checkin_cm = value; }
+			}
+			public bool HasCheckin_cm {
+				get { return base.has_field.has_field (7); }
+			}
+
+			private Int64 _checkin_cmcnt; // tag 8
+			public Int64 checkin_cmcnt {
+				get { return _checkin_cmcnt; }
+				set { base.has_field.set_field (8, true); _checkin_cmcnt = value; }
+			}
+			public bool HasCheckin_cmcnt {
+				get { return base.has_field.has_field (8); }
+			}
+
+			private Int64 _checkin_cnt; // tag 9
+			public Int64 checkin_cnt {
+				get { return _checkin_cnt; }
+				set { base.has_field.set_field (9, true); _checkin_cnt = value; }
+			}
+			public bool HasCheckin_cnt {
+				get { return base.has_field.has_field (9); }
+			}
+
+			public response () : base(max_field_count) {}
+
+			public response (byte[] buffer) : base(max_field_count, buffer) {
+				this.decode ();
+			}
+
+			protected override void decode () {
+				int tag = -1;
+				while (-1 != (tag = base.deserialize.read_tag ())) {
+					switch (tag) {
+					case 0:
+						this.errorcode = base.deserialize.read_integer ();
+						break;
+					case 1:
+						this.outbox = base.deserialize.read_obj<outbox> ();
+						break;
+					case 2:
+						this.inbox = base.deserialize.read_obj<inbox> ();
+						break;
+					case 3:
+						this.name = base.deserialize.read_string ();
+						break;
+					case 4:
+						this.gold = base.deserialize.read_integer ();
+						break;
+					case 5:
+						this.diamond = base.deserialize.read_integer ();
+						break;
+					case 6:
+						this.checkin_today = base.deserialize.read_boolean ();
+						break;
+					case 7:
+						this.checkin_cm = base.deserialize.read_integer ();
+						break;
+					case 8:
+						this.checkin_cmcnt = base.deserialize.read_integer ();
+						break;
+					case 9:
+						this.checkin_cnt = base.deserialize.read_integer ();
+						break;
+					default:
+						base.deserialize.read_unknow_data ();
+						break;
+					}
+				}
+			}
+
+			public override int encode (SprotoStream stream) {
+				base.serialize.open (stream);
+
+				if (base.has_field.has_field (0)) {
+					base.serialize.write_integer (this.errorcode, 0);
+				}
+
+				if (base.has_field.has_field (1)) {
+					base.serialize.write_obj (this.outbox, 1);
+				}
+
+				if (base.has_field.has_field (2)) {
+					base.serialize.write_obj (this.inbox, 2);
+				}
+
+				if (base.has_field.has_field (3)) {
+					base.serialize.write_string (this.name, 3);
+				}
+
+				if (base.has_field.has_field (4)) {
+					base.serialize.write_integer (this.gold, 4);
+				}
+
+				if (base.has_field.has_field (5)) {
+					base.serialize.write_integer (this.diamond, 5);
+				}
+
+				if (base.has_field.has_field (6)) {
+					base.serialize.write_boolean (this.checkin_today, 6);
+				}
+
+				if (base.has_field.has_field (7)) {
+					base.serialize.write_integer (this.checkin_cm, 7);
+				}
+
+				if (base.has_field.has_field (8)) {
+					base.serialize.write_integer (this.checkin_cmcnt, 8);
+				}
+
+				if (base.has_field.has_field (9)) {
+					base.serialize.write_integer (this.checkin_cnt, 9);
 				}
 
 				return base.serialize.close ();
@@ -359,18 +527,63 @@ namespace C2sSprotoType {
 	}
 
 
+	public class inbox : SprotoTypeBase {
+		private static int max_field_count = 1;
+		
+		
+		private mail _all; // tag 0
+		public mail all {
+			get { return _all; }
+			set { base.has_field.set_field (0, true); _all = value; }
+		}
+		public bool HasAll {
+			get { return base.has_field.has_field (0); }
+		}
+
+		public inbox () : base(max_field_count) {}
+
+		public inbox (byte[] buffer) : base(max_field_count, buffer) {
+			this.decode ();
+		}
+
+		protected override void decode () {
+			int tag = -1;
+			while (-1 != (tag = base.deserialize.read_tag ())) {
+				switch (tag) {
+				case 0:
+					this.all = base.deserialize.read_obj<mail> ();
+					break;
+				default:
+					base.deserialize.read_unknow_data ();
+					break;
+				}
+			}
+		}
+
+		public override int encode (SprotoStream stream) {
+			base.serialize.open (stream);
+
+			if (base.has_field.has_field (0)) {
+				base.serialize.write_obj (this.all, 0);
+			}
+
+			return base.serialize.close ();
+		}
+	}
+
+
 	public class join {
 	
 		public class request : SprotoTypeBase {
 			private static int max_field_count = 1;
 			
 			
-			private Int64 _room; // tag 0
-			public Int64 room {
-				get { return _room; }
-				set { base.has_field.set_field (0, true); _room = value; }
+			private Int64 _roomid; // tag 0
+			public Int64 roomid {
+				get { return _roomid; }
+				set { base.has_field.set_field (0, true); _roomid = value; }
 			}
-			public bool HasRoom {
+			public bool HasRoomid {
 				get { return base.has_field.has_field (0); }
 			}
 
@@ -385,7 +598,7 @@ namespace C2sSprotoType {
 				while (-1 != (tag = base.deserialize.read_tag ())) {
 					switch (tag) {
 					case 0:
-						this.room = base.deserialize.read_integer ();
+						this.roomid = base.deserialize.read_integer ();
 						break;
 					default:
 						base.deserialize.read_unknow_data ();
@@ -398,7 +611,7 @@ namespace C2sSprotoType {
 				base.serialize.open (stream);
 
 				if (base.has_field.has_field (0)) {
-					base.serialize.write_integer (this.room, 0);
+					base.serialize.write_integer (this.roomid, 0);
 				}
 
 				return base.serialize.close ();
@@ -407,43 +620,16 @@ namespace C2sSprotoType {
 
 
 		public class response : SprotoTypeBase {
-			private static int max_field_count = 4;
+			private static int max_field_count = 1;
 			
 			
-			private Int64 _session; // tag 0
-			public Int64 session {
-				get { return _session; }
-				set { base.has_field.set_field (0, true); _session = value; }
+			private Int64 _errorcode; // tag 0
+			public Int64 errorcode {
+				get { return _errorcode; }
+				set { base.has_field.set_field (0, true); _errorcode = value; }
 			}
-			public bool HasSession {
+			public bool HasErrorcode {
 				get { return base.has_field.has_field (0); }
-			}
-
-			private string _host; // tag 1
-			public string host {
-				get { return _host; }
-				set { base.has_field.set_field (1, true); _host = value; }
-			}
-			public bool HasHost {
-				get { return base.has_field.has_field (1); }
-			}
-
-			private Int64 _port; // tag 2
-			public Int64 port {
-				get { return _port; }
-				set { base.has_field.set_field (2, true); _port = value; }
-			}
-			public bool HasPort {
-				get { return base.has_field.has_field (2); }
-			}
-
-			private List<player> _players; // tag 3
-			public List<player> players {
-				get { return _players; }
-				set { base.has_field.set_field (3, true); _players = value; }
-			}
-			public bool HasPlayers {
-				get { return base.has_field.has_field (3); }
 			}
 
 			public response () : base(max_field_count) {}
@@ -457,16 +643,7 @@ namespace C2sSprotoType {
 				while (-1 != (tag = base.deserialize.read_tag ())) {
 					switch (tag) {
 					case 0:
-						this.session = base.deserialize.read_integer ();
-						break;
-					case 1:
-						this.host = base.deserialize.read_string ();
-						break;
-					case 2:
-						this.port = base.deserialize.read_integer ();
-						break;
-					case 3:
-						this.players = base.deserialize.read_obj_list<player> ();
+						this.errorcode = base.deserialize.read_integer ();
 						break;
 					default:
 						base.deserialize.read_unknow_data ();
@@ -479,19 +656,118 @@ namespace C2sSprotoType {
 				base.serialize.open (stream);
 
 				if (base.has_field.has_field (0)) {
-					base.serialize.write_integer (this.session, 0);
+					base.serialize.write_integer (this.errorcode, 0);
+				}
+
+				return base.serialize.close ();
+			}
+		}
+
+
+	}
+
+
+	public class lead {
+	
+		public class request : SprotoTypeBase {
+			private static int max_field_count = 2;
+			
+			
+			private Int64 _sid; // tag 0
+			public Int64 sid {
+				get { return _sid; }
+				set { base.has_field.set_field (0, true); _sid = value; }
+			}
+			public bool HasSid {
+				get { return base.has_field.has_field (0); }
+			}
+
+			private Int64 _card; // tag 1
+			public Int64 card {
+				get { return _card; }
+				set { base.has_field.set_field (1, true); _card = value; }
+			}
+			public bool HasCard {
+				get { return base.has_field.has_field (1); }
+			}
+
+			public request () : base(max_field_count) {}
+
+			public request (byte[] buffer) : base(max_field_count, buffer) {
+				this.decode ();
+			}
+
+			protected override void decode () {
+				int tag = -1;
+				while (-1 != (tag = base.deserialize.read_tag ())) {
+					switch (tag) {
+					case 0:
+						this.sid = base.deserialize.read_integer ();
+						break;
+					case 1:
+						this.card = base.deserialize.read_integer ();
+						break;
+					default:
+						base.deserialize.read_unknow_data ();
+						break;
+					}
+				}
+			}
+
+			public override int encode (SprotoStream stream) {
+				base.serialize.open (stream);
+
+				if (base.has_field.has_field (0)) {
+					base.serialize.write_integer (this.sid, 0);
 				}
 
 				if (base.has_field.has_field (1)) {
-					base.serialize.write_string (this.host, 1);
+					base.serialize.write_integer (this.card, 1);
 				}
 
-				if (base.has_field.has_field (2)) {
-					base.serialize.write_integer (this.port, 2);
-				}
+				return base.serialize.close ();
+			}
+		}
 
-				if (base.has_field.has_field (3)) {
-					base.serialize.write_obj (this.players, 3);
+
+		public class response : SprotoTypeBase {
+			private static int max_field_count = 1;
+			
+			
+			private Int64 _errorcode; // tag 0
+			public Int64 errorcode {
+				get { return _errorcode; }
+				set { base.has_field.set_field (0, true); _errorcode = value; }
+			}
+			public bool HasErrorcode {
+				get { return base.has_field.has_field (0); }
+			}
+
+			public response () : base(max_field_count) {}
+
+			public response (byte[] buffer) : base(max_field_count, buffer) {
+				this.decode ();
+			}
+
+			protected override void decode () {
+				int tag = -1;
+				while (-1 != (tag = base.deserialize.read_tag ())) {
+					switch (tag) {
+					case 0:
+						this.errorcode = base.deserialize.read_integer ();
+						break;
+					default:
+						base.deserialize.read_unknow_data ();
+						break;
+					}
+				}
+			}
+
+			public override int encode (SprotoStream stream) {
+				base.serialize.open (stream);
+
+				if (base.has_field.has_field (0)) {
+					base.serialize.write_integer (this.errorcode, 0);
 				}
 
 				return base.serialize.close ();
@@ -552,19 +828,146 @@ namespace C2sSprotoType {
 	}
 
 
-	public class opcode {
+	public class mail : SprotoTypeBase {
+		private static int max_field_count = 5;
+		
+		
+		private Int64 _id; // tag 0
+		public Int64 id {
+			get { return _id; }
+			set { base.has_field.set_field (0, true); _id = value; }
+		}
+		public bool HasId {
+			get { return base.has_field.has_field (0); }
+		}
+
+		private Int64 _from; // tag 1
+		public Int64 from {
+			get { return _from; }
+			set { base.has_field.set_field (1, true); _from = value; }
+		}
+		public bool HasFrom {
+			get { return base.has_field.has_field (1); }
+		}
+
+		private Int64 _to; // tag 2
+		public Int64 to {
+			get { return _to; }
+			set { base.has_field.set_field (2, true); _to = value; }
+		}
+		public bool HasTo {
+			get { return base.has_field.has_field (2); }
+		}
+
+		private string _title; // tag 3
+		public string title {
+			get { return _title; }
+			set { base.has_field.set_field (3, true); _title = value; }
+		}
+		public bool HasTitle {
+			get { return base.has_field.has_field (3); }
+		}
+
+		private string _content; // tag 4
+		public string content {
+			get { return _content; }
+			set { base.has_field.set_field (4, true); _content = value; }
+		}
+		public bool HasContent {
+			get { return base.has_field.has_field (4); }
+		}
+
+		public mail () : base(max_field_count) {}
+
+		public mail (byte[] buffer) : base(max_field_count, buffer) {
+			this.decode ();
+		}
+
+		protected override void decode () {
+			int tag = -1;
+			while (-1 != (tag = base.deserialize.read_tag ())) {
+				switch (tag) {
+				case 0:
+					this.id = base.deserialize.read_integer ();
+					break;
+				case 1:
+					this.from = base.deserialize.read_integer ();
+					break;
+				case 2:
+					this.to = base.deserialize.read_integer ();
+					break;
+				case 3:
+					this.title = base.deserialize.read_string ();
+					break;
+				case 4:
+					this.content = base.deserialize.read_string ();
+					break;
+				default:
+					base.deserialize.read_unknow_data ();
+					break;
+				}
+			}
+		}
+
+		public override int encode (SprotoStream stream) {
+			base.serialize.open (stream);
+
+			if (base.has_field.has_field (0)) {
+				base.serialize.write_integer (this.id, 0);
+			}
+
+			if (base.has_field.has_field (1)) {
+				base.serialize.write_integer (this.from, 1);
+			}
+
+			if (base.has_field.has_field (2)) {
+				base.serialize.write_integer (this.to, 2);
+			}
+
+			if (base.has_field.has_field (3)) {
+				base.serialize.write_string (this.title, 3);
+			}
+
+			if (base.has_field.has_field (4)) {
+				base.serialize.write_string (this.content, 4);
+			}
+
+			return base.serialize.close ();
+		}
+	}
+
+
+	public class match {
 	
 		public class request : SprotoTypeBase {
-			private static int max_field_count = 1;
+			private static int max_field_count = 3;
 			
 			
-			private Int64 _code; // tag 0
-			public Int64 code {
-				get { return _code; }
-				set { base.has_field.set_field (0, true); _code = value; }
+			private Int64 _rule; // tag 0
+			public Int64 rule {
+				get { return _rule; }
+				set { base.has_field.set_field (0, true); _rule = value; }
 			}
-			public bool HasCode {
+			public bool HasRule {
 				get { return base.has_field.has_field (0); }
+			}
+
+			private Int64 _mode; // tag 1
+			public Int64 mode {
+				get { return _mode; }
+				set { base.has_field.set_field (1, true); _mode = value; }
+			}
+			public bool HasMode {
+				get { return base.has_field.has_field (1); }
+			}
+
+			private Int64 _scene; // tag 2
+			public Int64 scene {
+				get { return _scene; }
+				set { base.has_field.set_field (2, true); _scene = value; }
+			}
+			public bool HasScene {
+				get { return base.has_field.has_field (2); }
 			}
 
 			public request () : base(max_field_count) {}
@@ -578,7 +981,13 @@ namespace C2sSprotoType {
 				while (-1 != (tag = base.deserialize.read_tag ())) {
 					switch (tag) {
 					case 0:
-						this.code = base.deserialize.read_integer ();
+						this.rule = base.deserialize.read_integer ();
+						break;
+					case 1:
+						this.mode = base.deserialize.read_integer ();
+						break;
+					case 2:
+						this.scene = base.deserialize.read_integer ();
 						break;
 					default:
 						base.deserialize.read_unknow_data ();
@@ -591,7 +1000,15 @@ namespace C2sSprotoType {
 				base.serialize.open (stream);
 
 				if (base.has_field.has_field (0)) {
-					base.serialize.write_integer (this.code, 0);
+					base.serialize.write_integer (this.rule, 0);
+				}
+
+				if (base.has_field.has_field (1)) {
+					base.serialize.write_integer (this.mode, 1);
+				}
+
+				if (base.has_field.has_field (2)) {
+					base.serialize.write_integer (this.scene, 2);
 				}
 
 				return base.serialize.close ();
@@ -644,6 +1061,51 @@ namespace C2sSprotoType {
 		}
 
 
+	}
+
+
+	public class outbox : SprotoTypeBase {
+		private static int max_field_count = 1;
+		
+		
+		private mail _all; // tag 0
+		public mail all {
+			get { return _all; }
+			set { base.has_field.set_field (0, true); _all = value; }
+		}
+		public bool HasAll {
+			get { return base.has_field.has_field (0); }
+		}
+
+		public outbox () : base(max_field_count) {}
+
+		public outbox (byte[] buffer) : base(max_field_count, buffer) {
+			this.decode ();
+		}
+
+		protected override void decode () {
+			int tag = -1;
+			while (-1 != (tag = base.deserialize.read_tag ())) {
+				switch (tag) {
+				case 0:
+					this.all = base.deserialize.read_obj<mail> ();
+					break;
+				default:
+					base.deserialize.read_unknow_data ();
+					break;
+				}
+			}
+		}
+
+		public override int encode (SprotoStream stream) {
+			base.serialize.open (stream);
+
+			if (base.has_field.has_field (0)) {
+				base.serialize.write_obj (this.all, 0);
+			}
+
+			return base.serialize.close ();
+		}
 	}
 
 
@@ -741,25 +1203,34 @@ namespace C2sSprotoType {
 
 
 	public class player : SprotoTypeBase {
-		private static int max_field_count = 2;
+		private static int max_field_count = 3;
 		
 		
-		private Int64 _session; // tag 0
-		public Int64 session {
-			get { return _session; }
-			set { base.has_field.set_field (0, true); _session = value; }
+		private string _name; // tag 0
+		public string name {
+			get { return _name; }
+			set { base.has_field.set_field (0, true); _name = value; }
 		}
-		public bool HasSession {
+		public bool HasName {
 			get { return base.has_field.has_field (0); }
 		}
 
-		private List<ball> _balls; // tag 1
-		public List<ball> balls {
-			get { return _balls; }
-			set { base.has_field.set_field (1, true); _balls = value; }
+		private Int64 _orientation; // tag 1
+		public Int64 orientation {
+			get { return _orientation; }
+			set { base.has_field.set_field (1, true); _orientation = value; }
 		}
-		public bool HasBalls {
+		public bool HasOrientation {
 			get { return base.has_field.has_field (1); }
+		}
+
+		private Int64 _sid; // tag 2
+		public Int64 sid {
+			get { return _sid; }
+			set { base.has_field.set_field (2, true); _sid = value; }
+		}
+		public bool HasSid {
+			get { return base.has_field.has_field (2); }
 		}
 
 		public player () : base(max_field_count) {}
@@ -773,10 +1244,13 @@ namespace C2sSprotoType {
 			while (-1 != (tag = base.deserialize.read_tag ())) {
 				switch (tag) {
 				case 0:
-					this.session = base.deserialize.read_integer ();
+					this.name = base.deserialize.read_string ();
 					break;
 				case 1:
-					this.balls = base.deserialize.read_obj_list<ball> ();
+					this.orientation = base.deserialize.read_integer ();
+					break;
+				case 2:
+					this.sid = base.deserialize.read_integer ();
 					break;
 				default:
 					base.deserialize.read_unknow_data ();
@@ -789,11 +1263,76 @@ namespace C2sSprotoType {
 			base.serialize.open (stream);
 
 			if (base.has_field.has_field (0)) {
-				base.serialize.write_integer (this.session, 0);
+				base.serialize.write_string (this.name, 0);
 			}
 
 			if (base.has_field.has_field (1)) {
-				base.serialize.write_obj (this.balls, 1);
+				base.serialize.write_integer (this.orientation, 1);
+			}
+
+			if (base.has_field.has_field (2)) {
+				base.serialize.write_integer (this.sid, 2);
+			}
+
+			return base.serialize.close ();
+		}
+	}
+
+
+	public class settlement : SprotoTypeBase {
+		private static int max_field_count = 2;
+		
+		
+		private Int64 _uid; // tag 0
+		public Int64 uid {
+			get { return _uid; }
+			set { base.has_field.set_field (0, true); _uid = value; }
+		}
+		public bool HasUid {
+			get { return base.has_field.has_field (0); }
+		}
+
+		private Int64 _gold; // tag 1
+		public Int64 gold {
+			get { return _gold; }
+			set { base.has_field.set_field (1, true); _gold = value; }
+		}
+		public bool HasGold {
+			get { return base.has_field.has_field (1); }
+		}
+
+		public settlement () : base(max_field_count) {}
+
+		public settlement (byte[] buffer) : base(max_field_count, buffer) {
+			this.decode ();
+		}
+
+		protected override void decode () {
+			int tag = -1;
+			while (-1 != (tag = base.deserialize.read_tag ())) {
+				switch (tag) {
+				case 0:
+					this.uid = base.deserialize.read_integer ();
+					break;
+				case 1:
+					this.gold = base.deserialize.read_integer ();
+					break;
+				default:
+					base.deserialize.read_unknow_data ();
+					break;
+				}
+			}
+		}
+
+		public override int encode (SprotoStream stream) {
+			base.serialize.open (stream);
+
+			if (base.has_field.has_field (0)) {
+				base.serialize.write_integer (this.uid, 0);
+			}
+
+			if (base.has_field.has_field (1)) {
+				base.serialize.write_integer (this.gold, 1);
 			}
 
 			return base.serialize.close ();

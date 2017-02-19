@@ -6,10 +6,21 @@ using System.Collections.Generic;
 public class C2sProtocol : ProtocolBase {
 	public static  C2sProtocol Instance = new C2sProtocol();
 	private C2sProtocol() {
-		Protocol.SetProtocol<born> (born.Tag);
-		Protocol.SetResponse<C2sSprotoType.born.response> (born.Tag);
+		Protocol.SetProtocol<call> (call.Tag);
+		Protocol.SetRequest<C2sSprotoType.call.request> (call.Tag);
+		Protocol.SetResponse<C2sSprotoType.call.response> (call.Tag);
 
-		Protocol.SetProtocol<die> (die.Tag);
+		Protocol.SetProtocol<checkindaily> (checkindaily.Tag);
+		Protocol.SetResponse<C2sSprotoType.checkindaily.response> (checkindaily.Tag);
+
+		Protocol.SetProtocol<cmatch> (cmatch.Tag);
+		Protocol.SetResponse<C2sSprotoType.cmatch.response> (cmatch.Tag);
+
+		Protocol.SetProtocol<create> (create.Tag);
+		Protocol.SetResponse<C2sSprotoType.create.response> (create.Tag);
+
+		Protocol.SetProtocol<first> (first.Tag);
+		Protocol.SetResponse<C2sSprotoType.first.response> (first.Tag);
 
 		Protocol.SetProtocol<handshake> (handshake.Tag);
 		Protocol.SetResponse<C2sSprotoType.handshake.response> (handshake.Tag);
@@ -18,21 +29,37 @@ public class C2sProtocol : ProtocolBase {
 		Protocol.SetRequest<C2sSprotoType.join.request> (join.Tag);
 		Protocol.SetResponse<C2sSprotoType.join.response> (join.Tag);
 
+		Protocol.SetProtocol<lead> (lead.Tag);
+		Protocol.SetRequest<C2sSprotoType.lead.request> (lead.Tag);
+		Protocol.SetResponse<C2sSprotoType.lead.response> (lead.Tag);
+
 		Protocol.SetProtocol<leave> (leave.Tag);
 		Protocol.SetResponse<C2sSprotoType.leave.response> (leave.Tag);
 
-		Protocol.SetProtocol<opcode> (opcode.Tag);
-		Protocol.SetRequest<C2sSprotoType.opcode.request> (opcode.Tag);
-		Protocol.SetResponse<C2sSprotoType.opcode.response> (opcode.Tag);
+		Protocol.SetProtocol<match> (match.Tag);
+		Protocol.SetRequest<C2sSprotoType.match.request> (match.Tag);
+		Protocol.SetResponse<C2sSprotoType.match.response> (match.Tag);
 
 	}
 
-	public class born {
+	public class call {
+		public const int Tag = 8;
+	}
+
+	public class checkindaily {
+		public const int Tag = 21;
+	}
+
+	public class cmatch {
 		public const int Tag = 3;
 	}
 
-	public class die {
-		public const int Tag = 6;
+	public class create {
+		public const int Tag = 4;
+	}
+
+	public class first {
+		public const int Tag = 20;
 	}
 
 	public class handshake {
@@ -40,15 +67,19 @@ public class C2sProtocol : ProtocolBase {
 	}
 
 	public class join {
-		public const int Tag = 2;
+		public const int Tag = 5;
+	}
+
+	public class lead {
+		public const int Tag = 7;
 	}
 
 	public class leave {
-		public const int Tag = 4;
+		public const int Tag = 6;
 	}
 
-	public class opcode {
-		public const int Tag = 5;
+	public class match {
+		public const int Tag = 2;
 	}
 
 }

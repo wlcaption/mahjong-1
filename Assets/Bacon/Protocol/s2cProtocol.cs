@@ -6,34 +6,40 @@ using System.Collections.Generic;
 public class S2cProtocol : ProtocolBase {
 	public static  S2cProtocol Instance = new S2cProtocol();
 	private S2cProtocol() {
-		Protocol.SetProtocol<born> (born.Tag);
-		Protocol.SetRequest<S2cSprotoType.born.request> (born.Tag);
-		Protocol.SetResponse<S2cSprotoType.born.response> (born.Tag);
+		Protocol.SetProtocol<call> (call.Tag);
+		Protocol.SetRequest<S2cSprotoType.call.request> (call.Tag);
 
-		Protocol.SetProtocol<die> (die.Tag);
-		Protocol.SetRequest<S2cSprotoType.die.request> (die.Tag);
-		Protocol.SetResponse<S2cSprotoType.die.response> (die.Tag);
+		Protocol.SetProtocol<gang> (gang.Tag);
+		Protocol.SetRequest<S2cSprotoType.gang.request> (gang.Tag);
 
 		Protocol.SetProtocol<handshake> (handshake.Tag);
 		Protocol.SetResponse<S2cSprotoType.handshake.response> (handshake.Tag);
 
-		Protocol.SetProtocol<join> (join.Tag);
-		Protocol.SetRequest<S2cSprotoType.join.request> (join.Tag);
-		Protocol.SetResponse<S2cSprotoType.join.response> (join.Tag);
+		Protocol.SetProtocol<hu> (hu.Tag);
+		Protocol.SetRequest<S2cSprotoType.hu.request> (hu.Tag);
 
 		Protocol.SetProtocol<leave> (leave.Tag);
 		Protocol.SetRequest<S2cSprotoType.leave.request> (leave.Tag);
 		Protocol.SetResponse<S2cSprotoType.leave.response> (leave.Tag);
 
-		Protocol.SetProtocol<opcode> (opcode.Tag);
+		Protocol.SetProtocol<match> (match.Tag);
+		Protocol.SetRequest<S2cSprotoType.match.request> (match.Tag);
+		Protocol.SetResponse<S2cSprotoType.match.response> (match.Tag);
+
+		Protocol.SetProtocol<peng> (peng.Tag);
+		Protocol.SetRequest<S2cSprotoType.peng.request> (peng.Tag);
+
+		Protocol.SetProtocol<take_turn> (take_turn.Tag);
+		Protocol.SetRequest<S2cSprotoType.take_turn.request> (take_turn.Tag);
+		Protocol.SetResponse<S2cSprotoType.take_turn.response> (take_turn.Tag);
 
 	}
 
-	public class born {
-		public const int Tag = 3;
+	public class call {
+		public const int Tag = 8;
 	}
 
-	public class die {
+	public class gang {
 		public const int Tag = 6;
 	}
 
@@ -41,16 +47,24 @@ public class S2cProtocol : ProtocolBase {
 		public const int Tag = 1;
 	}
 
-	public class join {
-		public const int Tag = 2;
+	public class hu {
+		public const int Tag = 7;
 	}
 
 	public class leave {
-		public const int Tag = 4;
+		public const int Tag = 3;
 	}
 
-	public class opcode {
+	public class match {
+		public const int Tag = 2;
+	}
+
+	public class peng {
 		public const int Tag = 5;
+	}
+
+	public class take_turn {
+		public const int Tag = 4;
 	}
 
 }

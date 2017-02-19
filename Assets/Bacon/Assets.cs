@@ -1,21 +1,25 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using UnityEngine;
 
 namespace Bacon
 {
-    public class Assets
+    class Assets
     {
-        public Assets()
+        public GameObject Load(string path)
         {
-        }
+            //    string path = "Prefabs/Ball/";
+            //    string pathname = path + name;
 
-        public UnityEngine.GameObject GetCard(string name)
-        {
-            string path = "Prefabs/App/";
-            string pathname = path + name;
+            //    //string pathname2 = "file///" + Application.dataPath + path + name + ".prefab";
+            //    //string pathname2 = Application.dataPath + path + name + ".prefab";
+            //    //AssetBundle b = AssetBundle.LoadFromFile(pathname2);
 
-            Object o = Resources.Load(pathname, typeof(GameObject));
-            GameObject go = GameObject.Instantiate(o) as GameObject;
-            return go;
+            //    Object o = Resources.Load(pathname, typeof(GameObject));
+            //    GameObject go = Instantiate(o) as GameObject;
+            return null;
         }
     }
 }

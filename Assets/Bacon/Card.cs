@@ -6,36 +6,23 @@ using System.Text;
 using UnityEngine;
 
 namespace Bacon {
-    public class Card : Actor {
-        private int _value;
-        private int _type;
-        private int _num;
-        private int _idx;
+    class Card : Maria.Actor {
 
-        public Card(Context ctx, Controller controller, int value)
-            : base(ctx, controller) {
-            _value = value;
-            _ctx.EnqueueRenderQueue(RenderInitCard);
+        protected long _value;
+        protected int _type;
+        protected int _num;
+        protected int _idx;
+
+        public Card(Context ctx, Controller controller, GameObject go)
+            : base(ctx, controller, go){
         }
 
-        public void SetIdx(int idx) {
-            _idx = idx;
-        }
+        public long Value { set; get; }
+        public int Type { set; get; }
+        public int Num { set; get; }
+        public int Idx { set; get; }
 
-        public int GetIdx() {
-            return _idx;
-        }
 
-        public void SetPosition() {
-        }
 
-        private void RenderInitCard() {
-
-            string path = "Prefabs/App/";
-            string pathname = path + string.Format("");
-
-            UnityEngine.Object o = Resources.Load(pathname, typeof(GameObject));
-            _go = GameObject.Instantiate(o) as GameObject;
-        }
     }
 }
