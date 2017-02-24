@@ -18,7 +18,7 @@ public class RootBehaviour : MonoBehaviour {
         if (_app == null) {
             _app = GameObject.Find("App").GetComponent<App>();
             if (_app == null) {
-                Debug.Assert(false, "why ");
+                UnityEngine.Debug.Assert(false, "why ");
                 return null;
             } else {
                 return _app;

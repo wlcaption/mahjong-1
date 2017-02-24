@@ -9,62 +9,30 @@ namespace Bacon {
 
         protected Context _ctx = null;
         protected GameController _controller = null;
-        protected uint _session = 0;
-        protected uint _sid = 0;
+        protected GameService _service = null;
+        protected int _idx;
+        protected List<Card> _takecards = new List<Card>();
+        protected List<Card> _cards = new List<Card>();
+        protected List<Card> _leadcards = new List<Card>();
 
-        //protected 
-        
-        
-
-        public Player(Context ctx, GameController controller, uint session) {
+        public Player(Context ctx, GameController controller) {
             _ctx = ctx;
             _controller = controller;
-            _session = session;
+
 
             //EventListenerCmd listener1 = new EventListenerCmd(MyEventCmd.EVENT_SETUPG_TANK, SetupTank);
             //_ctx.EventDispatcher.AddCmdEventListener(listener1);
         }
 
-        public uint Session { get { return _session; } set { _session = value; } }
+        public Player(Context ctx, GameService service) {
+            _ctx = ctx;
+            _service = service;
+        }
 
-        
+        public int Idx { get { return _idx; } set { _idx = value; } }
 
-        //public byte[] PackBall() {
-        //    int idx = 0;
-        //    //byte[] buf = new byte[32 * _myballs.Count];
-        //    //foreach (var ball in _myballs) {
-        //    //    NetPack.Packll(buf, 32 * idx + 0, ball.Value.Id);
-        //    //    byte[] pos = ball.Value.PackPos();
-        //    //    byte[] dir = ball.Value.PackDir();
-        //    //    Array.Copy(pos, 0, buf, 28 * idx + 8, pos.Length);
-        //    //    Array.Copy(dir, 0, buf, 28 * idx + 20, dir.Length);
-        //    //    idx++;
-        //    //}
-        //    return buf;
-        //}
+        public virtual void SetupCall(long opcode, long countdown) { }
 
-        //public void ChangeDir(Vector3 dir) {
-        //    for (int i = 0; i < _myballs.Count; i++) {
-        //        var ball = _myballs[i];
-        //        ball.Dir = dir;
-        //    }
-        //}
-
-        //public Vector3 GetPivot() {
-        //    Vector3 pivot = Vector3.zero;
-        //    if (_myballs.Count > 0) {
-        //        foreach (var item in _myballs) {
-        //            pivot += item.Value.Pos;
-        //        }
-        //        return pivot * (1 / _myballs.Count);
-        //    } else {
-        //        return new Vector3(10, 20, 10);
-        //    }
-            
-        //}
-
-        //public void SetupTank(EventCmd e) {
-        //    _tank = 
-        //}
+        public virtual void Boxing(List<long> cs, Dictionary<long, Card> cards) { }
     }
 }

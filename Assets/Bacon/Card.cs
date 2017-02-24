@@ -8,21 +8,30 @@ using UnityEngine;
 namespace Bacon {
     class Card : Maria.Actor {
 
-        protected long _value;
-        protected int _type;
+        public enum CardType {
+            Crak = 1,
+            Bam = 2,
+            Dot = 3,
+        }
+
+        protected long     _value;
+        protected CardType _type;
         protected int _num;
         protected int _idx;
+        protected Player _player = null;
 
         public Card(Context ctx, Controller controller, GameObject go)
             : base(ctx, controller, go){
         }
 
-        public long Value { set; get; }
-        public int Type { set; get; }
-        public int Num { set; get; }
-        public int Idx { set; get; }
+        public long Value { set { _value = value; }  get { return _value; } }
+        public CardType Type { set { _type = value; } get { return _type; } }
+        public int Num { set { _num = value; } get { return _num; } }
+        public int Idx { set { _idx = value; } get { return _idx; } }
 
-
+        public void SetPlayer (Player player) { _player = player; }
+        public void ClearPlayer() { _player = null; }
+        public Player GetPlayer() { return _player; }
 
     }
 }

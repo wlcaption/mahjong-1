@@ -28,7 +28,7 @@ public class UIRoot : MonoBehaviour {
         var pwgo = _LoginPanel.transform.FindChild("password").gameObject;
         string password = pwgo.GetComponentInChildren<InputField>().text;
 
-        if (username != null && password != null) {
+        if (username != null && username.Length > 0 && password != null && password.Length > 0) {
 
             Maria.Message msg = new Maria.Message();
             msg["username"] = username;

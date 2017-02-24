@@ -25,8 +25,7 @@ public class App : MonoBehaviour {
                 _app.Update();
             }
         } catch (System.Exception ex) {
-            Debug.LogError(string.Format("ex message: {0}", ex.Message));
-            Debug.LogError(ex.StackTrace);
+            UnityEngine.Debug.LogException(ex);
         }
     }
 

@@ -51,7 +51,7 @@ namespace Bacon {
 
         public void Handshake(SprotoTypeBase responseObj) {
             C2sSprotoType.handshake.response o = responseObj as C2sSprotoType.handshake.response;
-            Debug.Log(string.Format("handshake {0}", o.errorcode));
+            UnityEngine.Debug.Log(string.Format("handshake {0}", o.errorcode));
             int lag = (int)(_ts.GetTimeMs() - _last); // ms
             _lag = lag;
         }

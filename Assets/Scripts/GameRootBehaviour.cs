@@ -10,9 +10,9 @@ public class GameRootBehaviour : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        Debug.Assert(_root != null);
-        Debug.Assert(_view != null);
-        Debug.Assert(_map != null);
+        UnityEngine.Debug.Assert(_root != null);
+        UnityEngine.Debug.Assert(_view != null);
+        UnityEngine.Debug.Assert(_map != null);
         transform.position = new Vector3(100, 0.0f, 100);
         //var com = _root.GetComponent<RootBehaviour>();
         //Maria.Command cmd1 = new Maria.Command(MyEventCmd.EVENT_SETUP_SCENE, gameObject);

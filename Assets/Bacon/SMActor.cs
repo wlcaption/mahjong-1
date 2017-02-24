@@ -19,13 +19,13 @@ namespace Bacon {
         private void RenderOnLoadScene() {
             if (_queue.Count > 0) {
                 string name = _queue.Dequeue();
-                Debug.Assert(name.Length > 0);
+                UnityEngine.Debug.Assert(name.Length > 0);
                 SceneManager.LoadSceneAsync(name);
 
                 //SceneManager.activeSceneChanged += ActiveSceneChanged;
                 //SceneManager.sceneLoaded += SceneLoaded;
             } else {
-                Debug.LogError("no exits");
+                UnityEngine.Debug.LogError("no exits");
             }
         }
 

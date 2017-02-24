@@ -25,7 +25,16 @@ namespace Bacon {
         public static uint EVENT_HU = 202;
         public static uint EVENT_GUO = 203;
 
-        public static uint EVENT_SETUP_CARD = 204;
+        public static uint EVENT_SETUP_SCENE = 204;
+        public static uint EVENT_SETUP_CARD = 205;
+        public static uint EVENT_SETUP_GUIROOT = 206;
+
+        public static uint EVENT_SETUP_BOTTOMPLAYER = 207;
+        public static uint EVENT_SETUP_TOPPLAYER = 208;
+        public static uint EVENT_SETUP_LEFTPLAYER = 209;
+        public static uint EVENT_SETUP_RIGHTPLAYER = 210;
+
+        public static uint EVENT_LOADEDCARDS = 211;
 
         public MyEventCmd(uint cmd) : base(cmd) {
         }

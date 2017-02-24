@@ -64,7 +64,7 @@ public static class TableParser
             }
             catch (Exception ex)
             {
-                Debug.LogError(string.Format("ParseError: Row={0} Column={1} Name={2} Want={3} Get={4}",
+                UnityEngine.Debug.LogError(string.Format("ParseError: Row={0} Column={1} Name={2} Want={3} Get={4}",
                     idx + 1,
                     pair.Key + 1,
                     pair.Value.Name,
@@ -113,17 +113,17 @@ public static class TableParser
         TextAsset textAsset = (TextAsset)Resources.Load("Table/" + name);
         if (textAsset == null)
         {
-            Debug.LogError("无法加载表格文件：" + name);
+            UnityEngine.Debug.LogError("无法加载表格文件：" + name);
             return null;
         }
 
-        //Debug.Log("Data =" + textAsset.text);
+        //UnityEngine.Debug.Log("Data =" + textAsset.text);
 
         // try parse the table lines.
         string[] lines = textAsset.text.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
         if (lines.Length < 3)
         {
-            Debug.LogError("表格文件行数错误，【1】属性名称【2】变量名称【3-...】值：" + name);
+            UnityEngine.Debug.LogError("表格文件行数错误，【1】属性名称【2】变量名称【3-...】值：" + name);
             return null;
         }
 

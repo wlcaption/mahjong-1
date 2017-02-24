@@ -11,10 +11,10 @@ public class Test : MonoBehaviour {
     // Use this for initialization
     void Start () {
         byte[] xx = Maria.Encrypt.Crypt.randomkey();
-        Debug.Log(ASCIIEncoding.ASCII.GetString(xx));
+        UnityEngine.Debug.Log(ASCIIEncoding.ASCII.GetString(xx));
 
         int r = fntest();
-        Debug.Log(r);
+        UnityEngine.Debug.Log(r);
 	}
 	
 	// Update is called once per frame

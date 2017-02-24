@@ -14,7 +14,7 @@ namespace Maria  {
         protected string _name = string.Empty;
 
         public Controller(Context ctx) {
-            Debug.Assert(ctx != null);
+            UnityEngine.Debug.Assert(ctx != null);
             _ctx = ctx;
         }
 

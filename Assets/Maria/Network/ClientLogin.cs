@@ -68,7 +68,7 @@ namespace Maria.Network {
             } else if (_step == 2) {
                 byte[] key = Crypt.base64decode(buffer);
                 _secret = Crypt.dhsecret(key, _clientkey);
-                Debug.Log("sceret is " + Encoding.ASCII.GetString(Crypt.hexencode(_secret)));
+                UnityEngine.Debug.Log("sceret is " + Encoding.ASCII.GetString(Crypt.hexencode(_secret)));
                 byte[] hmac = Crypt.hmac64(_challenge, _secret);
                 var buf = Crypt.base64encode(hmac);
                 _sock.SendLine(buf, 0, buf.Length);

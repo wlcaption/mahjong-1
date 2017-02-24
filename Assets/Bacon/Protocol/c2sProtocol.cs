@@ -17,7 +17,12 @@ public class C2sProtocol : ProtocolBase {
 		Protocol.SetResponse<C2sSprotoType.cmatch.response> (cmatch.Tag);
 
 		Protocol.SetProtocol<create> (create.Tag);
+		Protocol.SetRequest<C2sSprotoType.create.request> (create.Tag);
 		Protocol.SetResponse<C2sSprotoType.create.response> (create.Tag);
+
+		Protocol.SetProtocol<dice> (dice.Tag);
+		Protocol.SetRequest<C2sSprotoType.dice.request> (dice.Tag);
+		Protocol.SetResponse<C2sSprotoType.dice.response> (dice.Tag);
 
 		Protocol.SetProtocol<first> (first.Tag);
 		Protocol.SetResponse<C2sSprotoType.first.response> (first.Tag);
@@ -40,10 +45,18 @@ public class C2sProtocol : ProtocolBase {
 		Protocol.SetRequest<C2sSprotoType.match.request> (match.Tag);
 		Protocol.SetResponse<C2sSprotoType.match.response> (match.Tag);
 
+		Protocol.SetProtocol<shuffle> (shuffle.Tag);
+		Protocol.SetRequest<C2sSprotoType.shuffle.request> (shuffle.Tag);
+		Protocol.SetResponse<C2sSprotoType.shuffle.response> (shuffle.Tag);
+
+		Protocol.SetProtocol<step> (step.Tag);
+		Protocol.SetRequest<C2sSprotoType.step.request> (step.Tag);
+		Protocol.SetResponse<C2sSprotoType.step.response> (step.Tag);
+
 	}
 
 	public class call {
-		public const int Tag = 8;
+		public const int Tag = 7;
 	}
 
 	public class checkindaily {
@@ -56,6 +69,10 @@ public class C2sProtocol : ProtocolBase {
 
 	public class create {
 		public const int Tag = 4;
+	}
+
+	public class dice {
+		public const int Tag = 9;
 	}
 
 	public class first {
@@ -71,7 +88,7 @@ public class C2sProtocol : ProtocolBase {
 	}
 
 	public class lead {
-		public const int Tag = 7;
+		public const int Tag = 10;
 	}
 
 	public class leave {
@@ -80,6 +97,14 @@ public class C2sProtocol : ProtocolBase {
 
 	public class match {
 		public const int Tag = 2;
+	}
+
+	public class shuffle {
+		public const int Tag = 8;
+	}
+
+	public class step {
+		public const int Tag = 11;
 	}
 
 }

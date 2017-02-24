@@ -48,7 +48,7 @@ public class LoginPanelBehaviour : MonoBehaviour {
             _password = GetPassword();
             if (_username.Length < 4)
             {
-                Debug.Log("you should have more lenth.");
+                UnityEngine.Debug.Log("you should have more lenth.");
                 return;
             }
             if (_password.Length < 4)

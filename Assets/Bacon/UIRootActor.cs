@@ -13,12 +13,6 @@ namespace Bacon {
 
             EventListenerCmd listener1 = new EventListenerCmd(MyEventCmd.EVENT_SETUP_UIROOT, SetupUIRoot);
             _ctx.EventDispatcher.AddCmdEventListener(listener1);
-
-            EventListenerCmd listener2 = new EventListenerCmd(MyEventCmd.EVENT_ONBORN, OnBorn);
-            _ctx.EventDispatcher.AddCmdEventListener(listener2);
-
-            EventListenerCmd listener3 = new EventListenerCmd(MyEventCmd.EVENT_ONJOIN, OnJoin);
-            _ctx.EventDispatcher.AddCmdEventListener(listener3);
         }
 
         public override void Update(float delta) {
@@ -28,14 +22,6 @@ namespace Bacon {
 
         public void SetupUIRoot(EventCmd e) {
             _go = e.Orgin;
-        }
-
-        public void OnBorn(EventCmd e) {
-            //_ctx.SendReq<C2sProtocol.born>(C2sProtocol.born.Tag, null);
-        }
-
-        public void OnJoin(EventCmd e) {
-            //_ctx.UdpAuth(null);
         }
 
         public void Ping() {

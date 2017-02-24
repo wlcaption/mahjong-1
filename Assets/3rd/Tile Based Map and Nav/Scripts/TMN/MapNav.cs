@@ -310,7 +310,7 @@ public class MapNav : MonoBehaviour
 		if (nodesCache.Length == 0) return;
 		if (nodesCache.Length != nodesXCount * nodesYCount)
 		{
-			Debug.LogWarning(string.Format("The number of cached nodes {0} != {1} which was expected", nodesCache.Length, (nodesXCount * nodesYCount)));
+			UnityEngine.Debug.LogWarning(string.Format("The number of cached nodes {0} != {1} which was expected", nodesCache.Length, (nodesXCount * nodesYCount)));
 			return;
 		}
 

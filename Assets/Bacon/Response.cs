@@ -13,10 +13,12 @@ namespace Maria.Network {
             _cs = cs;
 
             _cs.RegisterResponse(C2sProtocol.handshake.Tag, handshake);
-            _cs.RegisterResponse(C2sProtocol.join.Tag, join);
-            //_cs.RegisterResponse(C2sProtocol.born.Tag, born);
-            //_cs.RegisterResponse(C2sProtocol.opcode.Tag, opcode);
             _cs.RegisterResponse(C2sProtocol.match.Tag, match);
+            _cs.RegisterResponse(C2sProtocol.create.Tag, create);
+            _cs.RegisterResponse(C2sProtocol.join.Tag, join);
+            _cs.RegisterResponse(C2sProtocol.leave.Tag, leave);
+            _cs.RegisterResponse(C2sProtocol.leave.Tag, lead);
+
         }
 
         public void handshake(uint session, SprotoTypeBase responseObj) {
@@ -32,25 +34,29 @@ namespace Maria.Network {
         }
 
         public void create(uint session, SprotoTypeBase responseObj) {
-            Bacon.MainController ctr = _ctx.Top() as Bacon.MainController;
-            ctr.Create(responseObj);
+            GameService service = (GameService)_ctx.QueryService(GameService.Name);
+            UnityEngine.Debug.Assert(service != null);
+            service.Create(responseObj);
         }
 
-        // 进入房间这个协议, authudp
         public void join(uint session, SprotoTypeBase responseObj) {
-            Bacon.MainController ctr = _ctx.Top() as Bacon.MainController;
-            ctr.Join(responseObj);
+            GameService service = (GameService)_ctx.QueryService(GameService.Name);
+            if (service != null) {
+                service.Join(responseObj);
+            }
         }
 
         public void leave(uint session, SprotoTypeBase responseObj) {
+            GameService service = (GameService)_ctx.QueryService(GameService.Name);
+            if (service != null) {
+                service.Leave(responseObj);
+            }
         }
 
         public void lead(uint session, SprotoTypeBase responseObj) {
-
         }
 
         public void call(uint session, SprotoTypeBase responseObj) {
-
         }
     }
 }

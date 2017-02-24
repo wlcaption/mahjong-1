@@ -62,12 +62,12 @@ namespace Bacon {
                 Vector3 max = new Vector3(maxm.m03, maxm.m13, maxm.m23);
                 _aabb = new AABB(min, max);
             } else {
-                Debug.LogError("_go is empty.");
+                UnityEngine.Debug.LogError("_go is empty.");
             }
         }
 
         public void InitView(Vector3 pos) {
-            Debug.Assert(false);
+            UnityEngine.Debug.Assert(false);
 
             _centerPos.x = pos.x;
             _centerPos.z = pos.z;
@@ -79,7 +79,7 @@ namespace Bacon {
             _viewMat = _centerMat * r;
 
             _depth = _centerPos.y - pos.y;
-            Debug.Assert(_depth == 15);
+            UnityEngine.Debug.Assert(_depth == 15);
 
             float yMax = Mathf.Tan(_fov / 2.0f / 180 * Mathf.PI) * _depth;
             float yMin = -yMax;
@@ -110,7 +110,7 @@ namespace Bacon {
         }
 
         public void Contains(Vector3 pivot) {
-            Debug.Assert(false);
+            UnityEngine.Debug.Assert(false);
             float padding = 2;
             float dx = 0, dy = 0, dz = 0;
             if (pivot.x + padding < _max.x) {

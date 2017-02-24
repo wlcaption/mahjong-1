@@ -20,7 +20,7 @@ namespace Bacon {
 
         public void Login(EventCmd e) {
             //string str = "login controller login.";
-            //Debug.Log(str);
+            //UnityEngine.Debug.Log(str);
 
             Message msg = e.Msg;
             string server = (string)msg["server"];

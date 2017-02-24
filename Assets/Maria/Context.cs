@@ -20,6 +20,7 @@ namespace Maria {
         protected Config _config = null;
         protected TimeSync _ts = null;
         protected SharpC _sharpc = null;
+        protected Debug _logger = null;
 
         protected EventDispatcher _dispatcher = null;
         protected Dictionary<string, Controller> _hash = new Dictionary<string, Controller>();
@@ -40,6 +41,7 @@ namespace Maria {
             _config = config;
             _ts = ts;
             _sharpc = new SharpC();
+            _logger = new Debug(this);
 
             _dispatcher = new EventDispatcher(this);
 
@@ -110,17 +112,19 @@ namespace Maria {
 
         public User U { get { return _user; } }
 
+        public Debug Logger { get { return _logger; } }
+
         public T GetController<T>(string name) where T : Controller {
             try {
                 if (_hash.ContainsKey(name)) {
                     Controller controller = _hash[name];
                     return controller as T;
                 } else {
-                    Debug.LogError(string.Format("{0} no't exitstence", name));
+                    UnityEngine.Debug.LogError(string.Format("{0} no't exitstence", name));
                     return null;
                 }
             } catch (KeyNotFoundException ex) {
-                Debug.LogError(ex.Message);
+                UnityEngine.Debug.LogError(ex.Message);
                 return null;
             }
         }
@@ -148,8 +152,8 @@ namespace Maria {
                 string gip = dummy.Substring(_2 + 1, _3 - _2 - 1);
                 int gpt = Int32.Parse(dummy.Substring(_3 + 1));
 
-                Debug.Log(string.Format("uid: {0}, sid: {1}", uid, sid));
-                Debug.Log("login");
+                UnityEngine.Debug.Log(string.Format("uid: {0}, sid: {1}", uid, sid));
+                UnityEngine.Debug.Log("login");
 
                 _user.Secret = secret;
                 _user.Uid = uid;
@@ -195,7 +199,7 @@ namespace Maria {
 
         public void Push(string name) {
             var ctr = _hash[name];
-            Debug.Assert(ctr != null);
+            Logger.Assert(ctr != null);
             _stack.Push(ctr);
             ctr.Enter();
         }
@@ -238,6 +242,10 @@ namespace Maria {
                 return _services[name];
             }
             return null;
+        }
+
+        public void Enqueue(Command cmd) {
+            _application.Enqueue(cmd);
         }
 
         public void EnqueueRenderQueue(Actor.RenderHandler handler) {

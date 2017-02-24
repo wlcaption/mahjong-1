@@ -106,10 +106,10 @@ namespace Maria.Network {
         }
 
         public void SendReq<T>(int tag, SprotoTypeBase obj) {
-            Debug.Assert(_tcpflag == true);
+            UnityEngine.Debug.Assert(_tcpflag == true);
             uint id = genSession();
             byte[] d = _sendRequest.Invoke<T>(obj, id);
-            Debug.Assert(d != null);
+            UnityEngine.Debug.Assert(d != null);
 
             RspPg pg = new RspPg();
             pg.Session = id;
@@ -128,7 +128,7 @@ namespace Maria.Network {
             string s = Encoding.ASCII.GetString(Crypt.base64encode(Encoding.ASCII.GetBytes(_user.Server)));
             string sid = Encoding.ASCII.GetString(Crypt.base64encode(Encoding.ASCII.GetBytes(string.Format("{0}", _user.Subid))));
             string token = string.Format("{0}@{1}#{2}:{3}", u, s, sid, _index);
-            Debug.Log(token);
+            UnityEngine.Debug.Log(token);
             return Encoding.ASCII.GetBytes(token);
         }
 
@@ -168,7 +168,7 @@ namespace Maria.Network {
                         _handshake = false;
                         //_tcp.SetEnabledPing(true);
                         //_tcp.SendPing();
-                        Debug.Log(string.Format("{0},{1}", code, msg));
+                        UnityEngine.Debug.Log(string.Format("{0},{1}", code, msg));
                         if (OnAuthed != null) {
                             OnAuthed(code);
                         }
@@ -179,10 +179,10 @@ namespace Maria.Network {
                             OnAuthed(code);
                         }
                     } else {
-                        Debug.Assert(false);
+                        UnityEngine.Debug.Assert(false);
                         _step = 0;
                         DoAuth();
-                        Debug.LogError(string.Format("error code : {0}, {1}", code, msg));
+                        UnityEngine.Debug.LogError(string.Format("error code : {0}, {1}", code, msg));
                         if (OnAuthed != null) {
                             OnAuthed(code);
                         }
@@ -200,10 +200,10 @@ namespace Maria.Network {
                         byte[] d = sinfo.Response(rsp);
                         _tcp.Send(d, 0, d.Length);
                     } catch (Exception ex) {
-                        Debug.LogError(ex.Message);
+                        UnityEngine.Debug.LogException(ex);
                     }
                 } else if (sinfo.type == SprotoRpc.RpcType.RESPONSE) {
-                    Debug.Assert(sinfo.session != null);
+                    UnityEngine.Debug.Assert(sinfo.session != null);
                     uint session = (uint)sinfo.session;
                     string key = idToHex(session);
                     RspPg pg = _rspPg[key];
@@ -211,8 +211,7 @@ namespace Maria.Network {
                         var cb = _rsp[pg.Tag];
                         cb(session, sinfo.responseObj);
                     } catch (Exception ex) {
-                        Debug.LogError(ex.Message);
-                        //throw;
+                        UnityEngine.Debug.LogException(ex);
                     }
                 }
             }
@@ -270,8 +269,8 @@ namespace Maria.Network {
 
         // UDP
         public void UdpAuth(long session, string ip, int port) {
-            Debug.Assert(_udpflag == false);
-            Debug.Assert(_udp == null);
+            UnityEngine.Debug.Assert(_udpflag == false);
+            UnityEngine.Debug.Assert(_udp == null);
             _udpsession = session;
             _udpip = ip;
             _udpport = port;
@@ -280,7 +279,7 @@ namespace Maria.Network {
             _udp = new PackageSocketUdp(_ctx, _user.Secret, (uint)session);
             _udp.OnRecv = UdpRecv;
             _udp.OnSync = UdpSync;
-            Debug.Assert(_udp != null);
+            UnityEngine.Debug.Assert(_udp != null);
             _udp.Connect(ip, port);
             _udp.Sync();
         }

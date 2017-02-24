@@ -24,7 +24,7 @@ namespace Bacon {
             base.Update(delta);
 
             //Ball myball = _sessionBalls[_mysession];
-            //Debug.Assert(myball != null);
+            //UnityEngine.Debug.Assert(myball != null);
             //foreach (var item in _balls) {
             //    if (myball.AABB.intersects(item.AABB)) {
 
@@ -47,6 +47,7 @@ namespace Bacon {
         }
 
         public void SetupCard(EventCmd e) {
+
 
         }
 

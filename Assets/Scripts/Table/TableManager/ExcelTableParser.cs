@@ -50,6 +50,6 @@ public static class ExcelTableParser
     {
         WWW www = new WWW(Application.dataPath + "/Table/" + TableName + ".xlsx");
         string textAsset = www.text;
-        Debug.Log("textAsset = "+ textAsset);
+        UnityEngine.Debug.Log("textAsset = "+ textAsset);
     }
 }

@@ -31,12 +31,12 @@ public abstract class TMNController : MonoBehaviour
 	{
 		if (map == null)
 		{
-			Debug.LogWarning("The 'map' property was not set, attempting to find a MapNav in the scene.");
+			UnityEngine.Debug.LogWarning("The 'map' property was not set, attempting to find a MapNav in the scene.");
 			Object obj = GameObject.FindObjectOfType(typeof(MapNav));
 			if (obj != null) map = obj as MapNav;
 
 			// I'm not gonan do extra if() tests in the HandleInput.. tell coder now there is problem he should be sorting out asap
-			if (map == null) Debug.LogError("Could not find a MapNav in the scene. You gonna get NullRef errors soon!");
+			if (map == null) UnityEngine.Debug.LogError("Could not find a MapNav in the scene. You gonna get NullRef errors soon!");
 		}
 
 		_rayMask = (1<<map.tilesLayer | 1<<this.unitsLayer);

@@ -9,6 +9,10 @@ public class S2cProtocol : ProtocolBase {
 		Protocol.SetProtocol<call> (call.Tag);
 		Protocol.SetRequest<S2cSprotoType.call.request> (call.Tag);
 
+		Protocol.SetProtocol<dice> (dice.Tag);
+		Protocol.SetRequest<S2cSprotoType.dice.request> (dice.Tag);
+		Protocol.SetResponse<S2cSprotoType.dice.response> (dice.Tag);
+
 		Protocol.SetProtocol<gang> (gang.Tag);
 		Protocol.SetRequest<S2cSprotoType.gang.request> (gang.Tag);
 
@@ -17,6 +21,14 @@ public class S2cProtocol : ProtocolBase {
 
 		Protocol.SetProtocol<hu> (hu.Tag);
 		Protocol.SetRequest<S2cSprotoType.hu.request> (hu.Tag);
+
+		Protocol.SetProtocol<join> (join.Tag);
+		Protocol.SetRequest<S2cSprotoType.join.request> (join.Tag);
+		Protocol.SetResponse<S2cSprotoType.join.response> (join.Tag);
+
+		Protocol.SetProtocol<lead> (lead.Tag);
+		Protocol.SetRequest<S2cSprotoType.lead.request> (lead.Tag);
+		Protocol.SetResponse<S2cSprotoType.lead.response> (lead.Tag);
 
 		Protocol.SetProtocol<leave> (leave.Tag);
 		Protocol.SetRequest<S2cSprotoType.leave.request> (leave.Tag);
@@ -29,6 +41,10 @@ public class S2cProtocol : ProtocolBase {
 		Protocol.SetProtocol<peng> (peng.Tag);
 		Protocol.SetRequest<S2cSprotoType.peng.request> (peng.Tag);
 
+		Protocol.SetProtocol<shuffle> (shuffle.Tag);
+		Protocol.SetRequest<S2cSprotoType.shuffle.request> (shuffle.Tag);
+		Protocol.SetResponse<S2cSprotoType.shuffle.response> (shuffle.Tag);
+
 		Protocol.SetProtocol<take_turn> (take_turn.Tag);
 		Protocol.SetRequest<S2cSprotoType.take_turn.request> (take_turn.Tag);
 		Protocol.SetResponse<S2cSprotoType.take_turn.response> (take_turn.Tag);
@@ -36,11 +52,15 @@ public class S2cProtocol : ProtocolBase {
 	}
 
 	public class call {
-		public const int Tag = 8;
+		public const int Tag = 9;
+	}
+
+	public class dice {
+		public const int Tag = 11;
 	}
 
 	public class gang {
-		public const int Tag = 6;
+		public const int Tag = 7;
 	}
 
 	public class handshake {
@@ -48,11 +68,19 @@ public class S2cProtocol : ProtocolBase {
 	}
 
 	public class hu {
-		public const int Tag = 7;
+		public const int Tag = 8;
+	}
+
+	public class join {
+		public const int Tag = 3;
+	}
+
+	public class lead {
+		public const int Tag = 12;
 	}
 
 	public class leave {
-		public const int Tag = 3;
+		public const int Tag = 4;
 	}
 
 	public class match {
@@ -60,11 +88,15 @@ public class S2cProtocol : ProtocolBase {
 	}
 
 	public class peng {
-		public const int Tag = 5;
+		public const int Tag = 6;
+	}
+
+	public class shuffle {
+		public const int Tag = 10;
 	}
 
 	public class take_turn {
-		public const int Tag = 4;
+		public const int Tag = 5;
 	}
 
 }

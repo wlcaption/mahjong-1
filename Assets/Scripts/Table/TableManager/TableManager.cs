@@ -61,14 +61,14 @@ public abstract class TableManager<T, U> : SingletonTable<U>, ITableManager wher
 
     public void OnWriteField(T[] configs, string TableName)
     {
-		Debug.LogError ("configs = "+configs.Length);
+		UnityEngine.Debug.LogError ("configs = "+configs.Length);
         StringBuilder builders = new StringBuilder();
         FileInfo fi = new FileInfo(Application.dataPath + "/Table/" + "//" + TableName + ".txt");
         if (!fi.Exists)
         {
             FieldInfo[] fields = configs[0].GetType().GetFields();
 
-			Debug.LogError (configs.Length);
+			UnityEngine.Debug.LogError (configs.Length);
             for (int k = 0; k < 2; k++)
             {
                 for (int i = 0; i < fields.Length; i++)
@@ -95,7 +95,7 @@ public abstract class TableManager<T, U> : SingletonTable<U>, ITableManager wher
             }
         }
 
-		Debug.LogError (builders.Length);
+		UnityEngine.Debug.LogError (builders.Length);
         List<T> lst = new List<T>(configs);
 //        T[] allItems = GetAllItem();
 //        if (allItems != null && allItems.Length > 0)

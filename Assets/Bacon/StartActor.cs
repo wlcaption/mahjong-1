@@ -22,7 +22,7 @@ namespace Bacon {
 
         private void OnRecv(byte[] buffer, int start, int len) {
             for (int i = 0; i < len; i++) {
-                Debug.Log(string.Format("{0}", buffer[i]));
+                UnityEngine.Debug.Log(string.Format("{0}", buffer[i]));
             }
         }
     }

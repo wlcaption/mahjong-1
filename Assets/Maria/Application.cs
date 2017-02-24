@@ -66,7 +66,7 @@ namespace Maria {
                         _ctx.Update(((float)delta) / 100.0f);
                     }
                 } catch (Exception ex) {
-                    Debug.LogException(ex);
+                    UnityEngine.Debug.LogException(ex);
                 }
 
                 //_tiSync.Sleep(10);
@@ -104,17 +104,17 @@ namespace Maria {
             //    }
             //    _worker.A
             //} else {
-            //    Debug.Log("离开游戏 激活推送");  //  返回游戏的时候触发     执行顺序 1  
+            //    UnityEngine.Debug.Log("离开游戏 激活推送");  //  返回游戏的时候触发     执行顺序 1  
             //}
         }
 
         public void OnApplicationPause(bool pauseStatus) {
             if (pauseStatus) {
                 //_worker.
-                //Debug.Log("游戏暂停 一切停止");  // 缩到桌面的时候触发  
+                //UnityEngine.Debug.Log("游戏暂停 一切停止");  // 缩到桌面的时候触发  
                 _semaphore.WaitOne();
             } else {
-                //Debug.Log("游戏开始  万物生机");  //回到游戏的时候触发 最晚  
+                //UnityEngine.Debug.Log("游戏开始  万物生机");  //回到游戏的时候触发 最晚  
                 _semaphore.Release();
             }
         }

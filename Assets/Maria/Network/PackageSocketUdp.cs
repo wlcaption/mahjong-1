@@ -116,10 +116,10 @@ namespace Maria.Network {
                 Array.Copy(head, 0, buffer, 8, 12);
                 Array.Copy(data, 0, buffer, 20, data.Length);
 
-                Debug.Log(string.Format("localtime:{0}, eventtime:{1}, session:{2}", local, global[0], _session));
+                UnityEngine.Debug.Log(string.Format("localtime:{0}, eventtime:{1}, session:{2}", local, global[0], _session));
                 _u.Send(data, 0, data.Length);
             } else {
-                Debug.Assert(false);
+                UnityEngine.Debug.Assert(false);
             }
         }
 
@@ -128,7 +128,7 @@ namespace Maria.Network {
             if (_so.Poll(0, SelectMode.SelectRead)) {
                 EndPoint ep = _remoteEP as EndPoint;
                 sz = _so.ReceiveFrom(_buffer, 3072, SocketFlags.None, ref ep);
-                Debug.Log(string.Format("size {0}", sz));
+                UnityEngine.Debug.Log(string.Format("size {0}", sz));
             }
 
             int tick = 0;
@@ -163,14 +163,14 @@ namespace Maria.Network {
             int remaining = len;
             int head = 0;
             do {
-                Debug.Assert(len >= 16);
+                UnityEngine.Debug.Assert(len >= 16);
                 uint globaltime = NetUnpack.UnpacklI(buffer, head);
                 uint localtime = NetUnpack.UnpacklI(buffer, head + 4);
                 uint eventtime = NetUnpack.UnpacklI(buffer, head + 8);
                 uint session = NetUnpack.UnpacklI(buffer, head + 12);
                 head += 16;
                 remaining -= 16;
-                Debug.Log(string.Format("localtime:{0}, eventtime:{1}, session:{2}", localtime, eventtime, session));
+                UnityEngine.Debug.Log(string.Format("localtime:{0}, eventtime:{1}, session:{2}", localtime, eventtime, session));
                 if (eventtime == 0xffffffff) {
                     if (session == _session) {
                         _timeSync.Sync((int)localtime, (int)globaltime);
@@ -178,7 +178,7 @@ namespace Maria.Network {
                             _connected = true;
                             _syncCb();
                         }
-                        Debug.Assert(remaining == 0);
+                        UnityEngine.Debug.Assert(remaining == 0);
                         return;
                     }
                 } else {
@@ -202,7 +202,7 @@ namespace Maria.Network {
                     }
                 }
             } while (remaining > 0);
-            Debug.Assert(remaining == 0);
+            UnityEngine.Debug.Assert(remaining == 0);
         }
     }
 }

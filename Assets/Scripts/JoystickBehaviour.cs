@@ -31,10 +31,10 @@ public class JoystickBehaviour : MonoBehaviour {
     }
 
     public void OnMove(Vector2 d) {
-        //Debug.LogFormat("x {0} y {1}, deg {2}", d.x, d.y, );
+        //UnityEngine.Debug.LogFormat("x {0} y {1}, deg {2}", d.x, d.y, );
         _tank.Move(Mathf.Atan2(d.y, d.x));
 
-        //Debug.LogFormat("x {0} y {1}", _dir.x, _dir.y);
+        //UnityEngine.Debug.LogFormat("x {0} y {1}", _dir.x, _dir.y);
         //_controller.OnMove(d);
     }
 

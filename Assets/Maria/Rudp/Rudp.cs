@@ -47,7 +47,7 @@ namespace Maria.Rudp {
         public Callback OnRecv { get; set; }
 
         public void Send(byte[] buf, int start, int len) {
-            Debug.Assert(len > 0);
+            UnityEngine.Debug.Assert(len > 0);
 
             IntPtr buffer = Marshal.AllocHGlobal(len);
             Marshal.Copy(buf, 0, buffer, len);
@@ -65,8 +65,8 @@ namespace Maria.Rudp {
         }
 
         public static int RSend(int argc, [In, Out, MarshalAs(UnmanagedType.LPArray, SizeConst = 8)] SharpC.CSObject[] argv, int args, int res) {
-            Debug.Assert(args >= 3);
-            Debug.Assert(argv[1].type == SharpC.CSType.SHARPOBJECT);
+            UnityEngine.Debug.Assert(args >= 3);
+            UnityEngine.Debug.Assert(argv[1].type == SharpC.CSType.SHARPOBJECT);
             Rudp u = (Rudp)SharpC.cache.Get(argv[1].v32);
             IntPtr buffer = argv[2].ptr;
             int len = argv[3].v32;
@@ -78,8 +78,8 @@ namespace Maria.Rudp {
         }
 
         public static int RRecv(int argc, [In, Out, MarshalAs(UnmanagedType.LPArray, SizeConst = 8)] SharpC.CSObject[] argv, int args, int res) {
-            Debug.Assert(args >= 3);
-            Debug.Assert(argv[1].type == SharpC.CSType.SHARPOBJECT);
+            UnityEngine.Debug.Assert(args >= 3);
+            UnityEngine.Debug.Assert(argv[1].type == SharpC.CSType.SHARPOBJECT);
             Rudp u = (Rudp)SharpC.cache.Get(argv[1].v32);
             IntPtr buffer = argv[2].ptr;
             int len = argv[3].v32;
