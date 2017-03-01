@@ -7,6 +7,11 @@ public class MUIRoot : MonoBehaviour {
     public RootBehaviour _Root;
     public GameObject    _CreatePanel;
     public GameObject    _JoinPanel;
+    public GameObject    _SharePanel;
+    public GameObject    _RecorePanel;
+    public GameObject _MsgPanel;
+    public GameObject _RulePanel;
+    public GameObject _SettingPanel;
 
 	// Use this for initialization
 	void Start () {
@@ -48,6 +53,66 @@ public class MUIRoot : MonoBehaviour {
             _JoinPanel.SetActive(false);
         } else {
             UnityEngine.Debug.Assert(false);
+        }
+    }
+
+    public void OnShare() {
+        if (_SharePanel != null) {
+            _SharePanel.SetActive(true);
+        }
+    }
+
+    public void OnShareClose() {
+        if (_SharePanel != null) {
+            _SharePanel.SetActive(false);
+        }
+    }
+
+    public void OnRecored() {
+        if (_RecorePanel != null) {
+            _RecorePanel.SetActive(true);
+        }
+    }
+
+    public void OnRecoredClose() {
+        if (_RecorePanel != null) {
+            _RecorePanel.SetActive(false);
+        }
+    }
+
+    public void OnMsg() {
+        if (_MsgPanel != null) {
+            _MsgPanel.SetActive(true);
+        }
+    }
+
+    public void OnMsgClose() {
+        if (_MsgPanel != null) {
+            _MsgPanel.SetActive(false);
+        }
+    }
+
+    public void OnRule() {
+        if (_RulePanel != null) {
+            _RulePanel.SetActive(true);
+        }
+    }
+
+    public void OnRuleClose() {
+        if (_RulePanel != null) {
+            _RulePanel.SetActive(false);
+        }
+    }
+
+    public void OnSetting() {
+        if (_SettingPanel != null) {
+            _SettingPanel.SetActive(true);
+        }
+    }
+
+    public void OnSettingClose() {
+        if (_SettingPanel != null) {
+            _SettingPanel.SetActive(false);
         }
     }
 }
