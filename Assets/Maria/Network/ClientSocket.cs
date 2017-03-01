@@ -206,10 +206,11 @@ namespace Maria.Network {
                     UnityEngine.Debug.Assert(sinfo.session != null);
                     uint session = (uint)sinfo.session;
                     string key = idToHex(session);
-                    RspPg pg = _rspPg[key];
                     try {
+                        RspPg pg = _rspPg[key];
                         var cb = _rsp[pg.Tag];
                         cb(session, sinfo.responseObj);
+                        _rspPg.Remove(key);
                     } catch (Exception ex) {
                         UnityEngine.Debug.LogException(ex);
                     }
@@ -228,7 +229,7 @@ namespace Maria.Network {
         private uint genSession() {
             ++_session;
             if (_session == 0)
-                _session++;
+                ++_session;
             return _session;
         }
 
@@ -236,7 +237,7 @@ namespace Maria.Network {
             byte[] tmp = new byte[9];
             byte[] hex = new byte[16] { 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 66, 67, 68, 69, 70 };
             tmp[0] = 58;
-            for (int i = 1; i < 8; i++) {
+            for (int i = 0; i < 8; i++) {
                 tmp[i + 1] = hex[(id >> ((7 - i) * 4)) & 0xf];
             }
             return Encoding.ASCII.GetString(tmp);

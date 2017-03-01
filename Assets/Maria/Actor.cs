@@ -34,6 +34,9 @@ namespace Maria {
 
         public GameObject Go { get { return _go; } set { _go = value; } }
 
+        public Controller Controller { get { return _controller; } set { _controller = value; } }
+        public Service Service { get { return _service; } set { _service = value; } }
+
         public virtual void Update(float delta) {
         }
     }

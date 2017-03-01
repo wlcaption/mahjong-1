@@ -37,26 +37,34 @@ namespace Maria {
         }
 
         public void DispatchCmdEvent(Command cmd) {
-            EventCmd e = new EventCmd(cmd.Cmd, cmd.Orgin, cmd.Msg);
-            if (_cmd.ContainsKey(cmd.Cmd)) {
-                EventListenerCmd listener = _cmd[cmd.Cmd];
-                if (listener.Enable) {
-                    listener.Handler(e);
+            try {
+                if (_cmd.ContainsKey(cmd.Cmd)) {
+                    EventListenerCmd listener = _cmd[cmd.Cmd];
+                    if (listener.Enable) {
+                        EventCmd e = new EventCmd(cmd.Cmd, cmd.Orgin, cmd.Msg);
+                        listener.Handler(e);
+                    }
+                } else {
+                    throw new KeyNotFoundException(string.Format("custom not contains {0}", cmd.Cmd));
                 }
-            } else {
-                throw new KeyNotFoundException(string.Format("cmd not contains {0}", cmd.Cmd));
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
             }
         }
 
         private void DispatchCustomEvent(string eventName, object ud) {
-            EventCustom e = new EventCustom(eventName, ud);
-            if (_custom.ContainsKey(eventName)) {
-                EventListenerCustom listener = _custom[eventName];
-                if (listener.Enable) {
-                    listener.Handler(e);
+            try {
+                if (_custom.ContainsKey(eventName)) {
+                    EventListenerCustom listener = _custom[eventName];
+                    if (listener.Enable) {
+                        EventCustom e = new EventCustom(eventName, ud);
+                        listener.Handler(e);
+                    }
+                } else {
+                    throw new KeyNotFoundException(string.Format("custom not contains {0}", eventName));
                 }
-            } else {
-                throw new KeyNotFoundException(string.Format("custom not contains {0}", eventName));
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
             }
         }
 

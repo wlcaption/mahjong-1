@@ -4,32 +4,11 @@ using UnityEngine;
 
 namespace Bacon {
     public class Scene : Actor {
-        private Matrix4x4 _mat = Matrix4x4.identity;
 
         private View _view = null;
         private Map _map = null;
-        private Dictionary<long, Card> _ballidBalls = new Dictionary<long, Card>();
 
         public Scene(Context ctx, Controller controller, GameObject go) : base(ctx, controller, go) {
-
-            _view = null;
-            _map = null;
-
-            EventListenerCmd listener1 = new EventListenerCmd(MyEventCmd.EVENT_SETUP_CARD, SetupCard);
-            _ctx.EventDispatcher.AddCmdEventListener(listener1);
-
-        }
-
-        public override void Update(float delta) {
-            base.Update(delta);
-
-            //Ball myball = _sessionBalls[_mysession];
-            //UnityEngine.Debug.Assert(myball != null);
-            //foreach (var item in _balls) {
-            //    if (myball.AABB.intersects(item.AABB)) {
-
-            //    }
-            //}
         }
 
         public View View { get { return _view; } set { _view = value; } }
@@ -47,12 +26,14 @@ namespace Bacon {
         }
 
         public void SetupCard(EventCmd e) {
-
-
         }
 
+        public void SetupPlayer() {
+            _ctx.EnqueueRenderQueue(RenderSetupPlayer);
+        }
 
-
-
+        public void RenderSetupPlayer() {
+            _go.GetComponent<GameRoot>().SetupPlayer();
+        }
     }
 }

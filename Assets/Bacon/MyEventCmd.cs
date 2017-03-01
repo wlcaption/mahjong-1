@@ -17,9 +17,6 @@ namespace Bacon {
         public static uint EVENT_MUI_CREATE = 113;
         public static uint EVENT_MUI_JOIN = 114;
 
-
-       
-
         public static uint EVENT_PENG = 200;
         public static uint EVENT_GANG = 201;
         public static uint EVENT_HU = 202;
@@ -35,7 +32,18 @@ namespace Bacon {
         public static uint EVENT_SETUP_RIGHTPLAYER = 210;
 
         public static uint EVENT_LOADEDCARDS = 211;
+        public static uint EVENT_BOXINGCARDS = 212;
+        public static uint EVENT_THROWDICE = 213;
+        public static uint EVENT_TAKEDEAL = 214;
 
+        public static uint EVENT_LEAD = 215;
+        public static uint EVENT_PENGCARD = 216;
+        public static uint EVENT_GANGCARD = 217;
+        public static uint EVENT_HUCARD = 218;
+
+        public static uint EVENT_SORTCARDS = 219;
+        public static uint EVENT_LEADCARD = 220;
+       
         public MyEventCmd(uint cmd) : base(cmd) {
         }
     }

@@ -1,0 +1,29 @@
+ManifestFileVersion: 0
+CRC: 142646573
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: fonts.unity3d
+      Dependencies: {}
+    Info_1:
+      Name: mahjongs/materials.unity3d
+      Dependencies: {}
+    Info_2:
+      Name: materials.unity3d
+      Dependencies:
+        Dependency_0: shaders.unity3d
+    Info_3:
+      Name: prefabs/app/card.unity3d
+      Dependencies: {}
+    Info_4:
+      Name: prefabs/app/gamescene.unity3d
+      Dependencies: {}
+    Info_5:
+      Name: shaders.unity3d
+      Dependencies: {}
+    Info_6:
+      Name: sprites.unity3d
+      Dependencies: {}
+    Info_7:
+      Name: textures.unity3d
+      Dependencies: {}

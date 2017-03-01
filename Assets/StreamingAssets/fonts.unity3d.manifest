@@ -1,0 +1,22 @@
+ManifestFileVersion: 0
+CRC: 1405768922
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 9ed81c175dd339df9f60413377ef105d
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 16a42adb172bf3c3213d14c08ef595c4
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 49
+  Script: {instanceID: 0}
+- Class: 128
+  Script: {instanceID: 0}
+Assets:
+- Assets/Resources/Fonts/xnum.fontsettings
+- Assets/Resources/Fonts/xnum_0.tga
+- Assets/Resources/Fonts/xnum.fnt
+Dependencies: []

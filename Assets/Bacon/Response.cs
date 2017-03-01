@@ -17,7 +17,10 @@ namespace Maria.Network {
             _cs.RegisterResponse(C2sProtocol.create.Tag, create);
             _cs.RegisterResponse(C2sProtocol.join.Tag, join);
             _cs.RegisterResponse(C2sProtocol.leave.Tag, leave);
-            _cs.RegisterResponse(C2sProtocol.leave.Tag, lead);
+
+            _cs.RegisterResponse(C2sProtocol.call.Tag, call);
+            _cs.RegisterResponse(C2sProtocol.lead.Tag, lead);
+            _cs.RegisterResponse(C2sProtocol.step.Tag, step);
 
         }
 
@@ -53,10 +56,15 @@ namespace Maria.Network {
             }
         }
 
-        public void lead(uint session, SprotoTypeBase responseObj) {
-        }
+        public void call(uint session, SprotoTypeBase responseObj) {}
 
-        public void call(uint session, SprotoTypeBase responseObj) {
+        public void lead(uint session, SprotoTypeBase responseObj) {}
+
+        public void step(uint session, SprotoTypeBase responseObj) {
+            GameService service = (GameService)_ctx.QueryService(GameService.Name);
+            if (service != null) {
+                service.Step(responseObj);
+            }
         }
     }
 }

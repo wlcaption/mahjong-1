@@ -8,6 +8,11 @@ public class S2cProtocol : ProtocolBase {
 	private S2cProtocol() {
 		Protocol.SetProtocol<call> (call.Tag);
 		Protocol.SetRequest<S2cSprotoType.call.request> (call.Tag);
+		Protocol.SetResponse<S2cSprotoType.call.response> (call.Tag);
+
+		Protocol.SetProtocol<deal> (deal.Tag);
+		Protocol.SetRequest<S2cSprotoType.deal.request> (deal.Tag);
+		Protocol.SetResponse<S2cSprotoType.deal.response> (deal.Tag);
 
 		Protocol.SetProtocol<dice> (dice.Tag);
 		Protocol.SetRequest<S2cSprotoType.dice.request> (dice.Tag);
@@ -15,12 +20,14 @@ public class S2cProtocol : ProtocolBase {
 
 		Protocol.SetProtocol<gang> (gang.Tag);
 		Protocol.SetRequest<S2cSprotoType.gang.request> (gang.Tag);
+		Protocol.SetResponse<S2cSprotoType.gang.response> (gang.Tag);
 
 		Protocol.SetProtocol<handshake> (handshake.Tag);
 		Protocol.SetResponse<S2cSprotoType.handshake.response> (handshake.Tag);
 
 		Protocol.SetProtocol<hu> (hu.Tag);
 		Protocol.SetRequest<S2cSprotoType.hu.request> (hu.Tag);
+		Protocol.SetResponse<S2cSprotoType.hu.response> (hu.Tag);
 
 		Protocol.SetProtocol<join> (join.Tag);
 		Protocol.SetRequest<S2cSprotoType.join.request> (join.Tag);
@@ -38,8 +45,16 @@ public class S2cProtocol : ProtocolBase {
 		Protocol.SetRequest<S2cSprotoType.match.request> (match.Tag);
 		Protocol.SetResponse<S2cSprotoType.match.response> (match.Tag);
 
+		Protocol.SetProtocol<over> (over.Tag);
+		Protocol.SetRequest<S2cSprotoType.over.request> (over.Tag);
+		Protocol.SetResponse<S2cSprotoType.over.response> (over.Tag);
+
 		Protocol.SetProtocol<peng> (peng.Tag);
 		Protocol.SetRequest<S2cSprotoType.peng.request> (peng.Tag);
+		Protocol.SetResponse<S2cSprotoType.peng.response> (peng.Tag);
+
+		Protocol.SetProtocol<ready> (ready.Tag);
+		Protocol.SetResponse<S2cSprotoType.ready.response> (ready.Tag);
 
 		Protocol.SetProtocol<shuffle> (shuffle.Tag);
 		Protocol.SetRequest<S2cSprotoType.shuffle.request> (shuffle.Tag);
@@ -53,6 +68,10 @@ public class S2cProtocol : ProtocolBase {
 
 	public class call {
 		public const int Tag = 9;
+	}
+
+	public class deal {
+		public const int Tag = 13;
 	}
 
 	public class dice {
@@ -87,8 +106,16 @@ public class S2cProtocol : ProtocolBase {
 		public const int Tag = 2;
 	}
 
+	public class over {
+		public const int Tag = 15;
+	}
+
 	public class peng {
 		public const int Tag = 6;
+	}
+
+	public class ready {
+		public const int Tag = 14;
 	}
 
 	public class shuffle {
