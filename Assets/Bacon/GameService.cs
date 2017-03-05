@@ -33,7 +33,6 @@ namespace Bacon {
                 UnityEngine.Debug.Assert(false);
                 return null;
             }
-
         }
 
         public void Create(SprotoTypeBase responseObj) {

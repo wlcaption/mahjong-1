@@ -5,6 +5,7 @@ using UnityEngine;
 public class TopPlayer : MonoBehaviour {
 
     public RootBehaviour _Root;
+    public GameObject _UI;
 
 	// Use this for initialization
 	void Start () {
@@ -16,4 +17,11 @@ public class TopPlayer : MonoBehaviour {
 	void Update () {
 		
 	}
+
+    public void ShowUI() {
+        _UI.SetActive(true);
+    }
+    public void HideUI() {
+        _UI.SetActive(false);
+    }
 }

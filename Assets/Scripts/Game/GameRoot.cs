@@ -7,6 +7,7 @@ using Bacon;
 public class GameRoot : MonoBehaviour {
 
     public RootBehaviour _Root;
+
     public GameObject _Top;
     public GameObject _Bottom;
     public GameObject _Left;
@@ -14,8 +15,11 @@ public class GameRoot : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_SETUP_SCENE, gameObject);
-        _Root.App.Enqueue(cmd);
+        var board = transform.FindChild("Board").gameObject;
+        Command cmd1 = new Command(MyEventCmd.EVENT_SETUP_BOARD, board);
+        Command cmd2 = new Command(Bacon.MyEventCmd.EVENT_SETUP_SCENE, gameObject);
+        _Root.App.Enqueue(cmd1);
+        _Root.App.Enqueue(cmd2);
     }
 	
 	// Update is called once per frame

@@ -1120,7 +1120,7 @@ namespace S2cSprotoType {
 
 
 	public class opinfo : SprotoTypeBase {
-		private static int max_field_count = 2;
+		private static int max_field_count = 4;
 		
 		
 		private Int64 _idx; // tag 0
@@ -1132,13 +1132,31 @@ namespace S2cSprotoType {
 			get { return base.has_field.has_field (0); }
 		}
 
-		private List<Int64> _opcode; // tag 1
-		public List<Int64> opcode {
-			get { return _opcode; }
-			set { base.has_field.set_field (1, true); _opcode = value; }
+		private Int64 _peng; // tag 1
+		public Int64 peng {
+			get { return _peng; }
+			set { base.has_field.set_field (1, true); _peng = value; }
 		}
-		public bool HasOpcode {
+		public bool HasPeng {
 			get { return base.has_field.has_field (1); }
+		}
+
+		private Int64 _gang; // tag 2
+		public Int64 gang {
+			get { return _gang; }
+			set { base.has_field.set_field (2, true); _gang = value; }
+		}
+		public bool HasGang {
+			get { return base.has_field.has_field (2); }
+		}
+
+		private Int64 _hu; // tag 3
+		public Int64 hu {
+			get { return _hu; }
+			set { base.has_field.set_field (3, true); _hu = value; }
+		}
+		public bool HasHu {
+			get { return base.has_field.has_field (3); }
 		}
 
 		public opinfo () : base(max_field_count) {}
@@ -1155,7 +1173,13 @@ namespace S2cSprotoType {
 					this.idx = base.deserialize.read_integer ();
 					break;
 				case 1:
-					this.opcode = base.deserialize.read_integer_list ();
+					this.peng = base.deserialize.read_integer ();
+					break;
+				case 2:
+					this.gang = base.deserialize.read_integer ();
+					break;
+				case 3:
+					this.hu = base.deserialize.read_integer ();
 					break;
 				default:
 					base.deserialize.read_unknow_data ();
@@ -1172,7 +1196,15 @@ namespace S2cSprotoType {
 			}
 
 			if (base.has_field.has_field (1)) {
-				base.serialize.write_integer (this.opcode, 1);
+				base.serialize.write_integer (this.peng, 1);
+			}
+
+			if (base.has_field.has_field (2)) {
+				base.serialize.write_integer (this.gang, 2);
+			}
+
+			if (base.has_field.has_field (3)) {
+				base.serialize.write_integer (this.hu, 3);
 			}
 
 			return base.serialize.close ();

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using DG.Tweening;
 
 namespace Bacon {
     class BottomPlayer : Player {
@@ -35,6 +36,11 @@ namespace Bacon {
         private void OnSetup(EventCmd e) {
             _go = e.Orgin;
             ((GameController)_controller).SendStep();
+            _ctx.EnqueueRenderQueue(RenderSetup);
+        }
+
+        private void RenderSetup() {
+            _go.GetComponent<global::BottomPlayer>().ShowUI();
         }
 
         private void OnSendPeng(EventCmd e) {
@@ -47,7 +53,7 @@ namespace Bacon {
         private void OnSendGang(EventCmd e) {
             C2sSprotoType.call.request request = new C2sSprotoType.call.request();
             request.idx = _idx;
-            request.opcode = OpCodes.OPCODE_GANG;
+            request.opcode = _gangcode;
             _ctx.SendReq<C2sProtocol.call>(C2sProtocol.call.Tag, request);
         }
 
@@ -127,19 +133,28 @@ namespace Bacon {
         }
 
         protected override void RenderSortCards() {
+            int count = 0;
             for (int i = 0; i < _cards.Count; i++) {
-                var card = _cards[i];
                 float x = _leftoffset + Card.Width * i + Card.Width / 2.0f;
                 float y = Card.Length / 2.0f;
                 float z = _bottomoffset + Card.Height / 2.0f;
-                card.Go.transform.localPosition = new Vector3(x, y, z);
-                card.Go.transform.localRotation = Quaternion.AngleAxis(-60, Vector3.right);
-
-                _go.GetComponent<global::BottomPlayer>().Add(card);
+                Sequence mySequence = DOTween.Sequence();
+                mySequence.Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(-120, Vector3.right), 0.5f))
+                    .AppendCallback(() => {
+                        var card = _cards[i];
+                        card.Go.transform.localPosition = new Vector3(x, y, z);
+                        card.Go.transform.localRotation = Quaternion.AngleAxis(-120, Vector3.right);
+                        _go.GetComponent<global::BottomPlayer>().Add(card);
+                    })
+                    .Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(-60, Vector3.right), 0.5f))
+                    .AppendCallback(() => {
+                        count++;
+                        if (count >= _cards.Count) {
+                            Command cmd = new Command(MyEventCmd.EVENT_SORTCARDS);
+                            _ctx.Enqueue(cmd);
+                        }
+                    });
             }
-
-            Command cmd = new Command(MyEventCmd.EVENT_SORTCARDS);
-            _ctx.Enqueue(cmd);
         }
 
         protected override void RenderTakeTurn() {
@@ -217,8 +232,12 @@ namespace Bacon {
             for (int i = 0; i < _opcodes.Count; i++) {
                 if (_opcodes[i] == OpCodes.OPCODE_PENG) {
                     _go.GetComponent<global::BottomPlayer>().ShowPeng();
-                } else if (_opcodes[i] == OpCodes.OPCODE_GANG) {
-                    _go.GetComponent<global::BottomPlayer>().ShowHu();
+                } else if (_opcodes[i] == OpCodes.OPCODE_ANGANG) {
+                    _go.GetComponent<global::BottomPlayer>().ShowGang();
+                } else if (_gangcode == OpCodes.OPCODE_ZHIGANG) {
+                    _go.GetComponent<global::BottomPlayer>().ShowGang();
+                } else if (_gangcode == OpCodes.OPCODE_BUGANG) {
+                    _go.GetComponent<global::BottomPlayer>().ShowGang();
                 } else if (_opcodes[i] == OpCodes.OPCODE_HU) {
                     _go.GetComponent<global::BottomPlayer>().ShowGang();
                 }

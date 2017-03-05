@@ -8,13 +8,6 @@ using System.Text;
 
 namespace Maria {
     public class Context : DisposeObject, INetwork {
-        private class Timer {
-            public string Name { get; set; }
-            public float CD { get; set; }
-            public CountdownCb CB { get; set; }
-        }
-
-        public delegate void CountdownCb();
 
         protected Application _application;
         protected Config _config = null;
@@ -74,19 +67,24 @@ namespace Maria {
             _login.Update();
             _client.Update();
 
+            int now = _ts.LocalTime();
             foreach (var item in _timer) {
                 Timer tm = item.Value as Timer;
-                if (tm != null) {
-                    if (tm.CD > 0) {
-                        tm.CD -= delta;
-                        if (tm.CD < 0) {
-                            tm.CB();
-                            //_timer.Remove()
-                            //_timer.Remove(tm.Name);
-                        }
-                    } else {
-                        //_timer.Remove(tm.Name);
+                if (!tm.Enable) {
+                    continue;
+                }
+                int past = now - tm.ST;
+                if ((past / 100) > (tm.PT + 1)) {
+                    tm.PT = tm.PT + 1;
+                    if (tm.DCB != null) {
+                        tm.DCB(tm.PT, tm.CD - tm.PT);
                     }
+                }
+                if (tm.PT >= tm.CD) {
+                    if (tm != null) {
+                        tm.CB();
+                    }
+                    tm.Enable = false;
                 }
             }
 
@@ -208,16 +206,24 @@ namespace Maria {
             _stack.Pop();
         }
 
-        public void Countdown(string name, float cd, CountdownCb cb) {
-            Timer tm = null;
+        public void Countdown(string name, int cd, Timer.CountdownDeltaCb dcb, Timer.CountdownCb cb) {
+            Timer tm;
             if (_timer.ContainsKey(name)) {
                 tm = _timer[name];
+                tm.Enable = true;
+                tm.ST = _ts.LocalTime();
+                tm.PT = 0;
                 tm.CD = cd;
+                tm.DCB = dcb;
                 tm.CB = cb;
             } else {
                 tm = new Timer();
                 tm.Name = name;
+                tm.Enable = true;
+                tm.ST = _ts.LocalTime();
+                tm.PT = 0;
                 tm.CD = cd;
+                tm.DCB = dcb;
                 tm.CB = cb;
                 _timer[name] = tm;
             }
@@ -261,7 +267,7 @@ namespace Maria {
                 _authtcp = true;
                 string dummy = string.Empty;
                 //
-                EventDispatcher.FireCustomEvent(EventCustom.OnAuthed, null); 
+                EventDispatcher.FireCustomEvent(EventCustom.OnAuthed, null);
                 //
                 Controller controller = Top();
                 controller.OnGateAuthed(code);

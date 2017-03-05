@@ -12,7 +12,7 @@ namespace Bacon {
 
         private void SetupStartRoot(EventCmd e) {
             _go = e.Orgin;
-            _ctx.Countdown("startcontroller", 2, CountdownCb);
+            _ctx.Countdown("startcontroller", 2, null, CountdownCb);
 
         }
 

@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using DG.Tweening;
 
 namespace Bacon {
     class TopPlayer : Player {
-
         public TopPlayer(Context ctx, GameService service) : base(ctx, service) {
             EventListenerCmd listener1 = new EventListenerCmd(MyEventCmd.EVENT_SETUP_TOPPLAYER, OnSetup);
             _ctx.EventDispatcher.AddCmdEventListener(listener1);
@@ -17,6 +17,11 @@ namespace Bacon {
         private void OnSetup(EventCmd e) {
             _go = e.Orgin;
             ((GameController)_controller).SendStep();
+            _ctx.EnqueueRenderQueue(RenderSetup);
+        }
+
+        private void RenderSetup() {
+            _go.GetComponent<global::TopPlayer>().ShowUI();
         }
 
         protected override void RenderBoxing() {
@@ -69,17 +74,28 @@ namespace Bacon {
 
         protected override void RenderSortCards() {
             Desk desk = ((GameController)_controller).Desk;
+            int count = 0;
             int i = 0;
             for (; i < _cards.Count; i++) {
-                var card = _cards[i];
                 float x = desk.Width - (_leftoffset + Card.Width * i + Card.Width / 2.0f);
                 float y = Card.Length / 2.0f;
                 float z = desk.Length - (_bottomoffset + Card.Height / 2.0f);
-                card.Go.transform.localPosition = new Vector3(x, y, z);
-                card.Go.transform.localRotation = Quaternion.AngleAxis(180, Vector3.up) * Quaternion.AngleAxis(-80, Vector3.right);
+
+                Sequence mySequence = DOTween.Sequence();
+                mySequence.Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(180.0f, Vector3.up) * Quaternion.AngleAxis(-120.0f, Vector3.right), _sortcardsdelta))
+                    .AppendCallback(() => {
+                        var card = _cards[i];
+                        card.Go.transform.localPosition = new Vector3(x, y, z);
+                        card.Go.transform.localRotation = Quaternion.AngleAxis(180.0f, Vector3.up) * Quaternion.AngleAxis(-90.0f, Vector3.right);
+                    })
+                    .Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(180.0f, Vector3.up) * Quaternion.AngleAxis(-90.0f, Vector3.right), _sortcardsdelta))
+                    .AppendCallback(() => {
+                        if (count >= _cards.Count) {
+                            Command cmd = new Command(MyEventCmd.EVENT_SORTCARDS);
+                            _ctx.Enqueue(cmd);
+                        }
+                    });
             }
-            Command cmd = new Command(MyEventCmd.EVENT_SORTCARDS);
-            _ctx.Enqueue(cmd);
         }
 
         protected override void RenderTakeTurn() {

@@ -39,7 +39,6 @@ namespace Bacon {
 
             _service = (GameService)_ctx.QueryService(GameService.Name);
             _ui = new UIRootActor(_ctx, this);
-            _desk = new Desk(_ctx, this);
 
             EventListenerCmd listener1 = new EventListenerCmd(MyEventCmd.EVENT_SETUP_SCENE, SetupScene);
             _ctx.EventDispatcher.AddCmdEventListener(listener1);
@@ -70,6 +69,9 @@ namespace Bacon {
 
             EventListenerCmd listener11 = new EventListenerCmd(MyEventCmd.EVENT_LEADCARD, OnLeadCard);
             _ctx.EventDispatcher.AddCmdEventListener(listener11);
+
+            EventListenerCmd listener12 = new EventListenerCmd(MyEventCmd.EVENT_SETUP_BOARD, SetupMap);
+            _ctx.EventDispatcher.AddCmdEventListener(listener12);
         }
 
         public override void Update(float delta) {
@@ -99,17 +101,10 @@ namespace Bacon {
         public Card LastCard { get { return _lastCard; } set { _lastCard = value; } }
         public int TakeRound { get { return _takeround; } }
 
-        public void SetupCamera(EventCmd e) {
-            // 无论_camera == null,新场景启动都要重置
-            GameObject go = e.Orgin;
-            UnityEngine.Debug.Assert(_scene != null);
-            _view = _scene.SetupView(go);
-        }
-
         public void SetupMap(EventCmd e) {
             GameObject map = e.Orgin;
             UnityEngine.Debug.Assert(_scene != null);
-            _map = _scene.SetupMap(map);
+            _desk = new Desk(_ctx, this, map);
         }
 
         public void SetupScene(EventCmd e) {
@@ -400,10 +395,15 @@ namespace Bacon {
             SendStep();
         }
 
+        public void OnUpdateClock(int past, int left) {
+            _desk.UpdateClock(left);
+        }
+
         public SprotoTypeBase OnTakeTurn(SprotoTypeBase requestObj) {
             S2cSprotoType.take_turn.request obj = requestObj as S2cSprotoType.take_turn.request;
             try {
                 _curidx = obj.your_turn;
+                _ctx.Countdown(Timer.CLOCK, (int)obj.countdown, OnUpdateClock, null);
                 _service.GetPlayer(obj.your_turn).TakeTurn(obj.card);
 
                 S2cSprotoType.take_turn.response responseObj = new S2cSprotoType.take_turn.response();
@@ -421,7 +421,7 @@ namespace Bacon {
             S2cSprotoType.call.request obj = requestObj as S2cSprotoType.call.request;
             try {
                 for (int i = 0; i < obj.opcodes.Count; i++) {
-                    _service.GetPlayer(obj.opcodes[i].idx).SetupCall(obj.opcodes[i].opcode, obj.countdown);
+                    //_service.GetPlayer(obj.opcodes[i].idx).SetupCall(obj.opcodes[i].opcode, obj.countdown);
                 }
 
                 S2cSprotoType.call.response responseObj = new S2cSprotoType.call.response();

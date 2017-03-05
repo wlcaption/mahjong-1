@@ -43,7 +43,9 @@ namespace Bacon {
 
         public static uint EVENT_SORTCARDS = 219;
         public static uint EVENT_LEADCARD = 220;
-       
+
+        public static uint EVENT_SETUP_BOARD = 204;
+
         public MyEventCmd(uint cmd) : base(cmd) {
         }
     }

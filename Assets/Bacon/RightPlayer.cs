@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using DG.Tweening;
 
 namespace Bacon {
     class RightPlayer : Player {
@@ -16,6 +17,11 @@ namespace Bacon {
         private void OnSetup(EventCmd e) {
             _go = e.Orgin;
             ((GameController)_controller).SendStep();
+            _ctx.EnqueueRenderQueue(RenderSetup);
+        }
+
+        private void RenderSetup() {
+            _go.GetComponent<global::RightPlayer>().ShowUI();
         }
 
         protected override void RenderBoxing() {
@@ -70,18 +76,29 @@ namespace Bacon {
 
         protected override void RenderSortCards() {
             Desk desk = ((GameController)_controller).Desk;
+            int count = 0;
             int i = 0;
             for (; i < _cards.Count; i++) {
-                var card = _cards[i];
                 float x = desk.Width - (_bottomoffset + Card.Height / 2.0f);
                 float y = Card.Length / 2.0f;
                 float z = _leftoffset + Card.Width * i + Card.Width / 2.0f;
 
-                card.Go.transform.localPosition = new Vector3(x, y, z);
-                card.Go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.up) * Quaternion.AngleAxis(90.0f, Vector3.right);
+                Sequence mySequence = DOTween.Sequence();
+                mySequence.Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(90.0f, Vector3.up) * Quaternion.AngleAxis(120.0f, Vector3.right), _sortcardsdelta))
+                    .AppendCallback(() => {
+                        var card = _cards[i];
+                        card.Go.transform.localPosition = new Vector3(x, y, z);
+                        card.Go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.up) * Quaternion.AngleAxis(90.0f, Vector3.right);
+                    })
+                    .Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(90.0f, Vector3.up) * Quaternion.AngleAxis(90.0f, Vector3.right), _sortcardsdelta))
+                    .AppendCallback(() => {
+                        count++;
+                        if (count > _cards.Count) {
+                            Command cmd = new Command(MyEventCmd.EVENT_SORTCARDS);
+                            _ctx.Enqueue(cmd);
+                        }
+                    });
             }
-            Command cmd = new Command(MyEventCmd.EVENT_SORTCARDS);
-            _ctx.Enqueue(cmd);
         }
 
         protected override void RenderTakeTurn() {

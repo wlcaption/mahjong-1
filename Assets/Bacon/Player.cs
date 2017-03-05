@@ -19,6 +19,7 @@ namespace Bacon {
         protected int _takecardslen = 0;
         protected Dictionary<int, Card> _takecards = new Dictionary<int, Card>();
 
+        protected float _sortcardsdelta = 0.5f;
         protected float _leftoffset = 0.56f;
         protected float _bottomoffset = 0.1f;
         protected List<Card> _cards = new List<Card>();
@@ -37,16 +38,16 @@ namespace Bacon {
 
         protected List<long> _opcodes;
 
+        protected long _hucode;
+        protected long _pengcode;
+        protected long _gangcode;
+
         public Player(Context ctx, GameController controller)
             : base(ctx, controller) {
-            _ctx = ctx;
-            _controller = controller;
         }
 
         public Player(Context ctx, GameService service)
             : base(ctx, service) {
-            _ctx = ctx;
-            _service = service;
         }
 
         public int Idx { get { return _idx; } set { _idx = value; } }

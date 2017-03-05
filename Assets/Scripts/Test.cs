@@ -57,25 +57,25 @@ public class Test : MonoBehaviour {
 #endif
 
 #if UNITY_IOS || UNITY_ANDROID
-        if (Input.touchCount > 0) {
-            UnityStandardAssets.CrossPlatformInput.TouchPad
-            if (Input.touches[0].phase == TouchPhase.Began) {
+        //if (Input.touchCount > 0) {
+        //    UnityStandardAssets.CrossPlatformInput.TouchPad
+        //    if (Input.touches[0].phase == TouchPhase.Began) {
                 
-                RaycastHit hitInfo;
-                if (Physics.Raycast(r, out hitInfo, 100)) {
-                    _go = hitInfo.transform.gameObject;
-                }
-            } else if (Input.touches[0].phase == TouchPhase.Moved) {
-                if (_go) {
-                    Vector2 delta = Input.touches[0].deltaPosition * 10;
-                    _go.transform.localPosition = _go.transform.localPosition + new Vector3(delta.x, 0, delta.y);
-                }
-            } else if (Input.touches[0].phase == TouchPhase.Ended) {
-                if (_go) {
-                    _go = null;
-                }
-            }
-        }
+        //        RaycastHit hitInfo;
+        //        if (Physics.Raycast(r, out hitInfo, 100)) {
+        //            _go = hitInfo.transform.gameObject;
+        //        }
+        //    } else if (Input.touches[0].phase == TouchPhase.Moved) {
+        //        if (_go) {
+        //            Vector2 delta = Input.touches[0].deltaPosition * 10;
+        //            _go.transform.localPosition = _go.transform.localPosition + new Vector3(delta.x, 0, delta.y);
+        //        }
+        //    } else if (Input.touches[0].phase == TouchPhase.Ended) {
+        //        if (_go) {
+        //            _go = null;
+        //        }
+        //    }
+        //}
 #endif
     }
 }

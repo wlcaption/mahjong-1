@@ -6,6 +6,7 @@ using Bacon;
 public class BottomPlayer : MonoBehaviour {
 
     public RootBehaviour _Root;
+    public GameObject _UI;
     public GameObject _Gang;
     public GameObject _Peng;
     public GameObject _Hu;
@@ -129,4 +130,10 @@ public class BottomPlayer : MonoBehaviour {
         _cards.Remove(card.Go);
     }
 
+    public void ShowUI() {
+        _UI.SetActive(true);
+    }
+    public void HideUI() {
+        _UI.SetActive(false);
+    }
 }
