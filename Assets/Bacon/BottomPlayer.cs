@@ -138,18 +138,20 @@ namespace Bacon {
                 float x = _leftoffset + Card.Width * i + Card.Width / 2.0f;
                 float y = Card.Length / 2.0f;
                 float z = _bottomoffset + Card.Height / 2.0f;
+
                 Sequence mySequence = DOTween.Sequence();
-                mySequence.Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(-120, Vector3.right), 0.5f))
+                mySequence.Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(-120.0f, Vector3.right), _sortcardsdelta))
                     .AppendCallback(() => {
                         var card = _cards[i];
                         card.Go.transform.localPosition = new Vector3(x, y, z);
-                        card.Go.transform.localRotation = Quaternion.AngleAxis(-120, Vector3.right);
                         _go.GetComponent<global::BottomPlayer>().Add(card);
                     })
-                    .Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(-60, Vector3.right), 0.5f))
+                    .Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(-60.0f, Vector3.right), _sortcardsdelta))
                     .AppendCallback(() => {
                         count++;
-                        if (count >= _cards.Count) {
+                        UnityEngine.Debug.LogFormat("bottom count {0}", count);
+                        if (count >= (_cards.Count - 1)) {
+                            UnityEngine.Debug.LogFormat("bottom player send event sortcards");
                             Command cmd = new Command(MyEventCmd.EVENT_SORTCARDS);
                             _ctx.Enqueue(cmd);
                         }
@@ -160,13 +162,17 @@ namespace Bacon {
         protected override void RenderTakeTurn() {
 
             float x = _leftoffset + Card.Width * (_cards.Count + 1) + Card.Width / 2.0f + _holdleftoffset;
-            float y = Card.Length / 2.0f;
+            float y = Card.Length / 2.0f + Card.Length;
             float z = _bottomoffset + Card.Height / 2.0f;
 
             _holdcard.Go.transform.localPosition = new Vector3(x, y, z);
             _holdcard.Go.transform.localRotation = Quaternion.AngleAxis(-60, Vector3.right);
 
-            _go.GetComponent<global::BottomPlayer>().SwitchOnTouch();
+            Sequence mySequence = DOTween.Sequence();
+            mySequence.Append(_holdcard.Go.transform.DOMoveY(Card.Length / 2.0f, 0.1f))
+                .AppendCallback(() => {
+                    _go.GetComponent<global::BottomPlayer>().SwitchOnTouch();
+                });
         }
 
         protected override void RenderLead() {

@@ -17,7 +17,7 @@ public class GameRoot : MonoBehaviour {
 	void Start () {
         var board = transform.FindChild("Board").gameObject;
         Command cmd1 = new Command(MyEventCmd.EVENT_SETUP_BOARD, board);
-        Command cmd2 = new Command(Bacon.MyEventCmd.EVENT_SETUP_SCENE, gameObject);
+        Command cmd2 = new Command(MyEventCmd.EVENT_SETUP_SCENE, gameObject);
         _Root.App.Enqueue(cmd1);
         _Root.App.Enqueue(cmd2);
     }

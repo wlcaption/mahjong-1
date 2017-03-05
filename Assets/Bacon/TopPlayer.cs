@@ -86,11 +86,12 @@ namespace Bacon {
                     .AppendCallback(() => {
                         var card = _cards[i];
                         card.Go.transform.localPosition = new Vector3(x, y, z);
-                        card.Go.transform.localRotation = Quaternion.AngleAxis(180.0f, Vector3.up) * Quaternion.AngleAxis(-90.0f, Vector3.right);
                     })
                     .Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(180.0f, Vector3.up) * Quaternion.AngleAxis(-90.0f, Vector3.right), _sortcardsdelta))
                     .AppendCallback(() => {
-                        if (count >= _cards.Count) {
+                        count++;
+                        if (count >= (_cards.Count-1)) {
+                            UnityEngine.Debug.LogFormat("player top send sort cards");
                             Command cmd = new Command(MyEventCmd.EVENT_SORTCARDS);
                             _ctx.Enqueue(cmd);
                         }
@@ -101,11 +102,14 @@ namespace Bacon {
         protected override void RenderTakeTurn() {
             Desk desk = ((GameController)_controller).Desk;
             float x = desk.Width - (_leftoffset + Card.Width * (_cards.Count + 1) + Card.Width / 2.0f + _holdleftoffset);
-            float y = Card.Length / 2.0f;
+            float y = Card.Length / 2.0f + Card.Length;
             float z = desk.Length - (_bottomoffset + Card.Height / 2.0f);
 
             _holdcard.Go.transform.localPosition = new Vector3(x, y, z);
             _holdcard.Go.transform.localRotation = Quaternion.AngleAxis(180, Vector3.up) * Quaternion.AngleAxis(-80, Vector3.right);
+
+            Sequence mySequence = DOTween.Sequence();
+            mySequence.Append(_holdcard.Go.transform.DOMoveY(Card.Length / 2.0f, 0.1f));
         }
 
         protected override void RenderInsert() { }

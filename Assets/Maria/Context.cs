@@ -81,7 +81,7 @@ namespace Maria {
                     }
                 }
                 if (tm.PT >= tm.CD) {
-                    if (tm != null) {
+                    if (tm.CB != null) {
                         tm.CB();
                     }
                     tm.Enable = false;

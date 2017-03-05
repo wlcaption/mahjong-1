@@ -103,7 +103,6 @@ namespace Bacon {
 
         public void SetupMap(EventCmd e) {
             GameObject map = e.Orgin;
-            UnityEngine.Debug.Assert(_scene != null);
             _desk = new Desk(_ctx, this, map);
         }
 

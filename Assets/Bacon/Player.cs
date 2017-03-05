@@ -19,7 +19,7 @@ namespace Bacon {
         protected int _takecardslen = 0;
         protected Dictionary<int, Card> _takecards = new Dictionary<int, Card>();
 
-        protected float _sortcardsdelta = 0.5f;
+        protected float _sortcardsdelta = 0.8f;
         protected float _leftoffset = 0.56f;
         protected float _bottomoffset = 0.1f;
         protected List<Card> _cards = new List<Card>();
@@ -33,7 +33,6 @@ namespace Bacon {
 
         protected float _holdleftoffset = 0.05f;
         protected Card _holdcard;
-        
         protected Card _leadcard;
 
         protected List<long> _opcodes;
@@ -120,8 +119,41 @@ namespace Bacon {
 
         protected virtual void RenderDeal() {}
 
+        private void QuickSort(int low, int high) {
+            if (low >= high) {
+                return;
+            }
+            int first = low;
+            int last = high;
+            Card key = _cards[first];
+            while (first < last) {
+                while (first < last) {
+                    if (_cards[last].CompareTo(key) >= 0) {
+                        --last;
+                    } else {
+                        _cards[first] = _cards[last];
+                        _cards[first].Pos = first;
+                        break;
+                    }
+                }
+                while (first < last) {
+                    if (_cards[first].CompareTo(key) < 0) {
+                        ++first;
+                    } else {
+                        _cards[last] = _cards[first];
+                        _cards[last].Pos = last;
+                        break;
+                    }
+                }
+            }
+
+            _cards[first] = key;
+            QuickSort(low, first - 1);
+            QuickSort(first + 1, high);
+        }
+
         public void SortCards() {
-            _cards.Sort();
+            QuickSort(0, _cards.Count - 1);
             for (int i = 0; i < _cards.Count; i++) {
                 UnityEngine.Debug.Assert(_cards[i].Value == CS[i]);
             }
@@ -141,9 +173,24 @@ namespace Bacon {
 
         protected virtual void RenderTakeTurn() { }
 
-        public void Insert(Card card) { }
-
-        protected virtual void RenderInsert() {
+        private void Insert(Card card) {
+            if (card.CompareTo(_cards[_cards.Count-1]) > 0) {
+                int idx = _cards.Count;
+                _cards[idx] = card;
+                _cards[idx].Pos = idx;
+            } else {
+                int idx = _cards.Count - 1;
+                for (int i = idx; i >= 0; i--) {
+                    if (_cards[i].CompareTo(card) > 0) {
+                        _cards[i + 1] = _cards[i];
+                        _cards[i + 1].Pos = i + 1;
+                    } else {
+                        _cards[i + 1] = card;
+                        _cards[i + 1].Pos = i + 1;
+                        break;
+                    }
+                }
+            }
         }
 
         public void SetupCall(List<long> opcodes, long countdown) {
@@ -168,13 +215,14 @@ namespace Bacon {
 
             UnityEngine.Debug.Assert(_holdcard != null);
             if (_leadcard != _holdcard) {
-                _cards.Add(_holdcard);
-                _holdcard = null;
+                Insert(_holdcard);
             }
             _ctx.EnqueueRenderQueue(RenderLead);
         }
 
         protected virtual void RenderLead() { }
+
+        protected virtual void RenderInsert() { }
 
         public void Peng(Card card) {
             List<Card> cards = new List<Card>();

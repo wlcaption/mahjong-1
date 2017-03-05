@@ -22,6 +22,7 @@ namespace Bacon {
         protected CardType _type;
         protected int _num;
         protected int _idx;
+        protected int _pos;
         protected Player _player = null;
 
         public Card(Context ctx, Controller controller, GameObject go)
@@ -32,6 +33,7 @@ namespace Bacon {
         public CardType Type { set { _type = value; } get { return _type; } }
         public int Num { set { _num = value; } get { return _num; } }
         public int Idx { set { _idx = value; } get { return _idx; } }
+        public int Pos { set { _pos = value; } get { return _pos; } }
 
         public void SetPlayer(Player player) { _player = player; }
         public void ClearPlayer() { _player = null; }

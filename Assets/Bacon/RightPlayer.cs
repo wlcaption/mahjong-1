@@ -88,12 +88,12 @@ namespace Bacon {
                     .AppendCallback(() => {
                         var card = _cards[i];
                         card.Go.transform.localPosition = new Vector3(x, y, z);
-                        card.Go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.up) * Quaternion.AngleAxis(90.0f, Vector3.right);
                     })
                     .Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(90.0f, Vector3.up) * Quaternion.AngleAxis(90.0f, Vector3.right), _sortcardsdelta))
                     .AppendCallback(() => {
                         count++;
-                        if (count > _cards.Count) {
+                        if (count >= (_cards.Count - 1)) {
+                            UnityEngine.Debug.LogFormat("player right send sort cards.");
                             Command cmd = new Command(MyEventCmd.EVENT_SORTCARDS);
                             _ctx.Enqueue(cmd);
                         }
@@ -104,22 +104,21 @@ namespace Bacon {
         protected override void RenderTakeTurn() {
             Desk desk = ((GameController)_controller).Desk;
             float x = desk.Width - (_bottomoffset + Card.Height / 2.0f);
-            float y = Card.Length / 2.0f;
+            float y = Card.Length / 2.0f + Card.Length;
             float z = _leftoffset + Card.Width * (_cards.Count + 1) + Card.Width / 2.0f + _holdleftoffset;
 
             _holdcard.Go.transform.localPosition = new Vector3(x, y, z);
             _holdcard.Go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.up) * Quaternion.AngleAxis(90.0f, Vector3.right);
+
+            Sequence mySequence = DOTween.Sequence();
+            mySequence.Append(_holdcard.Go.transform.DOMoveY(Card.Length / 2.0f, 0.1f));
         }
 
-        protected override void RenderInsert() {
-        }
 
         protected override void RenderLead() {
             Desk desk = ((GameController)_controller).Desk;
 
             UnityEngine.Debug.Assert(_leadcards.Count > 0);
-            int idx = _leadcards.Count - 1;
-            Card last = _leadcards[idx];
             int row = _leadcards.Count / 6;
             int col = _leadcards.Count % 6;
 
@@ -127,13 +126,38 @@ namespace Bacon {
             float y = Card.Height / 2.0f;
             float z = _leadleftoffset + Card.Width * col + Card.Width / 2.0f;
 
-            last.Go.transform.localPosition = new Vector3(x, y, z);
-            last.Go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.up);
+            _leadcard.Go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.up);
 
-            RenderSortCards();
+            Sequence mySequence = DOTween.Sequence();
+            mySequence.Append(_leadcard.Go.transform.DOMove(new Vector3(x, y, z), 0.1f))
+                .AppendCallback(() => {
+                    RenderInsert();
+                });
+        }
 
-            Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
-            _ctx.Enqueue(cmd);
+        protected override void RenderInsert() {
+            Desk desk = ((GameController)_controller).Desk;
+            if (_leadcard != _holdcard) {
+                int count = 0;
+                for (int i = _holdcard.Pos + 1; i < _cards.Count; i++) {
+                    count++;
+                    float dx = desk.Width - (_bottomoffset + Card.Height / 2.0f);
+                    float dy = Card.Length / 2.0f;
+                    float dz = _leftoffset + Card.Width * i + Card.Width / 2.0f;
+                    Sequence mySequence = DOTween.Sequence();
+                    mySequence.Append(_cards[i].Go.transform.DOMove(new Vector3(dx, dy, dz), 0.1f))
+                        .AppendCallback(() => {
+                            count--;
+                            if (count <= 0) {
+                                float hdx = desk.Width - (_bottomoffset + Card.Height / 2.0f);
+                                float hdy = Card.Length / 2.0f;
+                                float hdz = _leftoffset + Card.Width * _holdcard.Pos + Card.Width / 2.0f;
+
+                                _holdcard.Go.transform.DOMove(new Vector3(hdx, hdy, hdz), 0.2f);
+                            }
+                        });
+                }
+            }
         }
 
         protected override void RenderPeng() {
