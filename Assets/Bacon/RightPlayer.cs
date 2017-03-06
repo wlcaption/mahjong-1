@@ -24,6 +24,26 @@ namespace Bacon {
             _go.GetComponent<global::RightPlayer>().ShowUI();
         }
 
+        private Vector3 CalcPos(int pos) {
+            Desk desk = ((GameController)_controller).Desk;
+            float x = desk.Width - (_bottomoffset + Card.Height / 2.0f);
+            float y = Card.Length / 2.0f;
+            float z = _leftoffset + Card.Width * pos + Card.Width / 2.0f;
+            return new Vector3(x, y, z);
+        }
+
+        private Vector3 CalcLeadPos(int pos) {
+            Desk desk = ((GameController)_controller).Desk;
+            int row = (pos + 1) / 6;
+            int col = (pos + 1) % 6;
+
+            float x = desk.Width - (_leadbottomoffset + Card.Length / 2.0f - row * Card.Length);
+            float y = Card.Height / 2.0f;
+            float z = _leadleftoffset + Card.Width * col + Card.Width / 2.0f;
+
+            return new Vector3(x, y, z);
+        }
+
         protected override void RenderBoxing() {
             try {
                 Desk desk = ((GameController)_controller).Desk;
@@ -79,15 +99,16 @@ namespace Bacon {
             int count = 0;
             int i = 0;
             for (; i < _cards.Count; i++) {
-                float x = desk.Width - (_bottomoffset + Card.Height / 2.0f);
-                float y = Card.Length / 2.0f;
-                float z = _leftoffset + Card.Width * i + Card.Width / 2.0f;
 
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(90.0f, Vector3.up) * Quaternion.AngleAxis(120.0f, Vector3.right), _sortcardsdelta))
                     .AppendCallback(() => {
-                        var card = _cards[i];
-                        card.Go.transform.localPosition = new Vector3(x, y, z);
+                        for (int j = 0; j < _cards.Count; j++) {
+                            float x = desk.Width - (_bottomoffset + Card.Height / 2.0f);
+                            float y = Card.Length / 2.0f;
+                            float z = _leftoffset + Card.Width * j + Card.Width / 2.0f;
+                            _cards[j].Go.transform.localPosition = new Vector3(x, y, z);
+                        }
                     })
                     .Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(90.0f, Vector3.up) * Quaternion.AngleAxis(90.0f, Vector3.right), _sortcardsdelta))
                     .AppendCallback(() => {
@@ -111,9 +132,40 @@ namespace Bacon {
             _holdcard.Go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.up) * Quaternion.AngleAxis(90.0f, Vector3.right);
 
             Sequence mySequence = DOTween.Sequence();
-            mySequence.Append(_holdcard.Go.transform.DOMoveY(Card.Length / 2.0f, 0.1f));
+            mySequence.Append(_holdcard.Go.transform.DOMoveY(Card.Length / 2.0f, _holddelta));
         }
 
+        protected override void RenderInsert() {
+            Desk desk = ((GameController)_controller).Desk;
+            int count = 0;
+            for (int i = 0; i < _cards.Count; i++) {
+                if (_cards[i].Value == _holdcard.Value) {
+                    continue;
+                }
+
+                Vector3 dst = CalcPos(i);
+                Sequence s = DOTween.Sequence();
+                s.Append(_cards[i].Go.transform.DOMove(dst, 0.1f))
+                    .AppendCallback(() => {
+                        count++;
+                        if (count >= _cards.Count - 2) {
+                            float hx = desk.Width - (_bottomoffset + Card.Height / 2.0f);
+                            float hy = Card.Length / 2.0f;
+                            float hz = _leftoffset + Card.Width * _holdcard.Pos + Card.Width / 2.0f;
+
+                            Sequence mySequence = DOTween.Sequence();
+                            Tween t = _holdcard.Go.transform.DOMove(new Vector3(hx, hy, hz), 0.1f);
+                            mySequence.Append(t)
+                            .AppendCallback(() => {
+                                Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
+                                _ctx.Enqueue(cmd);
+                            });
+                        }
+                    });
+
+
+            }
+        }
 
         protected override void RenderLead() {
             Desk desk = ((GameController)_controller).Desk;
@@ -128,69 +180,156 @@ namespace Bacon {
 
             _leadcard.Go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.up);
 
-            Sequence mySequence = DOTween.Sequence();
-            mySequence.Append(_leadcard.Go.transform.DOMove(new Vector3(x, y, z), 0.1f))
-                .AppendCallback(() => {
+            float h = 0.05f;
+            if (_leadcard.Value != _holdcard.Value) {
+                float hx = desk.Width - (_bottomoffset + Card.Height / 2.0f);
+                float hy = Card.Length / 2.0f + Card.Length + h;
+                float hz = _leftoffset + Card.Width * _holdcard.Pos + Card.Width / 2.0f;
+
+                float ox = _holdcard.Go.transform.localPosition.x;
+                float oy = _holdcard.Go.transform.localPosition.y;
+                float oz = _holdcard.Go.transform.localPosition.z;
+
+                Vector3[] waypoints = new[] {
+                    new Vector3(hx, (hy - oy) * 0.8f + oy, hz),
+                    new Vector3(hx, (hy - oy) * 0.7f + oy, hz),
+                    new Vector3(hx, (hy - oy) * 0.6f + oy, hz),
+                    new Vector3(hx, (hy - oy) * 0.5f + oy, hz),
+                    new Vector3(hx, (hy - oy) * 0.3f + oy, hz),
+                };
+                Tween t = _holdcard.Go.transform.DOPath(waypoints, 1f).SetOptions(true);
+                Sequence mySequence = DOTween.Sequence();
+                mySequence.Append(t).AppendCallback(() => {
                     RenderInsert();
                 });
-        }
-
-        protected override void RenderInsert() {
-            Desk desk = ((GameController)_controller).Desk;
-            if (_leadcard != _holdcard) {
-                int count = 0;
-                for (int i = _holdcard.Pos + 1; i < _cards.Count; i++) {
-                    count++;
-                    float dx = desk.Width - (_bottomoffset + Card.Height / 2.0f);
-                    float dy = Card.Length / 2.0f;
-                    float dz = _leftoffset + Card.Width * i + Card.Width / 2.0f;
-                    Sequence mySequence = DOTween.Sequence();
-                    mySequence.Append(_cards[i].Go.transform.DOMove(new Vector3(dx, dy, dz), 0.1f))
-                        .AppendCallback(() => {
-                            count--;
-                            if (count <= 0) {
-                                float hdx = desk.Width - (_bottomoffset + Card.Height / 2.0f);
-                                float hdy = Card.Length / 2.0f;
-                                float hdz = _leftoffset + Card.Width * _holdcard.Pos + Card.Width / 2.0f;
-
-                                _holdcard.Go.transform.DOMove(new Vector3(hdx, hdy, hdz), 0.2f);
-                            }
-                        });
-                }
             }
         }
 
         protected override void RenderPeng() {
-            List<Card> cards = _putcards[_putidx];
-            for (int i = 0; i < cards.Count; i++) {
-                float x = 0.15f;
-                float y = 0.05f;
-                float z = 0.1f + _putidx * 0.3f + Card.Width * i;
-
-                cards[i].Go.transform.localPosition = new Vector3(x, y, z);
-                cards[i].Go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.up);
+            Desk desk = ((GameController)_controller).Desk;
+            PGCards pg = _putcards[_putidx];
+            float offset = _putrightoffset;
+            float move = 0.1f;
+            for (int i = 0; i < _putidx; i++) {
+                offset += _putcards[i].Width + _putmargin;
             }
-            Command cmd = new Command(MyEventCmd.EVENT_PENGCARD);
-            _ctx.Enqueue(cmd);
+            int count = 0;
+            pg.Width = 0.0f;
+            for (int i = 0; i < pg.Cards.Count; i++) {
+                float x = _putbottomoffset;
+                float y = Card.Height / 2.0f;
+                float z = 0.0f;
+                if (i == pg.Hor) {
+                    x = _putbottomoffset + Card.Width / 2.0f;
+                    z = desk.Length - (offset + Card.Length / 2.0f + move);
+                    offset += Card.Length;
+                    pg.Width += Card.Length;
+                    pg.Cards[i].Go.transform.localRotation = Quaternion.AngleAxis(-180.0f, Vector3.up);
+                } else {
+                    x = _putbottomoffset + Card.Length / 2.0f;
+                    z = desk.Length - (offset + Card.Width / 2.0f + move);
+                    offset += Card.Width;
+                    pg.Width += Card.Width;
+                    pg.Cards[i].Go.transform.localRotation = Quaternion.AngleAxis(-90.0f, Vector3.up);
+                }
+                Sequence mySequence = DOTween.Sequence();
+                mySequence.Append(pg.Cards[i].Go.transform.DOMoveZ(z + move, 0.1f))
+                    .AppendCallback(() => {
+                        count++;
+                        if (count >= (pg.Cards.Count - 1)) {
+                            Command cmd = new Command(MyEventCmd.EVENT_PENGCARD);
+                            _ctx.Enqueue(cmd);
+                        }
+                    });
+            }
         }
 
         protected override void RenderGang() {
-            List<Card> cards = _putcards[_putidx];
-            for (int i = 0; i < cards.Count; i++) {
-                float x = 0.15f;
-                if (i == 3) {
-                    x = 0.15f + Card.Width;
-                } else {
-                    x = 0.15f;
+            Desk desk = ((GameController)_controller).Desk;
+            PGCards pg = _putcards[_putidx];
+            if (pg.Opcode == OpCodes.OPCODE_ZHIGANG) {
+                float offset = _putrightoffset;
+                float move = 0.1f;
+                for (int i = 0; i < _putidx; i++) {
+                    offset += _putcards[i].Width + _putmargin;
                 }
-                float y = 0.05f;
-                float z = 0.1f + _putidx * 0.3f + Card.Width * i;
+                int count = 0;
+                pg.Width = 0.0f;
+                for (int i = 0; i < pg.Cards.Count; i++) {
+                    float x = _putbottomoffset;
+                    float y = Card.Height / 2.0f;
+                    float z = 0.0f;
+                    if (i == pg.Hor) {
+                        x = _putbottomoffset + Card.Width / 2.0f;
+                        z = desk.Length - (offset + Card.Length / 2.0f + move);
+                        offset += Card.Length;
+                        pg.Width += Card.Length;
+                        pg.Cards[i].Go.transform.localRotation = Quaternion.AngleAxis(-180.0f, Vector3.up);
+                    } else {
+                        x = _putbottomoffset + Card.Length / 2.0f;
+                        z = desk.Length - (offset + Card.Width / 2.0f + move);
+                        offset += Card.Width;
+                        pg.Width += Card.Width;
+                        pg.Cards[i].Go.transform.localRotation = Quaternion.AngleAxis(-90.0f, Vector3.up);
+                    }
+                    Sequence mySequence = DOTween.Sequence();
+                    mySequence.Append(pg.Cards[i].Go.transform.DOMoveZ(z + move, 0.1f))
+                        .AppendCallback(() => {
+                            count++;
+                            if (count >= (pg.Cards.Count - 1)) {
+                                Command cmd = new Command(MyEventCmd.EVENT_PENGCARD);
+                                _ctx.Enqueue(cmd);
+                            }
+                        });
+                }
+            } else if (pg.Opcode == OpCodes.OPCODE_ANGANG) {
+                float offset = _putrightoffset;
+                float move = 0.1f;
+                for (int i = 0; i < _putidx; i++) {
+                    offset += _putcards[i].Width + _putmargin;
+                }
+                int count = 0;
+                pg.Width = 0.0f;
+                for (int i = 0; i < pg.Cards.Count; i++) {
+                    float x = _putbottomoffset + Card.Length / 2.0f;
+                    float y = Card.Height / 2.0f;
+                    float z = desk.Length - (offset + Card.Width / 2.0f + move);
+                    offset += Card.Width;
+                    pg.Width += Card.Width;
 
-                cards[i].Go.transform.localPosition = new Vector3(x, y, z);
-                cards[i].Go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.up);
+                    if (i == 0) {
+                        pg.Cards[i].Go.transform.localRotation = Quaternion.AngleAxis(-90.0f, Vector3.up);
+                    } else {
+                        pg.Cards[i].Go.transform.localRotation = Quaternion.AngleAxis(-90.0f, Vector3.up) * Quaternion.AngleAxis(180.0f, Vector3.forward);
+                    }
+                    Sequence mySequence = DOTween.Sequence();
+                    mySequence.Append(pg.Cards[i].Go.transform.DOMoveZ(z + move, 0.1f))
+                        .AppendCallback(() => {
+                            count++;
+                            if (count >= (pg.Cards.Count - 1)) {
+                                Command cmd = new Command(MyEventCmd.EVENT_PENGCARD);
+                                _ctx.Enqueue(cmd);
+                            }
+                        });
+                }
+            } else if (pg.Opcode == OpCodes.OPCODE_BUGANG) {
+                float offset = _putrightoffset;
+                float move = 0.1f;
+                for (int i = 0; i < _putidx; i++) {
+                    offset += _putcards[i].Width + _putmargin;
+                }
+
+                float x = _putbottomoffset + Card.Width / 2.0f + Card.Width;
+                float y = Card.Height / 2.0f;
+                float z = desk.Length - (offset + Card.Width * pg.Hor + Card.Width / 2.0f + move);
+
+                Sequence mySequence = DOTween.Sequence();
+                mySequence.Append(pg.Cards[3].Go.transform.DOMoveZ(z + move, 0.1f))
+                    .AppendCallback(() => {
+                        Command cmd = new Command(MyEventCmd.EVENT_PENGCARD);
+                        _ctx.Enqueue(cmd);
+                    });
             }
-            Command cmd = new Command(MyEventCmd.EVENT_PENGCARD);
-            _ctx.Enqueue(cmd);
         }
 
         protected override void RenderHu() {

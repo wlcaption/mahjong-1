@@ -16,6 +16,7 @@ public class App : MonoBehaviour {
             throw new System.Exception("not imple");
         }
         _start.SetupStartRoot();
+        GetComponent<AudioSource>().Play();
     }
 
     // Update is called once per frame

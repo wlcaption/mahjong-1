@@ -45,5 +45,16 @@ namespace Bacon {
             }
             return (int)(_value - other._value);
         }
+
+        public static bool operator ==(Card lhs, Card rhs) {
+            if (object.Equals(lhs, null) || object.Equals(rhs, null)) {
+                return false;
+            }
+            return (lhs._type == rhs._type) && (lhs._num == rhs._num);
+        }
+
+        public static bool operator !=(Card lhs, Card rhs) {
+            return !(lhs == rhs);
+        }
     }
 }

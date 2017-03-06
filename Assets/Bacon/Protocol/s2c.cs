@@ -454,7 +454,7 @@ namespace S2cSprotoType {
 	public class gang {
 	
 		public class request : SprotoTypeBase {
-			private static int max_field_count = 2;
+			private static int max_field_count = 3;
 			
 			
 			private Int64 _idx; // tag 0
@@ -475,6 +475,15 @@ namespace S2cSprotoType {
 				get { return base.has_field.has_field (1); }
 			}
 
+			private Int64 _code; // tag 2
+			public Int64 code {
+				get { return _code; }
+				set { base.has_field.set_field (2, true); _code = value; }
+			}
+			public bool HasCode {
+				get { return base.has_field.has_field (2); }
+			}
+
 			public request () : base(max_field_count) {}
 
 			public request (byte[] buffer) : base(max_field_count, buffer) {
@@ -490,6 +499,9 @@ namespace S2cSprotoType {
 						break;
 					case 1:
 						this.card = base.deserialize.read_integer ();
+						break;
+					case 2:
+						this.code = base.deserialize.read_integer ();
 						break;
 					default:
 						base.deserialize.read_unknow_data ();
@@ -507,6 +519,10 @@ namespace S2cSprotoType {
 
 				if (base.has_field.has_field (1)) {
 					base.serialize.write_integer (this.card, 1);
+				}
+
+				if (base.has_field.has_field (2)) {
+					base.serialize.write_integer (this.code, 2);
 				}
 
 				return base.serialize.close ();
@@ -615,7 +631,7 @@ namespace S2cSprotoType {
 	public class hu {
 	
 		public class request : SprotoTypeBase {
-			private static int max_field_count = 2;
+			private static int max_field_count = 3;
 			
 			
 			private Int64 _idx; // tag 0
@@ -636,6 +652,15 @@ namespace S2cSprotoType {
 				get { return base.has_field.has_field (1); }
 			}
 
+			private Int64 _code; // tag 2
+			public Int64 code {
+				get { return _code; }
+				set { base.has_field.set_field (2, true); _code = value; }
+			}
+			public bool HasCode {
+				get { return base.has_field.has_field (2); }
+			}
+
 			public request () : base(max_field_count) {}
 
 			public request (byte[] buffer) : base(max_field_count, buffer) {
@@ -651,6 +676,9 @@ namespace S2cSprotoType {
 						break;
 					case 1:
 						this.card = base.deserialize.read_integer ();
+						break;
+					case 2:
+						this.code = base.deserialize.read_integer ();
 						break;
 					default:
 						base.deserialize.read_unknow_data ();
@@ -668,6 +696,10 @@ namespace S2cSprotoType {
 
 				if (base.has_field.has_field (1)) {
 					base.serialize.write_integer (this.card, 1);
+				}
+
+				if (base.has_field.has_field (2)) {
+					base.serialize.write_integer (this.code, 2);
 				}
 
 				return base.serialize.close ();

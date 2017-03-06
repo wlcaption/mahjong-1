@@ -30,7 +30,7 @@ namespace Bacon {
         private int _oknum = 0;
         private int _take1time = 0;
         private int _takeround = 0;
-        private int _takeall = 0;
+        private int _takepoint = 0;  // 最多是6 
 
         private long _lastidx = 0;
         private Card _lastCard = null;
@@ -180,12 +180,14 @@ namespace Bacon {
             if (_service.GetPlayer(_curtake).TakeCard(out card)) {
                 return true;
             } else {
-                _takeall++;
-                if (_takeall == 6) {
+                _takepoint++;
+                if (_takepoint >= 6) {
                     // over
+                    return false;
                 } else {
                     _curtake++;
                     _curtake = _curtake > 4 ? 1 : _curtake;
+                    return true;
                 }
             }
             UnityEngine.Debug.Assert(card != null);
@@ -459,6 +461,17 @@ namespace Bacon {
         public SprotoTypeBase OnGang(SprotoTypeBase requestObj) {
             S2cSprotoType.gang.request obj = requestObj as S2cSprotoType.gang.request;
             try {
+                if (OpCodes.OPCODE_ANGANG != 0) {
+                    Card card = new Card(_ctx, this, null);
+                    card.Value = obj.card;
+                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_ANGANG, card);
+                } else if (OpCodes.OPCODE_ZHIGANG != 0) {
+                    UnityEngine.Debug.Assert(_lastCard.Value == obj.card);
+                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_ZHIGANG, _lastCard);
+                } else if (OpCodes.OPCODE_BUGANG != 0) {
+                    UnityEngine.Debug.Assert(_lastCard.Value == obj.card);
+                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_BUGANG, _lastCard);
+                }
 
                 S2cSprotoType.gang.response responseObj = new S2cSprotoType.gang.response();
                 responseObj.errorcode = Errorcode.SUCCESS;
