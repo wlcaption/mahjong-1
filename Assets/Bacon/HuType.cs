@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Assets.Bacon {
-    class HuType {
+namespace Bacon {
+    public class HuType {
         public static uint NONE = 0;
         public static uint PINGHU = 1;
         public static uint DUIDUIHU = 2;

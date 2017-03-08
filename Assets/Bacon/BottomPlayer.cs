@@ -66,29 +66,62 @@ namespace Bacon {
 
         private void OnSendPeng(EventCmd e) {
             C2sSprotoType.call.request request = new C2sSprotoType.call.request();
-            request.idx = _idx;
-            request.opcode = OpCodes.OPCODE_PENG;
+            request.op = new C2sSprotoType.opinfo();
+            request.op.idx = _idx;
+            request.op.card = Call.Card;
+            request.op.guo = OpCodes.OPCODE_NONE;
+            request.op.peng = Call.Peng;
+            request.op.gang = OpCodes.OPCODE_NONE;
+            request.op.hu = new C2sSprotoType.huinfo();
+            request.op.hu.idx = _idx;
+            request.op.hu.code = HuType.NONE;
+
             _ctx.SendReq<C2sProtocol.call>(C2sProtocol.call.Tag, request);
         }
 
         private void OnSendGang(EventCmd e) {
             C2sSprotoType.call.request request = new C2sSprotoType.call.request();
-            request.idx = _idx;
-            request.opcode = _gangcode;
+            request.op = new C2sSprotoType.opinfo();
+            request.op.idx = _idx;
+            request.op.card = Call.Card;
+            request.op.peng = OpCodes.OPCODE_NONE;
+            request.op.gang = Call.Gang;
+            request.op.hu = new C2sSprotoType.huinfo();
+            request.op.hu.idx = _idx;
+            request.op.hu.code = HuType.NONE;
+           
             _ctx.SendReq<C2sProtocol.call>(C2sProtocol.call.Tag, request);
         }
 
         private void OnSendGuo(EventCmd e) {
             C2sSprotoType.call.request request = new C2sSprotoType.call.request();
-            request.idx = _idx;
-            request.opcode = OpCodes.OPCODE_GUO;
+            request.op = new C2sSprotoType.opinfo();
+            request.op.idx = _idx;
+            request.op.guo = OpCodes.OPCODE_GUO;
+            request.op.peng = OpCodes.OPCODE_NONE;
+            request.op.gang = OpCodes.OPCODE_NONE;
+            request.op.hu = new C2sSprotoType.huinfo();
+            request.op.hu.idx = _idx;
+            request.op.hu.code = OpCodes.OPCODE_NONE;
+
             _ctx.SendReq<C2sProtocol.call>(C2sProtocol.call.Tag, request);
         }
 
         private void OnSendHu(EventCmd e) {
             C2sSprotoType.call.request request = new C2sSprotoType.call.request();
-            request.idx = _idx;
-            request.opcode = OpCodes.OPCODE_HU;
+            request.op = new C2sSprotoType.opinfo();
+            request.op.idx = _idx;
+            request.op.guo = OpCodes.OPCODE_NONE;
+            request.op.peng = OpCodes.OPCODE_NONE;
+            request.op.gang = OpCodes.OPCODE_NONE;
+
+            request.op.hu = new C2sSprotoType.huinfo();
+            request.op.hu.idx = _idx;
+            request.op.hu.code = Call.Hu.Code;
+            request.op.hu.card = Call.Card;
+            request.op.hu.jiao = Call.Hu.Jiao;
+            request.op.hu.dian = Call.Hu.Dian;
+
             _ctx.SendReq<C2sProtocol.call>(C2sProtocol.call.Tag, request);
         }
 
@@ -405,19 +438,14 @@ namespace Bacon {
         protected override void RenderHu() { }
 
         protected override void RenderCall() {
-            UnityEngine.Debug.Assert(_opcodes.Count > 0);
-            for (int i = 0; i < _opcodes.Count; i++) {
-                if (_opcodes[i] == OpCodes.OPCODE_PENG) {
-                    _go.GetComponent<global::BottomPlayer>().ShowPeng();
-                } else if (_opcodes[i] == OpCodes.OPCODE_ANGANG) {
-                    _go.GetComponent<global::BottomPlayer>().ShowGang();
-                } else if (_gangcode == OpCodes.OPCODE_ZHIGANG) {
-                    _go.GetComponent<global::BottomPlayer>().ShowGang();
-                } else if (_gangcode == OpCodes.OPCODE_BUGANG) {
-                    _go.GetComponent<global::BottomPlayer>().ShowGang();
-                } else if (_opcodes[i] == OpCodes.OPCODE_HU) {
-                    _go.GetComponent<global::BottomPlayer>().ShowGang();
-                }
+            if (Call.Peng == OpCodes.OPCODE_PENG) {
+                _go.GetComponent<global::BottomPlayer>().ShowPeng();
+            }
+            if (Call.Gang == OpCodes.OPCODE_ANGANG || Call.Gang == OpCodes.OPCODE_BUGANG || Call.Gang == OpCodes.OPCODE_ZHIGANG) {
+                _go.GetComponent<global::BottomPlayer>().ShowGang();
+            }
+            if (Call.Hu.Code != HuType.NONE) {
+                _go.GetComponent<global::BottomPlayer>().ShowHu();
             }
             _go.GetComponent<global::BottomPlayer>().ShowGuo();
         }

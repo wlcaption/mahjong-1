@@ -39,12 +39,6 @@ namespace Bacon {
         protected Card _holdcard;
         protected Card _leadcard;
 
-        protected List<long> _opcodes;
-
-        protected long _hucode;
-        protected long _pengcode;
-        protected long _gangcode;
-
         public Player(Context ctx, GameController controller)
             : base(ctx, controller) {
         }
@@ -56,6 +50,7 @@ namespace Bacon {
         public int Idx { get { return _idx; } set { _idx = value; } }
 
         public List<long> CS { get; set; }
+        public CallInfo Call { get; set; }
 
         public void Start() {
             _takecards.Clear();
@@ -63,9 +58,6 @@ namespace Bacon {
             _putcards.Clear();
             _holdcard = null;
             _leadcard = null;
-            _hucode = 0;
-            _pengcode = 0;
-            _gangcode = 0;
         }
 
         public bool TakeCard(out Card nx) {
@@ -224,8 +216,8 @@ namespace Bacon {
             }
         }
 
-        public void SetupCall(List<long> opcodes, long countdown) {
-            _opcodes = opcodes;
+        public void SetupCall(long card, long countdown) {
+            
             _ctx.EnqueueRenderQueue(RenderCall);
         }
 

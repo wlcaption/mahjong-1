@@ -422,7 +422,15 @@ namespace Bacon {
             S2cSprotoType.call.request obj = requestObj as S2cSprotoType.call.request;
             try {
                 for (int i = 0; i < obj.opcodes.Count; i++) {
-                    //_service.GetPlayer(obj.opcodes[i].idx).SetupCall(obj.opcodes[i].opcode, obj.countdown);
+                    CallInfo call = new CallInfo();
+                    call.Card = obj.opcodes[i].card;
+                    call.Peng = obj.opcodes[i].peng;
+                    call.Gang = obj.opcodes[i].gang;
+                    call.Hu = new CallInfo.HuInfo();
+                    call.Hu.Code = obj.opcodes[i].hu.code;
+                    call.Hu.Jiao = obj.opcodes[i].hu.jiao;
+                    call.Hu.Dian = obj.opcodes[i].hu.dian;
+                    _service.GetPlayer(obj.opcodes[i].idx).SetupCall(call.Card, obj.opcodes[i].countdown);
                 }
 
                 S2cSprotoType.call.response responseObj = new S2cSprotoType.call.response();
