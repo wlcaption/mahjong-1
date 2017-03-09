@@ -19,13 +19,16 @@ namespace Bacon {
         protected int _takecardslen = 0;
         protected Dictionary<int, Card> _takecards = new Dictionary<int, Card>();
 
+        protected const float _holddowndelat = 0.3f;
+        protected const float _abdicateholddelta = 0.6f;
+        protected const float _holdflydelta = 1.2f;
         protected const float _sortcardsdelta = 0.8f;
         protected const float _leftoffset = 0.56f;
         protected const float _bottomoffset = 0.1f;
         protected List<Card> _cards = new List<Card>();
 
         protected const float _leadleftoffset = 0.7f;
-        protected const float _leadbottomoffset = 0.7f;
+        protected const float _leadbottomoffset = 0.7f;  // 偏移起始值
         protected List<Card> _leadcards = new List<Card>();
 
         protected const float _putmargin = 0.02f;
@@ -186,21 +189,16 @@ namespace Bacon {
         protected virtual void RenderTakeTurn() { }
 
         private void Insert(Card card) {
-            if (card.CompareTo(_cards[_cards.Count - 1]) > 0) {
-                int idx = _cards.Count;
-                _cards[idx] = card;
-                _cards[idx].Pos = idx;
-            } else {
-                int idx = _cards.Count - 1;
-                for (int i = idx; i >= 0; i--) {
-                    if (_cards[i].CompareTo(card) > 0) {
-                        _cards[i + 1] = _cards[i];
-                        _cards[i + 1].Pos = i + 1;
-                    } else {
-                        _cards[i + 1] = card;
-                        _cards[i + 1].Pos = i + 1;
-                        break;
-                    }
+            UnityEngine.Debug.Assert(_cards.Count > 0);
+            _cards.Add(card);
+            UnityEngine.Debug.Assert(_cards[_cards.Count - 1].Value == card.Value);
+            for (int i = _cards.Count - 2; i >= 0; i--) {
+                if (_cards[i + 1].CompareTo(_cards[i]) < 0) {
+                    Card tmp = _cards[i + 1];
+                    _cards[i + 1] = _cards[i];
+                    _cards[i + 1].Pos = i + 1;
+                    _cards[i] = tmp;
+                    _cards[i].Pos = i;
                 }
             }
         }
@@ -208,8 +206,15 @@ namespace Bacon {
         private void Remove(Card card) {
             for (int i = 0; i < _cards.Count; i++) {
                 if (_cards[i].Value == card.Value) {
-                    for (int j = 0; j < _cards.Count - 1; j++) {
-                        _cards[i] = _cards[j + 1];
+                    UnityEngine.Debug.Assert(i == card.Pos);
+                    if (i == (_cards.Count - 1)) {
+                        _cards.RemoveAt(i);
+                    } else {
+                        for (int j = i; j < (_cards.Count - 1); j++) {
+                            _cards[j] = _cards[j + 1];
+                            _cards[j].Pos = j;
+                        }
+                        _cards.RemoveAt(_cards.Count - 1);
                     }
                     break;
                 }
@@ -217,30 +222,47 @@ namespace Bacon {
         }
 
         public void SetupCall(long card, long countdown) {
-            
             _ctx.EnqueueRenderQueue(RenderCall);
         }
 
         protected virtual void RenderCall() { }
 
         public void Lead(long c) {
-            for (int i = 0; i < _cards.Count; i++) {
-                if (_cards[i].Value == c) {
-                    _leadcard = _cards[i];
-                    break;
+            if (_holdcard == null) {
+                // peng lead
+                for (int i = 0; i < _cards.Count; i++) {
+                    if (_cards[i].Value == c) {
+                        _leadcard = _cards[i];
+                        break;
+                    }
+                }
+                UnityEngine.Debug.Assert(_leadcard.Value == c);
+                Remove(_leadcard);
+                _leadcards.Add(_leadcard);
+            } else {
+                if (_holdcard.Value == c) {
+                    _leadcard = _holdcard;
+                    //_holdcard = null;  // 此时不能删除_holdcard,表现的时候需要用到
+                    _leadcards.Add(_leadcard);
+                } else {
+                    for (int i = 0; i < _cards.Count; i++) {
+                        if (_cards[i].Value == c) {
+                            _leadcard = _cards[i];
+                            break;
+                        }
+                    }
+                    UnityEngine.Debug.Assert(_leadcard.Value == c);
+                    Remove(_leadcard);
+                    _leadcards.Add(_leadcard);
+
+                    Insert(_holdcard);
+                    //_holdcard = null;
                 }
             }
-            UnityEngine.Debug.Assert(_leadcard.Value == c);
-            Remove(_leadcard);
 
-            _leadcards.Add(_leadcard);
             ((GameController)_controller).LastCard = _leadcard;
             ((GameController)_controller).CurIdx = _idx;
 
-            UnityEngine.Debug.Assert(_holdcard != null);
-            if (_leadcard != _holdcard) {
-                Insert(_holdcard);
-            }
             _ctx.EnqueueRenderQueue(RenderLead);
         }
 

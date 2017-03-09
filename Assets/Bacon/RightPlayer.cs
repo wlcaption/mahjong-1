@@ -37,7 +37,7 @@ namespace Bacon {
             int row = (pos + 1) / 6;
             int col = (pos + 1) % 6;
 
-            float x = desk.Width - (_leadbottomoffset + Card.Length / 2.0f - row * Card.Length);
+            float x = desk.Width - (_leadbottomoffset - row * Card.Length - Card.Length / 2.0f);
             float y = Card.Height / 2.0f;
             float z = _leadleftoffset + Card.Width * col + Card.Width / 2.0f;
 
@@ -74,7 +74,6 @@ namespace Bacon {
         }
 
         protected override void RenderDeal() {
-            Desk desk = ((GameController)_controller).Desk;
             int i = 0;
             if (_cards.Count == 13) {
                 i = 12;
@@ -82,12 +81,9 @@ namespace Bacon {
                 i = _cards.Count - 4;
             }
             for (; i < _cards.Count; i++) {
+                Vector3 dst = CalcPos(i);
                 var card = _cards[i];
-                float x = desk.Width - (_bottomoffset + Card.Height / 2.0f);
-                float y = Card.Length / 2.0f;
-                float z = _leftoffset + Card.Width * i + Card.Width / 2.0f;
-
-                card.Go.transform.localPosition = new Vector3(x, y, z);
+                card.Go.transform.localPosition = dst;
                 card.Go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.up) * Quaternion.AngleAxis(90.0f, Vector3.right);
             }
             Command cmd = new Command(MyEventCmd.EVENT_TAKEDEAL);
@@ -99,21 +95,18 @@ namespace Bacon {
             int count = 0;
             int i = 0;
             for (; i < _cards.Count; i++) {
-
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(90.0f, Vector3.up) * Quaternion.AngleAxis(120.0f, Vector3.right), _sortcardsdelta))
                     .AppendCallback(() => {
                         for (int j = 0; j < _cards.Count; j++) {
-                            float x = desk.Width - (_bottomoffset + Card.Height / 2.0f);
-                            float y = Card.Length / 2.0f;
-                            float z = _leftoffset + Card.Width * j + Card.Width / 2.0f;
-                            _cards[j].Go.transform.localPosition = new Vector3(x, y, z);
+                            Vector3 dst = CalcPos(j);
+                            _cards[j].Go.transform.localPosition = dst;
                         }
                     })
                     .Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(90.0f, Vector3.up) * Quaternion.AngleAxis(90.0f, Vector3.right), _sortcardsdelta))
                     .AppendCallback(() => {
                         count++;
-                        if (count >= (_cards.Count - 1)) {
+                        if (count >= _cards.Count) {
                             UnityEngine.Debug.LogFormat("player right send sort cards.");
                             Command cmd = new Command(MyEventCmd.EVENT_SORTCARDS);
                             _ctx.Enqueue(cmd);
@@ -145,63 +138,63 @@ namespace Bacon {
 
                 Vector3 dst = CalcPos(i);
                 Sequence s = DOTween.Sequence();
-                s.Append(_cards[i].Go.transform.DOMove(dst, 0.1f))
+                s.Append(_cards[i].Go.transform.DOMove(dst, _abdicateholddelta))
                     .AppendCallback(() => {
                         count++;
-                        if (count >= _cards.Count - 2) {
-                            float hx = desk.Width - (_bottomoffset + Card.Height / 2.0f);
-                            float hy = Card.Length / 2.0f;
-                            float hz = _leftoffset + Card.Width * _holdcard.Pos + Card.Width / 2.0f;
+                        if (count >= _cards.Count - 1) {
+
+                            Vector3 to = CalcPos(_holdcard.Pos);
+                            Tween t = _holdcard.Go.transform.DOMove(to, _holddowndelat);
 
                             Sequence mySequence = DOTween.Sequence();
-                            Tween t = _holdcard.Go.transform.DOMove(new Vector3(hx, hy, hz), 0.1f);
                             mySequence.Append(t)
                             .AppendCallback(() => {
+                                _holdcard = null;
+                                UnityEngine.Debug.LogFormat("right player send event lead card");
                                 Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
                                 _ctx.Enqueue(cmd);
                             });
                         }
                     });
-
-
             }
         }
 
         protected override void RenderLead() {
             Desk desk = ((GameController)_controller).Desk;
-
             UnityEngine.Debug.Assert(_leadcards.Count > 0);
             int row = _leadcards.Count / 6;
             int col = _leadcards.Count % 6;
 
-            float x = desk.Width - (_leadbottomoffset + Card.Length / 2.0f - row * Card.Length);
-            float y = Card.Height / 2.0f;
-            float z = _leadleftoffset + Card.Width * col + Card.Width / 2.0f;
+            Vector3 dst = CalcLeadPos(_leadcards.Count - 1);
 
+            _leadcard.Go.transform.localPosition = dst;
             _leadcard.Go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.up);
 
             float h = 0.05f;
             if (_leadcard.Value != _holdcard.Value) {
-                float hx = desk.Width - (_bottomoffset + Card.Height / 2.0f);
-                float hy = Card.Length / 2.0f + Card.Length + h;
-                float hz = _leftoffset + Card.Width * _holdcard.Pos + Card.Width / 2.0f;
 
-                float ox = _holdcard.Go.transform.localPosition.x;
-                float oy = _holdcard.Go.transform.localPosition.y;
-                float oz = _holdcard.Go.transform.localPosition.z;
+                Vector3 to = CalcPos(_holdcard.Pos);
+                to.y = to.y + Card.Length + h;
+                Vector3 from = _holdcard.Go.transform.localPosition;
 
                 Vector3[] waypoints = new[] {
-                    new Vector3(hx, (hy - oy) * 0.8f + oy, hz),
-                    new Vector3(hx, (hy - oy) * 0.7f + oy, hz),
-                    new Vector3(hx, (hy - oy) * 0.6f + oy, hz),
-                    new Vector3(hx, (hy - oy) * 0.5f + oy, hz),
-                    new Vector3(hx, (hy - oy) * 0.3f + oy, hz),
+                    from,
+                    new Vector3(from.x, (to.y - from.y) * 0.2f + from.y, (to.z - from.z) * 0.2f + from.z),
+                    new Vector3(from.x, (to.y - from.y) * 0.3f + from.y, (to.z - from.z) * 0.3f + from.z),
+                    new Vector3(from.x, (to.y - from.y) * 0.5f + from.y, (to.z - from.z) * 0.5f + from.z),
+                    new Vector3(from.x, (to.y - from.y) * 0.8f + from.y, (to.z - from.z) * 0.8f + from.z),
+                    to,
                 };
-                Tween t = _holdcard.Go.transform.DOPath(waypoints, 1f).SetOptions(true);
+                Tween t = _holdcard.Go.transform.DOPath(waypoints, _holdflydelta).SetOptions(false);
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(t).AppendCallback(() => {
                     RenderInsert();
                 });
+            } else {
+                _holdcard = null;
+                UnityEngine.Debug.LogFormat("right player send event lead card");
+                Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
+                _ctx.Enqueue(cmd);
             }
         }
 

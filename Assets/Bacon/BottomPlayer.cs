@@ -89,7 +89,7 @@ namespace Bacon {
             request.op.hu = new C2sSprotoType.huinfo();
             request.op.hu.idx = _idx;
             request.op.hu.code = HuType.NONE;
-           
+
             _ctx.SendReq<C2sProtocol.call>(C2sProtocol.call.Tag, request);
         }
 
@@ -174,14 +174,11 @@ namespace Bacon {
                 i = _cards.Count - 4;
             }
             for (; i < _cards.Count; i++) {
+                Vector3 dst = CalcPos(i);
                 var card = _cards[i];
-                float x = _leftoffset + Card.Width * i + Card.Width / 2.0f;
-                float y = Card.Length / 2.0f;
-                float z = _bottomoffset + Card.Height / 2.0f;
-                card.Go.transform.localPosition = new Vector3(x, y, z);
+                card.Go.transform.localPosition = dst;
                 card.Go.transform.localRotation = Quaternion.AngleAxis(-60, Vector3.right);
             }
-
             Command cmd = new Command(MyEventCmd.EVENT_TAKEDEAL);
             _ctx.Enqueue(cmd);
         }
@@ -193,19 +190,15 @@ namespace Bacon {
                 mySequence.Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(-120.0f, Vector3.right), _sortcardsdelta))
                     .AppendCallback(() => {
                         for (int j = 0; j < _cards.Count; j++) {
-                            float x = _leftoffset + Card.Width * j + Card.Width / 2.0f;
-                            float y = Card.Length / 2.0f;
-                            float z = _bottomoffset + Card.Height / 2.0f;
-
-                            _cards[j].Go.transform.localPosition = new Vector3(x, y, z);
+                            Vector3 dst = CalcPos(j);
+                            _cards[j].Go.transform.localPosition = dst;
                             _go.GetComponent<global::BottomPlayer>().Add(_cards[j]);
                         }
                     })
                     .Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(-60.0f, Vector3.right), _sortcardsdelta))
                     .AppendCallback(() => {
                         count++;
-                        UnityEngine.Debug.LogFormat("bottom count {0}", count);
-                        if (count >= (_cards.Count - 1)) {
+                        if (count >= _cards.Count) {
                             UnityEngine.Debug.LogFormat("bottom player send event sortcards");
                             Command cmd = new Command(MyEventCmd.EVENT_SORTCARDS);
                             _ctx.Enqueue(cmd);
@@ -236,24 +229,21 @@ namespace Bacon {
                 if (_cards[i].Value == _holdcard.Value) {
                     continue;
                 }
-                float x = _leftoffset + Card.Width * i + Card.Width / 2.0f;
-                float y = Card.Length / 2.0f;
-                float z = _bottomoffset + Card.Height / 2.0f;
 
+                Vector3 dst = CalcPos(i);
                 Sequence s = DOTween.Sequence();
-                s.Append(_cards[i].Go.transform.DOMove(new Vector3(x, y, z), 0.1f))
+                s.Append(_cards[i].Go.transform.DOMove(dst, _abdicateholddelta))
                     .AppendCallback(() => {
                         count++;
-                        if (count >= _cards.Count - 2) {
+                        if (count >= _cards.Count - 1) {
 
-                            float dx = _leftoffset + Card.Width * _holdcard.Pos + Card.Width / 2.0f;
-                            float dy = Card.Length / 2.0f;
-                            float dz = _bottomoffset + Card.Height / 2.0f;
-
+                            Vector3 to = CalcPos(_holdcard.Pos);
+                            Tween t = _holdcard.Go.transform.DOMove(to, _holddowndelat);
                             Sequence mySequence = DOTween.Sequence();
-                            Tween t = _holdcard.Go.transform.DOMove(new Vector3(dx, dy, dz), 0.1f);
                             mySequence.Append(t)
                             .AppendCallback(() => {
+                                _holdcard = null;
+                                UnityEngine.Debug.LogFormat("bottom player send event lead card");
                                 Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
                                 _ctx.Enqueue(cmd);
                             });
@@ -271,7 +261,7 @@ namespace Bacon {
 
             float x = _leadleftoffset + Card.Width * col + Card.Width / 2.0f;
             float y = Card.Height / 2.0f;
-            float z = _leadbottomoffset + Card.Length / 2.0f - row * Card.Length;
+            float z = _leadbottomoffset - row * Card.Length - Card.Length / 2.0f;
 
             Desk desk = ((GameController)_controller).Desk;
             _leadcard.Go.transform.localPosition = new Vector3(x, y, z);
@@ -279,27 +269,32 @@ namespace Bacon {
 
             float h = 0.05f;
             if (_leadcard.Value != _holdcard.Value) {
-                float hx = _leftoffset + Card.Width * _holdcard.Pos + Card.Width / 2.0f;
-                float hy = Card.Length / 2.0f + Card.Length + h;
-                float hz = _bottomoffset + Card.Height / 2.0f;
 
-                float ox = _holdcard.Go.transform.localPosition.x;
-                float oy = _holdcard.Go.transform.localPosition.y;
-                float oz = _holdcard.Go.transform.localPosition.z;
+                Vector3 to = CalcPos(_holdcard.Pos);
+                to.y = to.y + Card.Length + h;
+                Vector3 from = _holdcard.Go.transform.localPosition;
 
+                // x,y 不同
                 Vector3[] waypoints = new[] {
-                    new Vector3(hx, (hy - oy) * 0.8f + oy, hz),
-                    new Vector3(hx, (hy - oy) * 0.7f + oy, hz),
-                    new Vector3(hx, (hy - oy) * 0.6f + oy, hz),
-                    new Vector3(hx, (hy - oy) * 0.5f + oy, hz),
-                    new Vector3(hx, (hy - oy) * 0.3f + oy, hz),
+                    from,
+                    new Vector3((to.x - from.x) * 0.2f + from.x, (to.y - from.y) * 0.2f + from.y, from.z),
+                    new Vector3((to.x - from.x) * 0.3f + from.x, (to.y - from.y) * 0.3f + from.y, from.z ),
+                    new Vector3((to.x - from.x) * 0.5f + from.x, (to.y - from.y) * 0.5f + from.y,  from.z),
+                    new Vector3((to.x - from.x) * 0.8f + from.x, (to.y - from.y) * 0.8f + from.y, from.z),
+                    to,
                 };
-                Tween t = _holdcard.Go.transform.DOPath(waypoints, 1f).SetOptions(true);
+                Tween t = _holdcard.Go.transform.DOPath(waypoints, _holdflydelta).SetOptions(false);
 
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(t).AppendCallback(() => {
                     RenderInsert();
                 });
+            } else {
+                // 播放出牌动画，手上拿的是刚摸起来的牌
+                _holdcard = null;
+                UnityEngine.Debug.LogFormat("bottom player send event lead card");
+                Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
+                _ctx.Enqueue(cmd);
             }
         }
 

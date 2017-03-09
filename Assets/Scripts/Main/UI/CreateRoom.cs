@@ -39,20 +39,6 @@ public class CreateRoom : MonoBehaviour {
         _Root.App.Enqueue(cmd);
     }
 
-    public void OnJoin() {
-        if (_RoomNum == null) {
-            return;
-        }
-
-        string num = _RoomNum.GetComponent<InputField>().text;
-        int res = 0;
-        if (int.TryParse(num, out res)) {
-            Maria.Message msg = new Maria.Message();
-            msg["roomid"] = res;
-
-            Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_MUI_JOIN, gameObject, msg);
-            _Root.App.Enqueue(cmd);
-        }
-    }
+    
 
 }

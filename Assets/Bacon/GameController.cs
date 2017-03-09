@@ -247,6 +247,7 @@ namespace Bacon {
             _oknum++;
             if (_oknum == 4) {
                 _oknum = 0;
+                UnityEngine.Debug.LogFormat("send step.");
                 GameService service = (GameService)_ctx.QueryService(GameService.Name);
                 C2sSprotoType.step.request request = new C2sSprotoType.step.request();
                 request.idx = service.MyIdx;
@@ -525,7 +526,6 @@ namespace Bacon {
         public SprotoTypeBase OnLead(SprotoTypeBase requestObj) {
             S2cSprotoType.lead.request obj = requestObj as S2cSprotoType.lead.request;
             try {
-
                 _service.GetPlayer(obj.idx).Lead(obj.card);
 
                 S2cSprotoType.lead.response responseObj = new S2cSprotoType.lead.response();

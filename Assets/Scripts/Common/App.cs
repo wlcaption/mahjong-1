@@ -38,7 +38,10 @@ public class App : MonoBehaviour {
 
     void OnApplicationPause(bool isPause) {
         if (_app != null) {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+#else
             _app.OnApplicationPause(isPause);
+#endif
         }
     }
 

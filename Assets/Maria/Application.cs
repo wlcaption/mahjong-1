@@ -40,7 +40,6 @@ namespace Maria {
                 //_worker.Abort();
             }
             // 清理非托管资源
-
             _disposed = true;
         }
 
@@ -110,11 +109,10 @@ namespace Maria {
 
         public void OnApplicationPause(bool pauseStatus) {
             if (pauseStatus) {
-                //_worker.
-                //UnityEngine.Debug.Log("游戏暂停 一切停止");  // 缩到桌面的时候触发  
+                UnityEngine.Debug.Log("游戏暂停 一切停止");  // 缩到桌面的时候触发  
                 _semaphore.WaitOne();
             } else {
-                //UnityEngine.Debug.Log("游戏开始  万物生机");  //回到游戏的时候触发 最晚  
+                UnityEngine.Debug.Log("游戏开始  万物生机");  //回到游戏的时候触发 最晚  
                 _semaphore.Release();
             }
         }
