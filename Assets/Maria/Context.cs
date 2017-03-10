@@ -28,6 +28,7 @@ namespace Maria {
 
         protected bool _authtcp = false;
         protected bool _authudp = false;
+        protected System.Random _rand = new System.Random();
 
         public Context(Application application, Config config, TimeSync ts) {
             _application = application;
@@ -125,6 +126,10 @@ namespace Maria {
                 UnityEngine.Debug.LogError(ex.Message);
                 return null;
             }
+        }
+
+        public int Range(int min, int max) {
+            return _rand.Next(min, max);
         }
 
         // login

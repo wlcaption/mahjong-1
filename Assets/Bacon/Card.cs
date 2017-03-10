@@ -40,9 +40,6 @@ namespace Bacon {
         public Player GetPlayer() { return _player; }
 
         public int CompareTo(Card other) {
-            if (other == null) {
-                return 1;
-            }
             return (int)(_value - other._value);
         }
 

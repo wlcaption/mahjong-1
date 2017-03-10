@@ -3,9 +3,15 @@ using Maria.Network;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 namespace Bacon {
     public class Player : Actor {
+
+        protected Quaternion _upv = Quaternion.identity;
+        protected Quaternion _uph = Quaternion.identity;
+        protected Quaternion _downv = Quaternion.identity;
+        protected Quaternion _backv = Quaternion.identity;
 
         protected int _idx;
         protected long _d1;
@@ -31,9 +37,10 @@ namespace Bacon {
         protected const float _leadbottomoffset = 0.7f;  // 偏移起始值
         protected List<Card> _leadcards = new List<Card>();
 
+        protected const float _putmovedelta = 0.1f;
         protected const float _putmargin = 0.02f;
         protected const float _putrightoffset = 0.1f;
-        protected const float _putbottomoffset = 0.25f;
+        protected const float _putbottomoffset = 0.1f;
         protected int _putidx = 0;
         protected List<PGCards> _putcards = new List<PGCards>();
 
@@ -41,6 +48,8 @@ namespace Bacon {
         protected const float _holdleftoffset = 0.02f;
         protected Card _holdcard;
         protected Card _leadcard;
+
+        protected long _turntype;
 
         public Player(Context ctx, GameController controller)
             : base(ctx, controller) {
@@ -81,6 +90,14 @@ namespace Bacon {
                 nx = null;
                 return false;
             }
+        }
+
+        protected virtual Vector3 CalcPos(int pos) {
+            return Vector3.zero;
+        }
+
+        protected virtual Vector3 CalcLeadPos(int pos) {
+            return Vector3.zero;
         }
 
         public virtual void Boxing(List<long> cs, Dictionary<long, Card> cards) {
@@ -161,8 +178,8 @@ namespace Bacon {
                     }
                 }
             }
-
             _cards[first] = key;
+            _cards[first].Pos = first;
             QuickSort(low, first - 1);
             QuickSort(first + 1, high);
         }
@@ -177,11 +194,19 @@ namespace Bacon {
 
         protected virtual void RenderSortCards() { }
 
-        public void TakeTurn(long c) {
-            Card card;
-            if (((GameController)_controller).TakeCard(out card)) {
-                _holdcard = card;
-                UnityEngine.Debug.Assert(card.Value == c);
+        public void TakeTurn(long type, long c) {
+            _turntype = type;
+            if (type == 1) {
+                Card card;
+                if (((GameController)_controller).TakeCard(out card)) {
+                    _holdcard = card;
+                    UnityEngine.Debug.Assert(card.Value == c);
+                    _ctx.EnqueueRenderQueue(RenderTakeTurn);
+                } else {
+                    // over
+                }
+            } else {
+                _holdcard = null;
                 _ctx.EnqueueRenderQueue(RenderTakeTurn);
             }
         }
@@ -191,8 +216,10 @@ namespace Bacon {
         private void Insert(Card card) {
             UnityEngine.Debug.Assert(_cards.Count > 0);
             _cards.Add(card);
-            UnityEngine.Debug.Assert(_cards[_cards.Count - 1].Value == card.Value);
-            for (int i = _cards.Count - 2; i >= 0; i--) {
+            int last = _cards.Count - 1;
+            UnityEngine.Debug.Assert(_cards[last].Value == card.Value);
+            _cards[last].Pos = last;
+            for (int i = last - 1; i >= 0; i--) {
                 if (_cards[i + 1].CompareTo(_cards[i]) < 0) {
                     Card tmp = _cards[i + 1];
                     _cards[i + 1] = _cards[i];
@@ -221,6 +248,13 @@ namespace Bacon {
             }
         }
 
+        public void RemoveLead(Card card) {
+            UnityEngine.Debug.Assert(_leadcards.Count > 0);
+            Card other = _leadcards[_leadcards.Count - 1];
+            UnityEngine.Debug.Assert(card.Value == other.Value);
+            _leadcards.Remove(card);
+        }
+
         public void SetupCall(long card, long countdown) {
             _ctx.EnqueueRenderQueue(RenderCall);
         }
@@ -228,7 +262,7 @@ namespace Bacon {
         protected virtual void RenderCall() { }
 
         public void Lead(long c) {
-            if (_holdcard == null) {
+            if (_turntype == 0) {
                 // peng lead
                 for (int i = 0; i < _cards.Count; i++) {
                     if (_cards[i].Value == c) {
@@ -261,19 +295,35 @@ namespace Bacon {
             }
 
             ((GameController)_controller).LastCard = _leadcard;
-            ((GameController)_controller).CurIdx = _idx;
+            ((GameController)_controller).LastIdx = _idx;
 
             _ctx.EnqueueRenderQueue(RenderLead);
+        }
+
+        protected virtual void RenderLeadAfterPeng() {
+            int count = 0;
+            for (int i = 0; i < _cards.Count; i++) {
+                Vector3 dst = CalcPos(i);
+                Sequence s = DOTween.Sequence();
+                s.Append(_cards[i].Go.transform.DOMove(dst, _abdicateholddelta))
+                    .AppendCallback(() => {
+                        count++;
+                        if (count >= _cards.Count) {
+                            Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
+                            _ctx.Enqueue(cmd);
+                        }
+                    });
+            }
         }
 
         protected virtual void RenderLead() { }
 
         protected virtual void RenderInsert() { }
 
-        public void Peng(Card card) {
+        public void Peng(long code, long c, Card card, long hor) {
             List<Card> cards = new List<Card>();
             for (int i = 0; i < _cards.Count; i++) {
-                if (card.Value == _cards[i].Value) {
+                if (card == _cards[i]) {
                     cards.Add(_cards[i]);
                 }
                 if (cards.Count == 2) {
@@ -287,8 +337,8 @@ namespace Bacon {
             cards.Add(card);
             PGCards pgcards = new PGCards();
             pgcards.Cards = cards;
-            pgcards.Opcode = OpCodes.OPCODE_PENG;
-            pgcards.Hor = UnityEngine.Random.Range(0, 2);
+            pgcards.Opcode = code;
+            pgcards.Hor = hor;
             pgcards.Width = Card.Width * 2 + Card.Length + 0.1f;
             _putcards.Add(pgcards);
             _putidx = _putcards.Count - 1;
@@ -297,13 +347,29 @@ namespace Bacon {
             _ctx.EnqueueRenderQueue(RenderPeng);
         }
 
+        protected virtual void RenderSortCardsAfterPeng() {
+            int count = 0;
+            for (int i = 0; i < _cards.Count; i++) {
+                Vector3 dst = CalcPos(i);
+                Sequence s = DOTween.Sequence();
+                s.Append(_cards[i].Go.transform.DOMove(dst, _abdicateholddelta))
+                    .AppendCallback(() => {
+                        count++;
+                        if (count >= _cards.Count) {
+                            Command cmd = new Command(MyEventCmd.EVENT_PENGCARD);
+                            _ctx.Enqueue(cmd);
+                        }
+                    });
+            }
+        }
+
         protected virtual void RenderPeng() { }
 
-        public void Gang(uint opcode, Card card) {
-            if (opcode == OpCodes.OPCODE_ANGANG) {
+        public void Gang(long code, long c, Card card, long hor) {
+            if (code == OpCodes.OPCODE_ANGANG) {
                 List<Card> cards = new List<Card>();
                 for (int i = 0; i < _cards.Count; i++) {
-                    if (card.Value == _cards[i].Value) {
+                    if (card == _cards[i]) {
                         cards.Add(_cards[i]);
                     }
                     if (cards.Count == 4) {
@@ -313,17 +379,17 @@ namespace Bacon {
                 UnityEngine.Debug.Assert(cards.Count == 4);
                 PGCards pg = new PGCards();
                 pg.Cards = cards;
-                pg.Opcode = opcode;
+                pg.Opcode = code;
                 pg.Hor = 0;
                 pg.Width = 0.0f;
                 _putcards.Add(pg);
                 _putidx = _putcards.Count - 1;
                 ((GameController)_controller).CurIdx = _idx;
                 _ctx.EnqueueRenderQueue(RenderGang);
-            } else if (opcode == OpCodes.OPCODE_ZHIGANG) {
+            } else if (code == OpCodes.OPCODE_ZHIGANG) {
                 List<Card> cards = new List<Card>();
                 for (int i = 0; i < _cards.Count; i++) {
-                    if (card.Value == _cards[i].Value) {
+                    if (card == _cards[i]) {
                         cards.Add(_cards[i]);
                     }
                     if (cards.Count == 3) {
@@ -333,14 +399,14 @@ namespace Bacon {
                 UnityEngine.Debug.Assert(cards.Count == 3);
                 PGCards pg = new PGCards();
                 pg.Cards = cards;
-                pg.Opcode = opcode;
-                pg.Hor = 0;
+                pg.Opcode = code;
+                pg.Hor = hor;
                 pg.Width = 0.0f;
                 _putcards.Add(pg);
                 _putidx = _putcards.Count - 1;
                 ((GameController)_controller).CurIdx = _idx;
                 _ctx.EnqueueRenderQueue(RenderGang);
-            } else if (opcode == OpCodes.OPCODE_BUGANG) {
+            } else if (code == OpCodes.OPCODE_BUGANG) {
                 for (int i = 0; i < _putcards.Count; i++) {
                     PGCards pg = _putcards[i];
                     if (pg.Opcode == OpCodes.OPCODE_PENG && pg.Cards[0] == card) {
@@ -352,12 +418,31 @@ namespace Bacon {
                 }
                 ((GameController)_controller).CurIdx = _idx;
                 _ctx.EnqueueRenderQueue(RenderGang);
+            } else {
+                UnityEngine.Debug.Assert(false);
+            }
+        }
+
+        protected virtual void RenderSortCardsAfterGang() {
+            int count = 0;
+            for (int i = 0; i < _cards.Count; i++) {
+                Vector3 dst = CalcPos(i);
+                Sequence s = DOTween.Sequence();
+                s.Append(_cards[i].Go.transform.DOMove(dst, _abdicateholddelta))
+                    .AppendCallback(() => {
+                        count++;
+                        if (count >= _cards.Count) {
+                            Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
+                            _ctx.Enqueue(cmd);
+
+                        }
+                    });
             }
         }
 
         protected virtual void RenderGang() { }
 
-        public void Hu(Card card) {
+        public void Hu(long code, long c, Card card, long jiao) {
             ((GameController)_controller).CurIdx = _idx;
             _ctx.EnqueueRenderQueue(RenderHu);
         }

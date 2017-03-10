@@ -60,7 +60,6 @@ namespace Maria.Network {
         private int              _udpport = 0;
         private bool             _udpflag = false;
 
-
         public ClientSocket(Context ctx, ProtocolBase s2c, ProtocolBase c2s) {
             _ctx = ctx;
             _host = new SprotoRpc(s2c);

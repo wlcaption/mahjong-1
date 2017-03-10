@@ -406,7 +406,7 @@ namespace Bacon {
             try {
                 _curidx = obj.your_turn;
                 _ctx.Countdown(Timer.CLOCK, (int)obj.countdown, OnUpdateClock, null);
-                _service.GetPlayer(obj.your_turn).TakeTurn(obj.card);
+                _service.GetPlayer(obj.your_turn).TakeTurn(obj.type, obj.card);
 
                 S2cSprotoType.take_turn.response responseObj = new S2cSprotoType.take_turn.response();
                 responseObj.errorcode = Errorcode.SUCCESS;
@@ -422,6 +422,7 @@ namespace Bacon {
         public SprotoTypeBase OnCall(SprotoTypeBase requestObj) {
             S2cSprotoType.call.request obj = requestObj as S2cSprotoType.call.request;
             try {
+                UnityEngine.Debug.Assert(obj.opcodes.Count > 0);
                 for (int i = 0; i < obj.opcodes.Count; i++) {
                     CallInfo call = new CallInfo();
                     call.Card = obj.opcodes[i].card;
@@ -431,8 +432,13 @@ namespace Bacon {
                     call.Hu.Code = obj.opcodes[i].hu.code;
                     call.Hu.Jiao = obj.opcodes[i].hu.jiao;
                     call.Hu.Dian = obj.opcodes[i].hu.dian;
-                    _service.GetPlayer(obj.opcodes[i].idx).SetupCall(call.Card, obj.opcodes[i].countdown);
+
+                    Player player = _service.GetPlayer(obj.opcodes[i].idx);
+                    player.Call = call;
+                    player.SetupCall(call.Card, obj.opcodes[i].countdown);
                 }
+
+                _ctx.Countdown(Timer.CLOCK, (int)obj.opcodes[0].countdown, OnUpdateClock, null);
 
                 S2cSprotoType.call.response responseObj = new S2cSprotoType.call.response();
                 responseObj.errorcode = Errorcode.SUCCESS;
@@ -449,6 +455,10 @@ namespace Bacon {
             S2cSprotoType.peng.request obj = requestObj as S2cSprotoType.peng.request;
             try {
                 // 
+                UnityEngine.Debug.Assert(obj.code == OpCodes.OPCODE_PENG);
+                UnityEngine.Debug.Assert(obj.card == _lastCard.Value);
+                _service.GetPlayer(_lastidx).RemoveLead(_lastCard);
+                _service.GetPlayer(obj.idx).Peng(obj.code, obj.card, _lastCard, obj.hor);
 
                 S2cSprotoType.peng.response responseObj = new S2cSprotoType.peng.response();
                 responseObj.errorcode = Errorcode.SUCCESS;
@@ -470,16 +480,14 @@ namespace Bacon {
         public SprotoTypeBase OnGang(SprotoTypeBase requestObj) {
             S2cSprotoType.gang.request obj = requestObj as S2cSprotoType.gang.request;
             try {
-                if (OpCodes.OPCODE_ANGANG != 0) {
-                    Card card = new Card(_ctx, this, null);
-                    card.Value = obj.card;
-                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_ANGANG, card);
-                } else if (OpCodes.OPCODE_ZHIGANG != 0) {
+                if (OpCodes.OPCODE_ANGANG == obj.code) {
+                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_ANGANG, obj.card, null, obj.hor);
+                } else if (OpCodes.OPCODE_ZHIGANG == obj.code) {
                     UnityEngine.Debug.Assert(_lastCard.Value == obj.card);
-                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_ZHIGANG, _lastCard);
-                } else if (OpCodes.OPCODE_BUGANG != 0) {
+                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_ZHIGANG, obj.card, _lastCard, obj.hor);
+                } else if (OpCodes.OPCODE_BUGANG == obj.code) {
                     UnityEngine.Debug.Assert(_lastCard.Value == obj.card);
-                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_BUGANG, _lastCard);
+                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_BUGANG, obj.card, _lastCard, obj.hor);
                 }
 
                 S2cSprotoType.gang.response responseObj = new S2cSprotoType.gang.response();
@@ -504,6 +512,13 @@ namespace Bacon {
             S2cSprotoType.hu.request obj = requestObj as S2cSprotoType.hu.request;
             try {
 
+                if (obj.hus.Count > 1) {
+                    // 一炮多响
+                }
+                for (int i = 0; i < obj.hus.Count; i++) {
+                    Player player = _service.GetPlayer(obj.hus[i].idx);
+                    player.Hu(obj.hus[i].code, obj.hus[i].card, _lastCard, obj.hus[i].jiao);
+                }
 
                 S2cSprotoType.hu.response responseObj = new S2cSprotoType.hu.response();
                 responseObj.errorcode = Errorcode.SUCCESS;

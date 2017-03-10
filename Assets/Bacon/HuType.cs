@@ -5,23 +5,23 @@ using System.Text;
 
 namespace Bacon {
     public class HuType {
-        public static uint NONE = 0;
-        public static uint PINGHU = 1;
-        public static uint DUIDUIHU = 2;
-        public static uint QINGYISE = 3;
-        public static uint DAIYAOJIU = 4;
-        public static uint QIDUI = 5;
-        public static uint JINGOUDIAO = 6;
-        public static uint QINGDUIDUI = 7;
-        public static uint LONGQIDUI = 8;
-        public static uint QINGQIDUI = 9;
-        public static uint QINGYAOJIU = 10;
-        public static uint JIANGJINGOUDIAO = 11;
-        public static uint QINGJINGOUDIAO = 12;
-        public static uint TIANHU = 13;
-        public static uint DIHU = 14;
-        public static uint QINGLONGQIDUI = 15;
-        public static uint SHIBALUOHAN = 16;
-        public static uint QINGSHIBALUOHAN = 17;
+        public static long NONE = 0;
+        public static long PINGHU = 1;
+        public static long DUIDUIHU = 2;
+        public static long QINGYISE = 3;
+        public static long DAIYAOJIU = 4;
+        public static long QIDUI = 5;
+        public static long JINGOUDIAO = 6;
+        public static long QINGDUIDUI = 7;
+        public static long LONGQIDUI = 8;
+        public static long QINGQIDUI = 9;
+        public static long QINGYAOJIU = 10;
+        public static long JIANGJINGOUDIAO = 11;
+        public static long QINGJINGOUDIAO = 12;
+        public static long TIANHU = 13;
+        public static long DIHU = 14;
+        public static long QINGLONGQIDUI = 15;
+        public static long SHIBALUOHAN = 16;
+        public static long QINGSHIBALUOHAN = 17;
     }
 }
