@@ -63,9 +63,9 @@ namespace Bacon {
             int row = (pos + 1) / 6;
             int col = (pos + 1) % 6;
 
-            float x = _leadleftoffset + Card.Width * col + Card.Width / 2.0f;
+            float x = _leadleftoffset + (Card.Width * col) + (Card.Width / 2.0f);
             float y = Card.Height / 2.0f;
-            float z = _leadbottomoffset - row * Card.Length - Card.Length / 2.0f;
+            float z = _leadbottomoffset - (Card.Length * row) - (Card.Length / 2.0f);
 
             return new Vector3(x, y, z);
         }
@@ -138,7 +138,11 @@ namespace Bacon {
                     card = _cards[i];
                 }
             }
-            UnityEngine.Debug.Assert(card != null);
+            if (card == null) {
+                UnityEngine.Debug.Assert(e.Orgin == _holdcard.Go);
+                card = _holdcard;
+            }
+
             _leadcard1 = card;
 
             C2sSprotoType.lead.request request = new C2sSprotoType.lead.request();
@@ -214,6 +218,7 @@ namespace Bacon {
         }
 
         protected override void RenderTakeTurn() {
+            _go.GetComponent<global::BottomPlayer>().CloseAll();
             if (_turntype == 1) {
                 Vector3 dst = CalcPos(_cards.Count + 1);
                 dst.y = dst.y + Card.Length;
@@ -223,64 +228,60 @@ namespace Bacon {
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(_holdcard.Go.transform.DOMoveY(Card.Length / 2.0f, _holddelta))
                     .AppendCallback(() => {
+                        _go.GetComponent<global::BottomPlayer>().HoldCard = _holdcard.Go;
                         _go.GetComponent<global::BottomPlayer>().SwitchOnTouch();
                     });
-            } else {
-                _go.GetComponent<global::BottomPlayer>().SwitchOnTouch();
+            } else if (_turntype == 0) {
+                Vector3 dst = CalcPos(_cards.Count + 1);
+                _holdcard.Go.transform.localRotation = Quaternion.AngleAxis(-60, Vector3.right);
+
+                Sequence mySequence = DOTween.Sequence();
+                mySequence.Append(_holdcard.Go.transform.DOMove(dst, _holddelta))
+                    .AppendCallback(() => {
+                        _go.GetComponent<global::BottomPlayer>().HoldCard = _holdcard.Go;
+                        _go.GetComponent<global::BottomPlayer>().SwitchOnTouch();
+                    });
             }
         }
 
-        protected override void RenderInsert() {
+        protected override void RenderInsert(Action cb) {
+            Vector3 to = CalcPos(_holdcard.Pos);
+            Tween t = _holdcard.Go.transform.DOMove(to, _holddowndelat);
+            Sequence mySequence = DOTween.Sequence();
+            mySequence.Append(t)
+            .AppendCallback(() => {
+                _holdcard = null;
+                _leadcard = null;
+                cb();
+            });
+        }
+
+        protected override void RenderSortCardsAfterFly(Action cb) {
             int count = 0;
             for (int i = 0; i < _cards.Count; i++) {
                 if (_cards[i].Value == _holdcard.Value) {
                     continue;
                 }
-
                 Vector3 dst = CalcPos(i);
                 Sequence s = DOTween.Sequence();
                 s.Append(_cards[i].Go.transform.DOMove(dst, _abdicateholddelta))
                     .AppendCallback(() => {
                         count++;
                         if (count >= _cards.Count - 1) {
-
-                            Vector3 to = CalcPos(_holdcard.Pos);
-                            Tween t = _holdcard.Go.transform.DOMove(to, _holddowndelat);
-                            Sequence mySequence = DOTween.Sequence();
-                            mySequence.Append(t)
-                            .AppendCallback(() => {
-                                _holdcard = null;
-                                _leadcard = null;
-                                UnityEngine.Debug.LogFormat("bottom player send event lead card");
-                                Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
-                                _ctx.Enqueue(cmd);
-                            });
+                            RenderInsert(cb);
                         }
                     });
             }
         }
 
-        protected override void RenderLead() {
-            UnityEngine.Debug.Assert(_leadcard1.Value == _leadcard.Value);
-            UnityEngine.Debug.Assert(_leadcards.Count > 0);
+        protected override void RenderFly(Action cb) {
+            float h = 0.05f;
+            Vector3 to = CalcPos(_holdcard.Pos);
+            to.y = to.y + Card.Length + h;
+            Vector3 from = _holdcard.Go.transform.localPosition;
 
-            Vector3 dst = CalcLeadPos(_leadcards.Count - 1);
-            _leadcard.Go.transform.localPosition = dst;
-            _leadcard.Go.transform.localRotation = _upv;
-
-            if (_turntype == 0) {
-                // peng lead
-                RenderLeadAfterPeng();
-            } else {
-                float h = 0.05f;
-                if (_leadcard.Value != _holdcard.Value) {
-
-                    Vector3 to = CalcPos(_holdcard.Pos);
-                    to.y = to.y + Card.Length + h;
-                    Vector3 from = _holdcard.Go.transform.localPosition;
-
-                    // x,y 不同
-                    Vector3[] waypoints = new[] {
+            // x,y 不同
+            Vector3[] waypoints = new[] {
                         from,
                         new Vector3((to.x - from.x) * 0.2f + from.x, (to.y - from.y) * 0.2f + from.y, from.z),
                         new Vector3((to.x - from.x) * 0.3f + from.x, (to.y - from.y) * 0.3f + from.y, from.z ),
@@ -288,20 +289,46 @@ namespace Bacon {
                         new Vector3((to.x - from.x) * 0.8f + from.x, (to.y - from.y) * 0.8f + from.y, from.z),
                         to,
                     };
-                    Tween t = _holdcard.Go.transform.DOPath(waypoints, _holdflydelta).SetOptions(false);
+            Tween t = _holdcard.Go.transform.DOPath(waypoints, _holdflydelta).SetOptions(false);
 
-                    Sequence mySequence = DOTween.Sequence();
-                    mySequence.Append(t).AppendCallback(() => {
-                        RenderInsert();
+            Sequence mySequence = DOTween.Sequence();
+            mySequence.Append(t).AppendCallback(() => {
+                RenderSortCardsAfterFly(cb);
+            });
+        }
+
+        protected override void RenderLead() {
+            UnityEngine.Debug.Assert(_leadcard1.Value == _leadcard.Value);
+            UnityEngine.Debug.Assert(_leadcards.Count > 0);
+            Vector3 dst = CalcLeadPos(_leadcards.Count - 1);
+            _leadcard.Go.transform.localPosition = dst;
+            _leadcard.Go.transform.localRotation = _upv;
+
+            if (_leadcard.Value != _holdcard.Value) {
+                _go.GetComponent<global::BottomPlayer>().Remove(_leadcard);
+                _go.GetComponent<global::BottomPlayer>().Add(_holdcard);
+
+                if (_holdcard.Pos == (_cards.Count - 1)) {
+                    RenderSortCardsToDo(() => {
+                        UnityEngine.Debug.LogFormat("bottom player send event lead card");
+                        Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
+                        _ctx.Enqueue(cmd);
                     });
                 } else {
-                    // 播放出牌动画，手上拿的是刚摸起来的牌
-                    _holdcard = null;
-                    _leadcard = null;
-                    UnityEngine.Debug.LogFormat("bottom player send event lead card");
-                    Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
-                    _ctx.Enqueue(cmd);
+                    RenderFly(() => {
+                        UnityEngine.Debug.LogFormat("bottom player send event lead card");
+                        Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
+                        _ctx.Enqueue(cmd);
+                    });
                 }
+            } else {
+                // 播放出牌动画，手上拿的是刚摸起来的牌
+                _go.GetComponent<global::BottomPlayer>().HoldCard = null;
+                _holdcard = null;
+                _leadcard = null;
+                UnityEngine.Debug.LogFormat("bottom player send event lead card");
+                Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
+                _ctx.Enqueue(cmd);
             }
         }
 
@@ -340,7 +367,10 @@ namespace Bacon {
                     .AppendCallback(() => {
                         count++;
                         if (count >= _putcards[_putidx].Cards.Count) {
-                            RenderSortCardsAfterPeng();
+                            RenderSortCardsToDo(() => {
+                                Command cmd = new Command(MyEventCmd.EVENT_PENGCARD);
+                                _ctx.Enqueue(cmd);
+                            });
                         }
                     });
             }
@@ -349,14 +379,15 @@ namespace Bacon {
         protected override void RenderGang() {
             Desk desk = ((GameController)_controller).Desk;
             PGCards pg = _putcards[_putidx];
+            float offset = _putrightoffset;
+            float move = 0.1f;
+            for (int i = 0; i < _putidx; i++) {
+                offset += _putcards[i].Width + _putmargin;
+            }
+            int count = 0;
+            pg.Width = 0.0f;
             if (pg.Opcode == OpCodes.OPCODE_ZHIGANG) {
-                float offset = _putrightoffset;
-                float move = 0.1f;
-                for (int i = 0; i < _putidx; i++) {
-                    offset += _putcards[i].Width + _putmargin;
-                }
-                int count = 0;
-                pg.Width = 0.0f;
+
                 for (int i = 0; i < pg.Cards.Count; i++) {
                     float x = 0.0f;
                     float y = Card.Height / 2.0f;
@@ -381,18 +412,14 @@ namespace Bacon {
                         .AppendCallback(() => {
                             count++;
                             if (count >= _putcards[_putidx].Cards.Count) {
-                                RenderSortCardsAfterGang();
+                                RenderSortCardsToDo(() => {
+                                    Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
+                                    _ctx.Enqueue(cmd);
+                                });
                             }
                         });
                 }
             } else if (pg.Opcode == OpCodes.OPCODE_ANGANG) {
-                float offset = _putrightoffset;
-                float move = 0.1f;
-                for (int i = 0; i < _putidx; i++) {
-                    offset += _putcards[i].Width + _putmargin;
-                }
-                int count = 0;
-                pg.Width = 0.0f;
                 for (int i = 0; i < pg.Cards.Count; i++) {
                     float x = desk.Width - (offset + Card.Width / 2.0f + move);
                     float y = Card.Height / 2.0f;
@@ -400,7 +427,7 @@ namespace Bacon {
                     offset += Card.Width;
                     pg.Width += Card.Width;
 
-                    if (i == 0) {
+                    if (i == pg.Hor) {
                         pg.Cards[i].Go.transform.localRotation = _upv;
                     } else {
                         pg.Cards[i].Go.transform.localRotation = _backv;
@@ -412,17 +439,28 @@ namespace Bacon {
                         .AppendCallback(() => {
                             count++;
                             if (count >= _putcards[_putidx].Cards.Count) {
-                                RenderSortCardsAfterGang();
+                                if (pg.Cards[3].Value == _holdcard.Value) {
+                                    RenderSortCardsToDo(() => {
+                                        Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
+                                        _ctx.Enqueue(cmd);
+                                    });
+                                } else {
+                                    if (_holdcard.Pos == (_cards.Count - 1)) {
+                                        RenderSortCardsToDo(() => {
+                                            Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
+                                            _ctx.Enqueue(cmd);
+                                        });
+                                    } else {
+                                        RenderFly(() => {
+                                            Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
+                                            _ctx.Enqueue(cmd);
+                                        });
+                                    }
+                                }
                             }
                         });
                 }
             } else if (pg.Opcode == OpCodes.OPCODE_BUGANG) {
-                UnityEngine.Debug.Assert(pg.Cards.Count == 4);
-                float offset = _putrightoffset;
-                float move = 0.1f;
-                for (int i = 0; i < _putidx; i++) {
-                    offset += _putcards[i].Width + _putmargin;
-                }
 
                 float x = desk.Width - (offset + (Card.Width * pg.Hor) + (Card.Length / 2.0f) + move);
                 float y = Card.Height / 2.0f;
@@ -432,7 +470,16 @@ namespace Bacon {
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(pg.Cards[3].Go.transform.DOMoveX(x + move, _putmovedelta))
                     .AppendCallback(() => {
-                        RenderSortCardsAfterGang();
+                        if (_holdcard.Value == pg.Cards[3].Value) {
+                            _holdcard = null;
+                            Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
+                            _ctx.Enqueue(cmd);
+                        } else {
+                            RenderFly(() => {
+                                Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
+                                _ctx.Enqueue(cmd);
+                            });
+                        }
                     });
             } else {
                 UnityEngine.Debug.Assert(false);

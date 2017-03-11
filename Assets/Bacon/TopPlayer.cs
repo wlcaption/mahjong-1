@@ -43,9 +43,9 @@ namespace Bacon {
             int row = (pos + 1) / 6;
             int col = (pos + 1) % 6;
 
-            float x = desk.Width - (_leadleftoffset + Card.Width * col + Card.Width / 2.0f);
+            float x = desk.Width - (_leadleftoffset + (Card.Width * col) + (Card.Width / 2.0f));
             float y = Card.Height / 2.0f;
-            float z = desk.Length - (_leadbottomoffset - row * Card.Length - Card.Length / 2.0f);
+            float z = desk.Length - (_leadbottomoffset - (Card.Length * row) - Card.Length / 2.0f);
 
             return new Vector3(x, y, z);
         }
@@ -128,11 +128,28 @@ namespace Bacon {
 
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(_holdcard.Go.transform.DOMoveY(Card.Length / 2.0f, _holddelta));
+            } else if (_turntype == 0) {
+                Vector3 dst = CalcPos(_cards.Count + 1);
+                _holdcard.Go.transform.localRotation = _backv;
+
+                Sequence mySequence = DOTween.Sequence();
+                mySequence.Append(_holdcard.Go.transform.DOMove(dst, _holddelta));
             }
         }
 
-        protected override void RenderInsert() {
-            Desk desk = ((GameController)_controller).Desk;
+        protected override void RenderInsert(Action cb) {
+            Vector3 to = CalcPos(_holdcard.Pos);
+            Tween t = _holdcard.Go.transform.DOMove(to, _holddowndelat);
+            Sequence mySequence = DOTween.Sequence();
+            mySequence.Append(t)
+            .AppendCallback(() => {
+                _holdcard = null;
+                _leadcard = null;
+                cb();
+            });
+        }
+
+        protected override void RenderSortCardsAfterFly(Action cb) {
             int count = 0;
             for (int i = 0; i < _cards.Count; i++) {
                 if (_cards[i].Value == _holdcard.Value) {
@@ -145,38 +162,19 @@ namespace Bacon {
                     .AppendCallback(() => {
                         count++;
                         if (count >= _cards.Count - 1) {
-                            Vector3 to = CalcPos(_holdcard.Pos);
-
-                            Tween t = _holdcard.Go.transform.DOMove(to, _holddowndelat);
-                            Sequence mySequence = DOTween.Sequence();
-                            mySequence.Append(t)
-                            .AppendCallback(() => {
-                                _holdcard = null;
-                                _leadcard = null;
-                                UnityEngine.Debug.LogFormat("top player send event lead card");
-                                Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
-                                _ctx.Enqueue(cmd);
-                            });
+                            RenderInsert(cb);
                         }
                     });
             }
         }
 
-        protected override void RenderLead() {
-            UnityEngine.Debug.Assert(_leadcards.Count > 0);
-
-            Vector3 dst = CalcLeadPos(_leadcards.Count - 1);
-            _leadcard.Go.transform.localPosition = dst;
-            _leadcard.Go.transform.localRotation = _upv;
-
+        protected override void RenderFly(Action cb) {
             float h = 0.05f;
-            if (_leadcard.Value != _holdcard.Value) {
+            Vector3 to = CalcPos(_holdcard.Pos);
+            to.y = to.y + Card.Length + h;
+            Vector3 from = _holdcard.Go.transform.localPosition;
 
-                Vector3 to = CalcPos(_holdcard.Pos);
-                to.y = to.y + Card.Length + h;
-                Vector3 from = _holdcard.Go.transform.localPosition;
-
-                Vector3[] waypoints = new[] {
+            Vector3[] waypoints = new[] {
                     from,
                     new Vector3((to.x - from.x) * 0.2f + from.x, (to.y - from.y) * 0.2f + from.y, from.z),
                     new Vector3((to.x - from.x) * 0.3f + from.x, (to.y - from.y) * 0.3f + from.y, from.z),
@@ -184,11 +182,35 @@ namespace Bacon {
                     new Vector3((to.x - from.x) * 0.8f + from.x, (to.y - from.y) * 0.8f + from.y, from.z),
                     to,
                 };
-                Tween t = _holdcard.Go.transform.DOPath(waypoints, _holdflydelta).SetOptions(false);
-                Sequence mySequence = DOTween.Sequence();
-                mySequence.Append(t).AppendCallback(() => {
-                    RenderInsert();
-                });
+            Tween t = _holdcard.Go.transform.DOPath(waypoints, _holdflydelta).SetOptions(false);
+            Sequence mySequence = DOTween.Sequence();
+            mySequence.Append(t).AppendCallback(() => {
+                RenderSortCardsAfterFly(cb);
+            });
+        }
+
+        protected override void RenderLead() {
+            // 出牌
+            UnityEngine.Debug.Assert(_leadcards.Count > 0);
+            Vector3 dst = CalcLeadPos(_leadcards.Count - 1);
+            _leadcard.Go.transform.localPosition = dst;
+            _leadcard.Go.transform.localRotation = _upv;
+
+
+            if (_leadcard.Value != _holdcard.Value) {
+                if (_holdcard.Value == (_cards.Count - 1)) {
+                    RenderSortCardsToDo(() => {
+                        UnityEngine.Debug.LogFormat("top player send event lead card");
+                        Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
+                        _ctx.Enqueue(cmd);
+                    });
+                } else {
+                    RenderFly(() => {
+                        UnityEngine.Debug.LogFormat("top player send event lead card");
+                        Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
+                        _ctx.Enqueue(cmd);
+                    });
+                }
             } else {
                 _holdcard = null;
                 _leadcard = null;
@@ -232,7 +254,10 @@ namespace Bacon {
                     .AppendCallback(() => {
                         count++;
                         if (count >= pg.Cards.Count) {
-                            RenderSortCardsAfterPeng();
+                            RenderSortCardsToDo(() => {
+                                Command cmd = new Command(MyEventCmd.EVENT_PENGCARD);
+                                _ctx.Enqueue(cmd);
+                            });
                         }
                     });
             }
@@ -273,7 +298,10 @@ namespace Bacon {
                         .AppendCallback(() => {
                             count++;
                             if (count >= pg.Cards.Count) {
-                                RenderSortCardsAfterGang();
+                                RenderSortCardsToDo(() => {
+                                    Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
+                                    _ctx.Enqueue(cmd);
+                                });
                             }
                         });
                 }
@@ -297,7 +325,24 @@ namespace Bacon {
                         .AppendCallback(() => {
                             count++;
                             if (count >= pg.Cards.Count) {
-                                RenderSortCardsAfterGang();
+                                if (pg.Cards[3].Value == _holdcard.Value) {
+                                    RenderSortCardsToDo(() => {
+                                        Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
+                                        _ctx.Enqueue(cmd);
+                                    });
+                                } else {
+                                    if (_holdcard.Pos == (_cards.Count - 1)) {
+                                        RenderSortCardsToDo(() => {
+                                            Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
+                                            _ctx.Enqueue(cmd);
+                                        });
+                                    } else {
+                                        RenderFly(() => {
+                                            Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
+                                            _ctx.Enqueue(cmd);
+                                        });
+                                    }
+                                }
                             }
                         });
                 }
@@ -312,7 +357,16 @@ namespace Bacon {
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(pg.Cards[3].Go.transform.DOMoveX(x - move, 0.1f))
                     .AppendCallback(() => {
-                        RenderSortCardsAfterGang();
+                        if (_holdcard.Value == pg.Cards[3].Value) {
+                            _holdcard = null;
+                            Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
+                            _ctx.Enqueue(cmd);
+                        } else {
+                            RenderFly(() => {
+                                Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
+                                _ctx.Enqueue(cmd);
+                            });
+                        }
                     });
             }
         }

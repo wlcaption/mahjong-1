@@ -44,7 +44,11 @@ namespace Bacon {
         }
 
         public static bool operator ==(Card lhs, Card rhs) {
-            if (object.Equals(lhs, null) || object.Equals(rhs, null)) {
+            if (object.Equals(lhs, null) && object.Equals(rhs, null)) {
+                return true;
+            } else if (!object.Equals(lhs, null) && object.Equals(rhs, null)) {
+                return false;
+            } else if (object.Equals(lhs, null) && !object.Equals(rhs, null)) {
                 return false;
             }
             return (lhs._type == rhs._type) && (lhs._num == rhs._num);

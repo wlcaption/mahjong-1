@@ -48,6 +48,12 @@ public class BottomPlayer : MonoBehaviour {
                         Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_LEAD, _hitGo);
                         _Root.App.Enqueue(cmd);
                     }
+                    if (HoldCard == _hitGo) {
+                        _touch = false;
+
+                        Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_LEAD, _hitGo);
+                        _Root.App.Enqueue(cmd);
+                    }
                     _hitGo = null;
                 }
             }
@@ -67,7 +73,9 @@ public class BottomPlayer : MonoBehaviour {
         }
     }
 
-    private void CloseAll() {
+    public GameObject HoldCard { get; set; }
+
+    public void CloseAll() {
         _Gang.SetActive(false);
         _Peng.SetActive(false);
         _Hu.SetActive(false);
