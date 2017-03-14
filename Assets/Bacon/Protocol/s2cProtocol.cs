@@ -56,9 +56,16 @@ public class S2cProtocol : ProtocolBase {
 		Protocol.SetProtocol<ready> (ready.Tag);
 		Protocol.SetResponse<S2cSprotoType.ready.response> (ready.Tag);
 
+		Protocol.SetProtocol<restart> (restart.Tag);
+		Protocol.SetRequest<S2cSprotoType.restart.request> (restart.Tag);
+		Protocol.SetResponse<S2cSprotoType.restart.response> (restart.Tag);
+
 		Protocol.SetProtocol<shuffle> (shuffle.Tag);
 		Protocol.SetRequest<S2cSprotoType.shuffle.request> (shuffle.Tag);
 		Protocol.SetResponse<S2cSprotoType.shuffle.response> (shuffle.Tag);
+
+		Protocol.SetProtocol<take_restart> (take_restart.Tag);
+		Protocol.SetResponse<S2cSprotoType.take_restart.response> (take_restart.Tag);
 
 		Protocol.SetProtocol<take_turn> (take_turn.Tag);
 		Protocol.SetRequest<S2cSprotoType.take_turn.request> (take_turn.Tag);
@@ -118,8 +125,16 @@ public class S2cProtocol : ProtocolBase {
 		public const int Tag = 14;
 	}
 
+	public class restart {
+		public const int Tag = 16;
+	}
+
 	public class shuffle {
 		public const int Tag = 10;
+	}
+
+	public class take_restart {
+		public const int Tag = 17;
 	}
 
 	public class take_turn {

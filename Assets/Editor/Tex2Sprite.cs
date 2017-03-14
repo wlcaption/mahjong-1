@@ -19,6 +19,7 @@ public class Tex2Sprite : ScriptableWizard {
         for (int i = 0; i < asstes.Length; i++) {
             Texture2D tex = asstes[i] as Texture2D;
             Sprite sprite = Sprite.Create(tex, new Rect(Vector2.zero, tex.texelSize), new Vector2(0.5f, 0.5f));
+            //WWW.LoadFromCacheOrDownload()
         }
         
     }

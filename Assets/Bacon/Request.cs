@@ -26,7 +26,10 @@ namespace Bacon {
             _cs.RegisterRequest(S2cProtocol.gang.Tag, gang);
             _cs.RegisterRequest(S2cProtocol.hu.Tag, hu);
             _cs.RegisterRequest(S2cProtocol.lead.Tag, lead);
-            
+
+            _cs.RegisterRequest(S2cProtocol.over.Tag, over);
+            _cs.RegisterRequest(S2cProtocol.restart.Tag, restart);
+            _cs.RegisterRequest(S2cProtocol.take_restart.Tag, take_restart);
         }
 
         public SprotoTypeBase handshake(uint session, SprotoTypeBase requestObj) {
@@ -100,6 +103,21 @@ namespace Bacon {
         public SprotoTypeBase lead(uint session, SprotoTypeBase requestObj) {
             GameController controller = _ctx.Top() as GameController;
             return controller.OnLead(requestObj);
+        }
+
+        public SprotoTypeBase over(uint session, SprotoTypeBase requestObj) {
+            GameController controller = _ctx.Top() as GameController;
+            return controller.OnOver(requestObj);
+        }
+
+        public SprotoTypeBase restart(uint session, SprotoTypeBase requestObj) {
+            GameController controller = _ctx.Top() as GameController;
+            return controller.OnRestart(requestObj);
+        }
+
+        public SprotoTypeBase take_restart(uint session, SprotoTypeBase requestObj) {
+            GameController controller = _ctx.Top() as GameController;
+            return controller.OnTakeRestart(requestObj);
         }
     }
 }

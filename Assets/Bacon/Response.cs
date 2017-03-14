@@ -22,6 +22,7 @@ namespace Maria.Network {
             _cs.RegisterResponse(C2sProtocol.lead.Tag, lead);
             _cs.RegisterResponse(C2sProtocol.step.Tag, step);
 
+            _cs.RegisterResponse(C2sProtocol.restart.Tag, restart);
         }
 
         public void handshake(uint session, SprotoTypeBase responseObj) {
@@ -65,6 +66,9 @@ namespace Maria.Network {
             if (service != null) {
                 service.Step(responseObj);
             }
+        }
+
+        public void restart(uint session, SprotoTypeBase responseObj) {
         }
     }
 }

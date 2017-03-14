@@ -140,7 +140,7 @@ namespace Bacon {
         }
 
         public SprotoTypeBase OnLeave(SprotoTypeBase requestObj) {
-            S2cSprotoType.leave.request obj = requestObj as S2cSprotoType.leave.request;
+            //S2cSprotoType.leave.request obj = requestObj as S2cSprotoType.leave.request;
             _online--;
 
             S2cSprotoType.leave.response responseObj = new S2cSprotoType.leave.response();

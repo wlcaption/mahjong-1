@@ -45,6 +45,10 @@ public class C2sProtocol : ProtocolBase {
 		Protocol.SetRequest<C2sSprotoType.match.request> (match.Tag);
 		Protocol.SetResponse<C2sSprotoType.match.response> (match.Tag);
 
+		Protocol.SetProtocol<restart> (restart.Tag);
+		Protocol.SetRequest<C2sSprotoType.restart.request> (restart.Tag);
+		Protocol.SetResponse<C2sSprotoType.restart.response> (restart.Tag);
+
 		Protocol.SetProtocol<shuffle> (shuffle.Tag);
 		Protocol.SetRequest<C2sSprotoType.shuffle.request> (shuffle.Tag);
 		Protocol.SetResponse<C2sSprotoType.shuffle.response> (shuffle.Tag);
@@ -97,6 +101,10 @@ public class C2sProtocol : ProtocolBase {
 
 	public class match {
 		public const int Tag = 2;
+	}
+
+	public class restart {
+		public const int Tag = 12;
 	}
 
 	public class shuffle {

@@ -46,6 +46,8 @@ namespace Bacon {
 
         public static uint EVENT_SETUP_BOARD = 221;
 
+        public static uint EVENT_RESTART = 222;
+
         public MyEventCmd(uint cmd) : base(cmd) {
         }
     }

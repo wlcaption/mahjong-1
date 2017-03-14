@@ -449,5 +449,12 @@ namespace Bacon {
 
         protected virtual void RenderHu() { }
 
+        public void Over() {
+
+        }
+
+        protected virtual void RenderOver() {
+
+        }
     }
 }

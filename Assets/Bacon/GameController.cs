@@ -560,5 +560,56 @@ namespace Bacon {
             _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
         }
 
+        public SprotoTypeBase OnOver(SprotoTypeBase requestObj) {
+            S2cSprotoType.over.request obj = requestObj as S2cSprotoType.over.request;
+            try {
+
+                S2cSprotoType.over.response responseObj = new S2cSprotoType.over.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
+                S2cSprotoType.over.response responseObj = new S2cSprotoType.over.response();
+                responseObj.errorcode = Errorcode.FAIL;
+                return responseObj;
+            }
+        }
+
+        public SprotoTypeBase OnRestart(SprotoTypeBase requestObj) {
+            S2cSprotoType.restart.request obj = requestObj as S2cSprotoType.restart.request;
+            try {
+
+                S2cSprotoType.restart.response responseObj = new S2cSprotoType.restart.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
+                S2cSprotoType.restart.response responseObj = new S2cSprotoType.restart.response();
+                responseObj.errorcode = Errorcode.FAIL;
+                return responseObj;
+            }
+        }
+
+        public SprotoTypeBase OnTakeRestart(SprotoTypeBase requestObj) {
+            try {
+
+                S2cSprotoType.take_restart.response responseObj = new S2cSprotoType.take_restart.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
+                S2cSprotoType.take_restart.response responseObj = new S2cSprotoType.take_restart.response();
+                responseObj.errorcode = Errorcode.FAIL;
+                return responseObj;
+            }
+        }
+
+        public void OnSendRestart(EventCmd e) {
+            UnityEngine.Debug.LogFormat("send restart.");
+            C2sSprotoType.restart.request request = new C2sSprotoType.restart.request();
+            request.idx = _service.MyIdx;
+            _ctx.SendReq<C2sProtocol.restart>(C2sProtocol.restart.Tag, request);
+        }
+
     }
 }

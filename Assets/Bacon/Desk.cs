@@ -27,10 +27,13 @@ namespace Bacon {
         }
 
         protected void RenderUpdateClock() {
-            GameObject clock = _go.transform.FindChild("Clock").gameObject;
-            if (clock) {
-                clock.SetActive(true);
-                clock.GetComponent<TextMesh>().text = string.Format("{0}", _clockleft);
+            GameObject clock1 = _go.transform.FindChild("Clock1").gameObject;
+            GameObject clock2 = _go.transform.FindChild("Clock2").gameObject;
+            if (clock1 != null && clock2 != null) {
+                clock1.SetActive(true);
+                clock1.GetComponent<TextMesh>().text = string.Format("{0}", (_clockleft / 10));
+                clock2.SetActive(true);
+                clock2.GetComponent<TextMesh>().text = string.Format("{0}", (_clockleft % 10));
             }
         }
     }
