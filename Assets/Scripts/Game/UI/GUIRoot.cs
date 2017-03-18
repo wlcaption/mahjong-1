@@ -9,9 +9,11 @@ public class GUIRoot : MonoBehaviour {
 
     public RootBehaviour _Root;
     public GameObject _RoomId;
-    public GameObject _Over;
-    public GameObject _ChatPanel;
-    public GameObject _HelpPanel;
+    public GameObject _OverWnd;
+    public GameObject _ChatWnd;
+    public GameObject _HelpWnd;
+    public GameObject _SettingWnd;
+    public GameObject _ExitWnd;
 
     public Text _Time;
     public Text _Left;
@@ -19,7 +21,7 @@ public class GUIRoot : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_SETUP_GUIROOT, gameObject);
+        Command cmd = new Maria.Command(MyEventCmd.EVENT_SETUP_GUIROOT, gameObject);
         _Root.App.Enqueue(cmd);
     }
 	
@@ -36,23 +38,47 @@ public class GUIRoot : MonoBehaviour {
     }
 
     public void OnExit() {
+        if (_ExitWnd != null) {
+            _ExitWnd.SetActive(true);
+        }
+    }
 
+    public void OnExitClose() {
+        if (_ExitWnd != null) {
+            _ExitWnd.SetActive(false);
+        }
     }
 
     public  void OnHelp() {
+        if (_HelpWnd != null) {
+            _HelpWnd.SetActive(true);
+        }
+    }
 
+    public void OnHelpClose() {
+        if (_HelpWnd != null) {
+            _HelpWnd.SetActive(false);
+        }
     }
 
     public void OnSetting() {
+        if (_SettingWnd != null) {
+            _SettingWnd.SetActive(true);
+        }
+    }
 
+    public void OnSettingClose() {
+        if (_SettingWnd != null) {
+            _SettingWnd.SetActive(false);
+        }
     }
 
     public void OnChat() {
-        if (_ChatPanel != null) {
-            if (_ChatPanel.activeSelf) {
-                _ChatPanel.SetActive(false);
+        if (_ChatWnd != null) {
+            if (_ChatWnd.activeSelf) {
+                _ChatWnd.SetActive(false);
             } else {
-                _ChatPanel.SetActive(true);
+                _ChatWnd.SetActive(true);
                 //_ChatPanel.transform.FindChild("")
             }
         }
@@ -63,20 +89,20 @@ public class GUIRoot : MonoBehaviour {
     }
 
     public void ShowOver() {
-        if (_Over != null) {
-            _Over.SetActive(true);
+        if (_OverWnd != null) {
+            _OverWnd.SetActive(true);
         }
     }
 
     public void CloseOver() {
-        if (_Over != null) {
-            _Over.SetActive(false);
+        if (_OverWnd != null) {
+            _OverWnd.SetActive(false);
         }
     }
 
     public void OnRestart() {
-        if (_Over != null) {
-            _Over.SetActive(false);
+        if (_OverWnd != null) {
+            _OverWnd.SetActive(false);
         }
         Command cmd = new Command(MyEventCmd.EVENT_RESTART);
         _Root.App.Enqueue(cmd);

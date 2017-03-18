@@ -1,6 +1,7 @@
 ﻿using System;
 using Common;
 using UnityEngine;
+using Maria;
 
 public class ResourceManager:Singleton<ResourceManager>
 {

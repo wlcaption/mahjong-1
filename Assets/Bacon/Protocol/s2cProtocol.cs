@@ -10,6 +10,10 @@ public class S2cProtocol : ProtocolBase {
 		Protocol.SetRequest<S2cSprotoType.call.request> (call.Tag);
 		Protocol.SetResponse<S2cSprotoType.call.response> (call.Tag);
 
+		Protocol.SetProtocol<chat> (chat.Tag);
+		Protocol.SetRequest<S2cSprotoType.chat.request> (chat.Tag);
+		Protocol.SetResponse<S2cSprotoType.chat.response> (chat.Tag);
+
 		Protocol.SetProtocol<deal> (deal.Tag);
 		Protocol.SetRequest<S2cSprotoType.deal.request> (deal.Tag);
 		Protocol.SetResponse<S2cSprotoType.deal.response> (deal.Tag);
@@ -53,6 +57,14 @@ public class S2cProtocol : ProtocolBase {
 		Protocol.SetRequest<S2cSprotoType.peng.request> (peng.Tag);
 		Protocol.SetResponse<S2cSprotoType.peng.response> (peng.Tag);
 
+		Protocol.SetProtocol<radio> (radio.Tag);
+		Protocol.SetRequest<S2cSprotoType.radio.request> (radio.Tag);
+		Protocol.SetResponse<S2cSprotoType.radio.response> (radio.Tag);
+
+		Protocol.SetProtocol<rcard> (rcard.Tag);
+		Protocol.SetRequest<S2cSprotoType.rcard.request> (rcard.Tag);
+		Protocol.SetResponse<S2cSprotoType.rcard.response> (rcard.Tag);
+
 		Protocol.SetProtocol<ready> (ready.Tag);
 		Protocol.SetResponse<S2cSprotoType.ready.response> (ready.Tag);
 
@@ -75,6 +87,10 @@ public class S2cProtocol : ProtocolBase {
 
 	public class call {
 		public const int Tag = 9;
+	}
+
+	public class chat {
+		public const int Tag = 22;
 	}
 
 	public class deal {
@@ -119,6 +135,14 @@ public class S2cProtocol : ProtocolBase {
 
 	public class peng {
 		public const int Tag = 6;
+	}
+
+	public class radio {
+		public const int Tag = 21;
+	}
+
+	public class rcard {
+		public const int Tag = 20;
 	}
 
 	public class ready {

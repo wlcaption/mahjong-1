@@ -7,7 +7,7 @@ namespace Common {
     /// <summary>
     /// 文件工具类
     /// </summary>
-    public class FileUtils : Singleton<FileUtils> {
+    public class FileUtils : Maria.Singleton<FileUtils> {
 
         static string DATA_ROOT_PATH = String.Format("{0}/", Application.streamingAssetsPath);
 

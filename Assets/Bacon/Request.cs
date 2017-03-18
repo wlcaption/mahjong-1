@@ -30,6 +30,8 @@ namespace Bacon {
             _cs.RegisterRequest(S2cProtocol.over.Tag, over);
             _cs.RegisterRequest(S2cProtocol.restart.Tag, restart);
             _cs.RegisterRequest(S2cProtocol.take_restart.Tag, take_restart);
+
+            _cs.RegisterRequest(S2cProtocol.radio.Tag, radio);
         }
 
         public SprotoTypeBase handshake(uint session, SprotoTypeBase requestObj) {
@@ -118,6 +120,11 @@ namespace Bacon {
         public SprotoTypeBase take_restart(uint session, SprotoTypeBase requestObj) {
             GameController controller = _ctx.Top() as GameController;
             return controller.OnTakeRestart(requestObj);
+        }
+
+        public SprotoTypeBase radio(uint session, SprotoTypeBase requestObj) {
+            InitService service = (InitService)_ctx.QueryService(InitService.Name);
+            return service.OnRadio(requestObj);
         }
     }
 }

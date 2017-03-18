@@ -24,6 +24,14 @@ public class C2sProtocol : ProtocolBase {
 		Protocol.SetRequest<C2sSprotoType.dice.request> (dice.Tag);
 		Protocol.SetResponse<C2sSprotoType.dice.response> (dice.Tag);
 
+		Protocol.SetProtocol<fetchsysmail> (fetchsysmail.Tag);
+		Protocol.SetRequest<C2sSprotoType.fetchsysmail.request> (fetchsysmail.Tag);
+		Protocol.SetResponse<C2sSprotoType.fetchsysmail.response> (fetchsysmail.Tag);
+
+		Protocol.SetProtocol<fetchsysmail1> (fetchsysmail1.Tag);
+		Protocol.SetRequest<C2sSprotoType.fetchsysmail1.request> (fetchsysmail1.Tag);
+		Protocol.SetResponse<C2sSprotoType.fetchsysmail1.response> (fetchsysmail1.Tag);
+
 		Protocol.SetProtocol<first> (first.Tag);
 		Protocol.SetResponse<C2sSprotoType.first.response> (first.Tag);
 
@@ -57,6 +65,12 @@ public class C2sProtocol : ProtocolBase {
 		Protocol.SetRequest<C2sSprotoType.step.request> (step.Tag);
 		Protocol.SetResponse<C2sSprotoType.step.response> (step.Tag);
 
+		Protocol.SetProtocol<toast1> (toast1.Tag);
+		Protocol.SetResponse<C2sSprotoType.toast1.response> (toast1.Tag);
+
+		Protocol.SetProtocol<toast2> (toast2.Tag);
+		Protocol.SetResponse<C2sSprotoType.toast2.response> (toast2.Tag);
+
 	}
 
 	public class call {
@@ -77,6 +91,14 @@ public class C2sProtocol : ProtocolBase {
 
 	public class dice {
 		public const int Tag = 9;
+	}
+
+	public class fetchsysmail {
+		public const int Tag = 24;
+	}
+
+	public class fetchsysmail1 {
+		public const int Tag = 25;
 	}
 
 	public class first {
@@ -113,6 +135,14 @@ public class C2sProtocol : ProtocolBase {
 
 	public class step {
 		public const int Tag = 11;
+	}
+
+	public class toast1 {
+		public const int Tag = 22;
+	}
+
+	public class toast2 {
+		public const int Tag = 23;
 	}
 
 }

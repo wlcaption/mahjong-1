@@ -2,25 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Bacon;
 
 public class CreateRoom : MonoBehaviour {
 
     public RootBehaviour _Root;
+    public GameObject _SCPanel;
+    public GameObject _SXPanel;
 
-    private int _type = 0;            // 0:四川 1:陕西
+    private uint _provice = Provice.Sichuan;            // 0:四川 1:陕西
     #region sichuan
     private int _hujiaozhuanyi = 0;   // 0:关闭 1:启动
-    private int _zimo = 0;            // 0:不加倍 1：加底 2：自摸加倍
-    private int _dianganghua = 0;     // 0:自摸 1:点炮 
-    private int _daiyaojiu = 1;       // 带幺九4番
-    private int _duanyaojiu = 1;      // 断幺九2番
-    private int _jiangdui = 1;        // 将对8番
-    private int _tiandihu = 1;       // 天地胡32番
+    private int _zimo = 2;            // 0:不加倍 1：加底 2：自摸加倍
+    private int _dianganghua = 1;     // 0:自摸 1:点炮 
+    private int _daiyaojiu = 1;       // 0:平胡番数，1:4番
+    private int _duanyaojiu = 0;      // 0:平胡番数，1:2番
+    private int _jiangdui = 0;        // 0:4番, 1:将对8番
+    private int _tiandihu = 0;        // 0:平胡番数  1:32番
     private int _top = 8;             // 默认封顶8倍
     #endregion
 
     #region shanxi
-    private int _sxhuqidui = 0;        // 0:不可以胡七对，1可以七对不加番，2胡七对加饭
+    private int _sxhuqidui = 1;        // 0:不可以胡七对，1可以七对不加番，2胡七对加饭
     private int _sxqiyise = 0;         // 0:清一色不加番，1清一色加番
     #endregion
 
@@ -36,8 +39,14 @@ public class CreateRoom : MonoBehaviour {
     }
 
     #region sichuan
-    public void OnSc() {
-        _type = 0;
+    public void OnSc(bool value) {
+        if (value) {
+            _provice = Provice.Sichuan;
+            _SCPanel.SetActive(true);
+        } else {
+            _SCPanel.SetActive(false);
+        }
+
     }
 
     public void OnHujiaozhuanyiChanged(bool value) {
@@ -132,8 +141,13 @@ public class CreateRoom : MonoBehaviour {
 
     #region shanxi
 
-    public void OnSx() {
-        _type = 1;
+    public void OnSx(bool value) {
+        if (value) {
+            _provice = Provice.Shaanxi;
+            _SXPanel.SetActive(true);
+        } else {
+            _SXPanel.SetActive(false);
+        }
     }
 
     public void OnBukehuqiduiChanged(bool value) {
@@ -177,15 +191,23 @@ public class CreateRoom : MonoBehaviour {
 
     public void OnCreate() {
         Maria.Message msg = new Maria.Message();
-        msg["hujiaozhuanyi"] = _hujiaozhuanyi;
-        msg["zimo"] = _zimo;
-        msg["dianganghua"] = _dianganghua;
-        msg["daiyaojiu"] = _daiyaojiu;
-        msg["duanyaojiu"] = _duanyaojiu;
-        msg["jiangdui"] = _jiangdui;
-        msg["tiandihu"] = _tiandihu;
-        msg["top"] = _top;
-        msg["ju"] = _ju;
+        if (_provice == Provice.Sichuan) {
+            msg[CrCode.provice] = Provice.Sichuan;
+            msg[CrCode.hujiaozhuanyi] = _hujiaozhuanyi;
+            msg[CrCode.zimo] = _zimo;
+            msg[CrCode.dianganghua] = _dianganghua;
+            msg[CrCode.daiyaojiu] = _daiyaojiu;
+            msg[CrCode.duanyaojiu] = _duanyaojiu;
+            msg[CrCode.jiangdui] = _jiangdui;
+            msg[CrCode.tiandihu] = _tiandihu;
+            msg[CrCode.top] = _top;
+            msg[CrCode.ju] = _ju;
+        } else if (_provice == Provice.Shaanxi) {
+            msg[CrCode.provice] = Provice.Shaanxi;
+            msg[CrCode.sxqidui] = _sxhuqidui;
+            msg[CrCode.sxqingyise] = _sxqiyise;
+            msg[CrCode.ju] = _ju;
+        }
         Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_MUI_CREATE, gameObject, msg);
         _Root.App.Enqueue(cmd);
     }

@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using Maria.Network;
 using System;
 
-namespace Maria  {
+namespace Maria {
     public class Controller : INetwork {
         protected Context _ctx = null;
         protected bool _authtcp = false;
@@ -33,11 +33,9 @@ namespace Maria  {
             return _actors.Remove(item);
         }
 
-        public virtual void Enter() {
-        }
+        public virtual void Enter() { }
 
-        public virtual void Exit() {
-        }
+        public virtual void Exit() { }
 
         public virtual void OnGateAuthed(int code) {
             if (code == 200) {

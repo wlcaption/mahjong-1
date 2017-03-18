@@ -13,10 +13,15 @@ namespace Bacon {
         public static uint EVENT_ONJOIN = 110;
         public static uint EVENT_SETUP_UIROOT = 111;
 
-        public static uint EVENT_MUI_MATCH = 112;
-        public static uint EVENT_MUI_CREATE = 113;
-        public static uint EVENT_MUI_JOIN = 114;
-
+        // 主界面
+        public static uint EVENT_SETUP_MUI = 120;
+        public static uint EVENT_MUI_MATCH = 121;
+        public static uint EVENT_MUI_CREATE = 122;
+        public static uint EVENT_MUI_JOIN = 123;
+        public static uint EVENT_MUI_MSG = 124;
+        public static uint EVENT_MUI_VIEWMAIL = 125;
+        
+        // 游戏界面
         public static uint EVENT_PENG = 200;
         public static uint EVENT_GANG = 201;
         public static uint EVENT_HU = 202;
@@ -47,6 +52,8 @@ namespace Bacon {
         public static uint EVENT_SETUP_BOARD = 221;
 
         public static uint EVENT_RESTART = 222;
+
+        
 
         public MyEventCmd(uint cmd) : base(cmd) {
         }

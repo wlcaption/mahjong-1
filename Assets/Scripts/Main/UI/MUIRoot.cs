@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Maria;
+using Bacon;
+using DG.Tweening;
 
 public class MUIRoot : MonoBehaviour {
 
@@ -14,8 +17,24 @@ public class MUIRoot : MonoBehaviour {
     public GameObject _RulePanel;
     public GameObject _SettingPanel;
 
+    public GameObject _Board;
+    public GameObject _Adver;
+
+    public GameObject _Name;
+    public GameObject _NameId;
+    public GameObject _RCard;
+    public GameObject _Tips;
+
     // Use this for initialization
     void Start() {
+        Command cmd = new Command(MyEventCmd.EVENT_SETUP_MUI, gameObject);
+        _Root.App.Enqueue(cmd);
+        GameObject go = _Adver.transform.FindChild("Mask").FindChild("Text").gameObject;
+
+        go.transform.localPosition.Set(750.0f, 0.0f, 0.0f);
+        Sequence s = DOTween.Sequence();
+        Tween t = go.transform.DOMoveX(-750.0f, 10.0f);
+        s.Append(t).SetLoops(-1);
 
     }
 
@@ -24,6 +43,7 @@ public class MUIRoot : MonoBehaviour {
 
     }
 
+    #region 回掉接口
     public void OnMatch() {
         Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_MUI_MATCH, gameObject);
         _Root.App.Enqueue(cmd);
@@ -86,6 +106,8 @@ public class MUIRoot : MonoBehaviour {
     public void OnMsg() {
         if (_MsgPanel != null) {
             _MsgPanel.SetActive(true);
+            Command cmd = new Command(MyEventCmd.EVENT_MUI_MSG);
+            _Root.App.Enqueue(cmd);
         }
     }
 
@@ -118,4 +140,40 @@ public class MUIRoot : MonoBehaviour {
             _SettingPanel.SetActive(false);
         }
     }
+
+    public void OnAdd() {
+        if (_Tips != null) {
+            _Tips.SetActive(true);
+        }
+    }
+
+    public void OnTipsClose() {
+        if (_Tips != null) {
+            _Tips.SetActive(false);
+        }
+    }
+    #endregion
+
+    public void SetBoard(string board) {
+        Text content = _Board.transform.FindChild("Content").GetComponent<Text>();
+        content.text = board;
+    }
+
+    public void SetAdver(string adver) {
+        Text content = _Adver.transform.FindChild("Mask").FindChild("Text").GetComponent<Text>();
+        content.text = adver;
+    }
+
+    public void SetName(string name) {
+        _Name.GetComponent<Text>().text = name;
+    }
+
+    public void SetNameId(string nameid) {
+        _NameId.GetComponent<Text>().text = nameid;
+    }
+
+    public void SetRCard(string rcard) {
+        _RCard.GetComponent<Text>().text = rcard;
+    }
+
 }

@@ -23,6 +23,10 @@ namespace Maria.Network {
             _cs.RegisterResponse(C2sProtocol.step.Tag, step);
 
             _cs.RegisterResponse(C2sProtocol.restart.Tag, restart);
+
+            _cs.RegisterResponse(C2sProtocol.first.Tag, first);
+            _cs.RegisterResponse(C2sProtocol.fetchsysmail.Tag, fetchsysmail);
+            _cs.RegisterResponse(C2sProtocol.fetchsysmail1.Tag, fetchsysmail1);
         }
 
         public void handshake(uint session, SprotoTypeBase responseObj) {
@@ -70,5 +74,21 @@ namespace Maria.Network {
 
         public void restart(uint session, SprotoTypeBase responseObj) {
         }
+
+        public void first(uint session, SprotoTypeBase responseObj) {
+            MainController ctr = _ctx.Top() as MainController;
+            ctr.First(responseObj);
+        }
+
+        public void fetchsysmail(uint session, SprotoTypeBase responseObj) {
+            MainController ctr = _ctx.Top() as MainController;
+            ctr.FetchSysmail(responseObj);
+        }
+
+        public void fetchsysmail1(uint session, SprotoTypeBase responseObj) {
+            MainController ctr = _ctx.Top() as MainController;
+            ctr.FetchSysmail1(responseObj);
+        }
+
     }
 }

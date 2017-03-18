@@ -16,9 +16,14 @@ namespace Bacon {
         private SMActor _smactor = null;
         private TimeSync _ts = null;
 
+        private User _user;
+        private SysInbox _sysinbox = null;
+
         public InitService(Context ctx) : base(ctx) {
             _ts = ctx.TiSync;
             _smactor = new SMActor(ctx, this);
+            _user = new User();
+            _sysinbox = new SysInbox();
 
             _ctx.EventDispatcher.AddCustomEventListener(EventCustom.OnDisconnected, OnDiconnected, null);
             _ctx.EventDispatcher.AddCustomEventListener(EventCustom.OnAuthed, OnAuthed, null);
@@ -34,6 +39,12 @@ namespace Bacon {
         public int Ping { get { return _lag; } }
 
         public object DataTime { get; private set; }
+
+        public User User { get { return _user; } }
+        public string Board { get; set; }
+        public string Adver { get; set; }
+
+        public SysInbox SysInBox { get { return _sysinbox; } }
 
         public void SendHandshake(float delta) {
             if (!_authed) {
@@ -64,5 +75,16 @@ namespace Bacon {
             _authed = false;
             _ctx.GateAuth();
         }
+
+        public SprotoTypeBase OnRadio(SprotoTypeBase requestObj) {
+            S2cSprotoType.radio.request obj = requestObj as S2cSprotoType.radio.request;
+            Board = obj.board;
+            Adver = obj.adver;
+
+            S2cSprotoType.radio.response responseObj = new S2cSprotoType.radio.response();
+            responseObj.errorcode = Errorcode.SUCCESS;
+            return responseObj;
+        }
+
     }
 }
