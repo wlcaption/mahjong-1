@@ -51,36 +51,20 @@ public class GUIRoot : MonoBehaviour {
 
     public  void OnHelp() {
         if (_HelpWnd != null) {
+            _HelpWnd.GetComponent<RuleWnd>().Show();
             _HelpWnd.SetActive(true);
-        }
-    }
-
-    public void OnHelpClose() {
-        if (_HelpWnd != null) {
-            _HelpWnd.SetActive(false);
         }
     }
 
     public void OnSetting() {
         if (_SettingWnd != null) {
-            _SettingWnd.SetActive(true);
-        }
-    }
-
-    public void OnSettingClose() {
-        if (_SettingWnd != null) {
-            _SettingWnd.SetActive(false);
+            _SettingWnd.GetComponent<SettingWnd>().Show();
         }
     }
 
     public void OnChat() {
         if (_ChatWnd != null) {
-            if (_ChatWnd.activeSelf) {
-                _ChatWnd.SetActive(false);
-            } else {
-                _ChatWnd.SetActive(true);
-                //_ChatPanel.transform.FindChild("")
-            }
+            _ChatWnd.GetComponent<ChatWnd>().Show();
         }
     }
 

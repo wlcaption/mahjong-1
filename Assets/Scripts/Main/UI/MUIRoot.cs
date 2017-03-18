@@ -13,8 +13,8 @@ public class MUIRoot : MonoBehaviour {
     public GameObject _JoinPanel;
     public GameObject _SharePanel;
     public GameObject _RecorePanel;
-    public GameObject _MsgPanel;
-    public GameObject _RulePanel;
+    public GameObject _MailWnd;
+    public GameObject _RuleWnd;
     public GameObject _SettingPanel;
 
     public GameObject _Board;
@@ -81,13 +81,7 @@ public class MUIRoot : MonoBehaviour {
 
     public void OnShare() {
         if (_SharePanel != null) {
-            _SharePanel.SetActive(true);
-        }
-    }
-
-    public void OnShareClose() {
-        if (_SharePanel != null) {
-            _SharePanel.SetActive(false);
+            _SharePanel.GetComponent<ShareWnd>().Show();
         }
     }
 
@@ -104,40 +98,22 @@ public class MUIRoot : MonoBehaviour {
     }
 
     public void OnMsg() {
-        if (_MsgPanel != null) {
-            _MsgPanel.SetActive(true);
+        if (_MailWnd != null) {
+            _MailWnd.GetComponent<MailWnd>().Show();
             Command cmd = new Command(MyEventCmd.EVENT_MUI_MSG);
             _Root.App.Enqueue(cmd);
         }
     }
 
-    public void OnMsgClose() {
-        if (_MsgPanel != null) {
-            _MsgPanel.SetActive(false);
-        }
-    }
-
     public void OnRule() {
-        if (_RulePanel != null) {
-            _RulePanel.SetActive(true);
-        }
-    }
-
-    public void OnRuleClose() {
-        if (_RulePanel != null) {
-            _RulePanel.SetActive(false);
+        if (_RuleWnd != null) {
+            _RuleWnd.GetComponent<RuleWnd>().Show();
         }
     }
 
     public void OnSetting() {
         if (_SettingPanel != null) {
-            _SettingPanel.SetActive(true);
-        }
-    }
-
-    public void OnSettingClose() {
-        if (_SettingPanel != null) {
-            _SettingPanel.SetActive(false);
+            _SettingPanel.GetComponent<SettingWnd>().Show();
         }
     }
 

@@ -20,40 +20,42 @@ namespace Bacon {
         public static uint EVENT_MUI_JOIN = 123;
         public static uint EVENT_MUI_MSG = 124;
         public static uint EVENT_MUI_VIEWMAIL = 125;
-        
+
         // 游戏界面
-        public static uint EVENT_PENG = 200;
-        public static uint EVENT_GANG = 201;
-        public static uint EVENT_HU = 202;
-        public static uint EVENT_GUO = 203;
 
-        public static uint EVENT_SETUP_SCENE = 204;
-        public static uint EVENT_SETUP_CARD = 205;
-        public static uint EVENT_SETUP_GUIROOT = 206;
+        public static uint EVENT_SETUP_SCENE = 201;
+        public static uint EVENT_SETUP_CARD = 202;
+        public static uint EVENT_SETUP_GUIROOT = 203;
+        public static uint EVENT_SETUP_BOARD = 204;
 
-        public static uint EVENT_SETUP_BOTTOMPLAYER = 207;
-        public static uint EVENT_SETUP_TOPPLAYER = 208;
-        public static uint EVENT_SETUP_LEFTPLAYER = 209;
-        public static uint EVENT_SETUP_RIGHTPLAYER = 210;
+        public static uint EVENT_SETUP_BOTTOMPLAYER = 205;
+        public static uint EVENT_SETUP_TOPPLAYER = 206;
+        public static uint EVENT_SETUP_LEFTPLAYER = 207;
+        public static uint EVENT_SETUP_RIGHTPLAYER = 208;
 
-        public static uint EVENT_LOADEDCARDS = 211;
-        public static uint EVENT_BOXINGCARDS = 212;
-        public static uint EVENT_THROWDICE = 213;
-        public static uint EVENT_TAKEDEAL = 214;
+        public static uint EVENT_PENG = 211;
+        public static uint EVENT_GANG = 212;
+        public static uint EVENT_HU = 213;
+        public static uint EVENT_GUO = 214;
 
-        public static uint EVENT_LEAD = 215;
-        public static uint EVENT_PENGCARD = 216;
-        public static uint EVENT_GANGCARD = 217;
-        public static uint EVENT_HUCARD = 218;
+        public static uint EVENT_LOADEDCARDS = 215;
+        public static uint EVENT_BOXINGCARDS = 216;
+        public static uint EVENT_THROWDICE = 217;
+        public static uint EVENT_TAKEDEAL = 218;
 
-        public static uint EVENT_SORTCARDS = 219;
-        public static uint EVENT_LEADCARD = 220;
+        public static uint EVENT_LEAD = 219;
+        public static uint EVENT_PENGCARD = 220;
+        public static uint EVENT_GANGCARD = 221;
+        public static uint EVENT_HUCARD = 222;
 
-        public static uint EVENT_SETUP_BOARD = 221;
+        public static uint EVENT_SORTCARDS = 223;
+        public static uint EVENT_LEADCARD = 224;
 
-        public static uint EVENT_RESTART = 222;
+        public static uint EVENT_RESTART = 225;
 
-        
+        public static uint EVENT_XUANPAO = 226;
+        public static uint EVENT_XUANQUE = 227;
+
 
         public MyEventCmd(uint cmd) : base(cmd) {
         }

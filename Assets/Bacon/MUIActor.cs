@@ -51,8 +51,8 @@ namespace Bacon {
         }
 
         private void RenderSettupMsg() {
-            MUIMsg com = _go.GetComponent<global::MUIMsg>();
-            com.ShowMsg(_service.SysInBox);
+            //MUIMsg com = _go.GetComponent<global::MUIMsg>();
+            //com.ShowMsg(_service.SysInBox);
         }
     }
 }

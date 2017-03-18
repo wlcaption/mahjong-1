@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MUISetting : MonoBehaviour {
+public class SettingWnd : MonoBehaviour {
 
-    public RootBehaviour _Root;
     public Slider _MusicSlider;
     public Slider _SoundSlider;
     public Toggle _MusicToggle;
@@ -14,18 +13,26 @@ public class MUISetting : MonoBehaviour {
     private float _music = 1;
     private float _sound = 1;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    // Use this for initialization
+    void Start() {
 
-    public void OnExit() {
+    }
 
+    // Update is called once per frame
+    void Update() {
+
+    }
+
+    public void Show() {
+        if (!gameObject.activeSelf) {
+            gameObject.SetActive(true);
+        }
+    }
+
+    public void OnClose() {
+        if (gameObject.activeSelf) {
+            gameObject.SetActive(false);
+        }
     }
 
     public void OnMusicChanged(bool value) {
@@ -73,5 +80,4 @@ public class MUISetting : MonoBehaviour {
             }
         }
     }
-
 }
