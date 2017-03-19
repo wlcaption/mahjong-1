@@ -194,6 +194,31 @@ namespace Bacon {
 
         protected virtual void RenderSortCards() { }
 
+        public void TakeXuanPao() {
+            _ctx.EnqueueRenderQueue(RenderTakeXuanPao);
+        }
+
+        protected virtual void RenderTakeXuanPao() { }
+
+        public void XuanPao() {
+            _ctx.EnqueueRenderQueue(RenderXuanPao);
+        }
+
+        protected void RenderXuanPao() { }
+
+        public void TakeXuanQue() {
+            _ctx.EnqueueRenderQueue(RenderTakeXuanQue);
+        }
+
+        protected virtual void RenderTakeXuanQue() { }
+
+        public void XuanQue() {
+            _ctx.EnqueueRenderQueue(RenderXuanQue);
+        }
+
+        protected virtual void RenderXuanQue() {
+        }
+
         public void TakeTurn(long type, long c) {
             _turntype = type;
             if (type == 1) {
@@ -216,7 +241,7 @@ namespace Bacon {
                     }
                     UnityEngine.Debug.Assert(_holdcard.Value == c);
                 }
-                
+
                 UnityEngine.Debug.Assert(_holdcard.Value == c);
                 _ctx.EnqueueRenderQueue(RenderTakeTurn);
             }
@@ -240,7 +265,6 @@ namespace Bacon {
                 }
             }
         }
-
         private void Remove(Card card) {
             for (int i = 0; i < _cards.Count; i++) {
                 if (_cards[i].Value == card.Value) {
@@ -258,7 +282,6 @@ namespace Bacon {
                 }
             }
         }
-
         public void RemoveLead(Card card) {
             UnityEngine.Debug.Assert(_leadcards.Count > 0);
             Card other = _leadcards[_leadcards.Count - 1];
@@ -298,7 +321,6 @@ namespace Bacon {
         }
 
         protected virtual void RenderLead() { }
-
         protected virtual void RenderSortCardsToDo(Action cb) {
             int count = 0;
             for (int i = 0; i < _cards.Count; i++) {
@@ -313,7 +335,6 @@ namespace Bacon {
                     });
             }
         }
-
         protected virtual void RenderInsert(Action cb) { }
         protected virtual void RenderSortCardsAfterFly(Action cb) { }
         protected virtual void RenderFly(Action cb) { }

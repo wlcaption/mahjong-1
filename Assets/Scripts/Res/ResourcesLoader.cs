@@ -1,7 +1,4 @@
 ﻿using System;
-
-
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,18 +10,7 @@ using Common;
 /// </summary>
 public class ResourcesLoader : IResourceLoader
 {
-	/// <summary>
-	///  初始化加载器
-	/// </summary>
-	/// <param name="fileList">文件列表</param>
-	/// <param name="initOK">初始化完成回调</param>
-	public void Initialize(string fileList, Action initOK)
-	{
-		//		AssetBundle asset = AssetBundle.LoadFromFile (FileUtils.getPath (manifestFile));
-		//		if (null != asset) {
-		//			
-		//		}
-	}
+	
 
 	/// <summary>
 	/// 同步加载动更资源

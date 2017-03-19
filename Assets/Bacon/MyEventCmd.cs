@@ -56,6 +56,7 @@ namespace Bacon {
         public static uint EVENT_XUANPAO = 226;
         public static uint EVENT_XUANQUE = 227;
 
+        public static uint EVENT_SENDCHATMSG = 228;
 
         public MyEventCmd(uint cmd) : base(cmd) {
         }

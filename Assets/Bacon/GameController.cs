@@ -72,6 +72,9 @@ namespace Bacon {
 
             EventListenerCmd listener12 = new EventListenerCmd(MyEventCmd.EVENT_SETUP_BOARD, SetupMap);
             _ctx.EventDispatcher.AddCmdEventListener(listener12);
+
+            EventListenerCmd listener13 = new EventListenerCmd(MyEventCmd.EVENT_SENDCHATMSG, OnSendChatMsg);
+            _ctx.EventDispatcher.AddCmdEventListener(listener13);
         }
 
         public override void Update(float delta) {
@@ -592,7 +595,6 @@ namespace Bacon {
 
         public SprotoTypeBase OnTakeRestart(SprotoTypeBase requestObj) {
             try {
-
                 S2cSprotoType.take_restart.response responseObj = new S2cSprotoType.take_restart.response();
                 responseObj.errorcode = Errorcode.SUCCESS;
                 return responseObj;
@@ -609,6 +611,87 @@ namespace Bacon {
             C2sSprotoType.restart.request request = new C2sSprotoType.restart.request();
             request.idx = _service.MyIdx;
             _ctx.SendReq<C2sProtocol.restart>(C2sProtocol.restart.Tag, request);
+        }
+
+        public SprotoTypeBase OnTakeXuanPao(SprotoTypeBase requestObj) {
+            try {
+                _service.GetPlayer(_service.MyIdx).TakeXuanPao();
+
+                S2cSprotoType.take_xuanpao.response responseObj = new S2cSprotoType.take_xuanpao.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
+                S2cSprotoType.take_xuanpao.response responseObj = new S2cSprotoType.take_xuanpao.response();
+                responseObj.errorcode = Errorcode.FAIL;
+                return responseObj;
+            }
+        }
+
+        public SprotoTypeBase OnXuanPao(SprotoTypeBase requestObj) {
+            try {
+
+                S2cSprotoType.xuanpao.response responseObj = new S2cSprotoType.xuanpao.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
+                S2cSprotoType.xuanpao.response responseObj = new S2cSprotoType.xuanpao.response();
+                responseObj.errorcode = Errorcode.FAIL;
+                return responseObj;
+            }
+        }
+
+        public SprotoTypeBase OnTakeXuanQue(SprotoTypeBase requestObj) {
+            try {
+
+                S2cSprotoType.take_xuanque.response responseObj = new S2cSprotoType.take_xuanque.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
+                S2cSprotoType.take_xuanque.response responseObj = new S2cSprotoType.take_xuanque.response();
+                responseObj.errorcode = Errorcode.FAIL;
+                return responseObj;
+            }
+        }
+
+        public SprotoTypeBase OnXuanQue(SprotoTypeBase requestObj) {
+            try {
+                S2cSprotoType.xuanque.response responseObj = new S2cSprotoType.xuanque.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
+                S2cSprotoType.xuanque.response responseObj = new S2cSprotoType.xuanque.response();
+                responseObj.errorcode = Errorcode.FAIL;
+                return responseObj;
+            }
+        }
+
+        public void OnSendChatMsg(EventCmd e) {
+            C2sSprotoType.rchat.request request = new C2sSprotoType.rchat.request();
+            request.idx = _service.MyIdx;
+            if ((int)e.Msg["type"] == 1) {
+                request.type = 1;
+                request.textid = (long)e.Msg["code"];
+            } else if ((int)e.Msg["type"] == 2) {
+
+            }
+            _ctx.SendReq<C2sProtocol.rchat>(C2sProtocol.rchat.Tag, request);
+        }
+
+        public SprotoTypeBase OnRChat(SprotoTypeBase requestObj) {
+            try {
+                S2cSprotoType.rchat.response responseObj = new S2cSprotoType.rchat.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
+                S2cSprotoType.rchat.response responseObj = new S2cSprotoType.rchat.response();
+                responseObj.errorcode = Errorcode.FAIL;
+                return responseObj;
+            }
         }
 
     }

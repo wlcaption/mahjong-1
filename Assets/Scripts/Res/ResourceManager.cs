@@ -1,63 +1,45 @@
-﻿using System;
-using Common;
-using UnityEngine;
-using Maria;
+﻿using Maria;
 
-public class ResourceManager:Singleton<ResourceManager>
-{
-	private AssetLoader m_assetLoader = new AssetLoader();
-	private ResourcesLoader m_resourceLoader = new ResourcesLoader();
+public class ResourceManager : Singleton<ResourceManager> {
 
-	public ResourceManager ()
-	{
-		m_assetLoader.Initialize ("", null);
-	}
+    public T LoadAsset<T>(string path, string name) where T : UnityEngine.Object {
+        string abpath = UnityEngine.Application.dataPath + "/StreamingAssets/" + path;
+        string respath = UnityEngine.Application.dataPath + "/Resources/" + path;
+        if (System.IO.File.Exists(abpath)) {
+            string abpathx = "StreamingAssets/" + path;
+            int idx = abpathx.IndexOf('.');
+            if (idx != -1) {
+                abpathx = abpathx.Remove(idx);
+            }
+            return ABLoader.current.LoadAB<T>(abpathx, name);
+        } else if (System.IO.File.Exists(respath)) {
+            int idx = path.IndexOf('.');
+            if (idx != -1) {
+                path = path.Remove(idx);
+            }
+            return ABLoader.current.LoadRes<T>(path);
+        }
+        return null;
+    }
 
-	/// <summary>
-	/// 同步加载动更资源
-	/// </summary>
-	/// <returns>资源内容</returns>
-	/// <param name="fileName">文件名称</param>
-	/// <typeparam name="T">资源类型</typeparam>
-	public T LoadAsset<T> (string fileName) where T: UnityEngine.Object
-	{
-		T rtn = m_assetLoader.LoadAsset<T>(fileName);
-		if (null != rtn) {
-			return rtn;
-		}
+    public void LoadAssetAsync<T>(string path, string name, ABLoader.Completed<T> cb) where T : UnityEngine.Object {
+        string abpath = UnityEngine.Application.dataPath + "/StreamingAssets/" + path;
+        string respath = UnityEngine.Application.dataPath + "/Resources/" + path;
+        if (System.IO.File.Exists(abpath)) {
+            string abpathx = "StreamingAssets/" + path;
+            int idx = abpathx.IndexOf('.');
+            if (idx != -1) {
+                abpathx = abpathx.Remove(idx);
+            }
+            ABLoader.current.LoadABAsync<T>(abpathx, name, cb);
+        } else if (System.IO.File.Exists(respath)) {
+            int idx = path.IndexOf('.');
+            if (idx != -1) {
+                path = path.Remove(idx);
+            }
+            ABLoader.current.LoadResAsync<T>(path, cb);
+        }
+    }
 
-		return m_resourceLoader.LoadAsset<T>(fileName);
-	}
-
-	/// <summary>
-	/// 异步加载动更资源
-	/// </summary>
-	/// <returns>资源内容</returns>
-	/// <param name="fileName">文件名称</param>
-	/// <typeparam name="T">资源类型</typeparam>
-	public T LoadAssetAsync<T> (string fileName) where T: UnityEngine.Object
-	{
-		T rtn = m_assetLoader.LoadAssetAsync<T> (fileName);
-		if (null != rtn) {
-			return rtn;
-		}
-
-		return m_resourceLoader.LoadAssetAsync<T> (fileName);
-	}
-
-	/// <summary>
-	/// 读取文本文件内容
-	/// </summary>
-	/// <returns>The text.</returns>
-	/// <param name="fileName">File name.</param>
-	public string LoadText (string fileName)
-	{
-		string rtn = m_assetLoader.LoadText (fileName);
-		if (null != rtn) {
-			return rtn;
-		}
-
-		return m_resourceLoader.LoadText (fileName);
-	}
 }
 

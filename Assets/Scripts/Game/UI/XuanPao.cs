@@ -16,6 +16,14 @@ public class XuanPao : MonoBehaviour {
 
     }
 
+    public void Show() {
+        gameObject.SetActive(true);
+    }
+
+    public void Close() {
+        gameObject.SetActive(false);
+    }
+
     public void OnFen1() {
         Message msg = new Message();
         msg["fen"] = 1;

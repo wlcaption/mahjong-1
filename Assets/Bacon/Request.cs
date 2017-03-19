@@ -30,6 +30,11 @@ namespace Bacon {
             _cs.RegisterRequest(S2cProtocol.over.Tag, over);
             _cs.RegisterRequest(S2cProtocol.restart.Tag, restart);
             _cs.RegisterRequest(S2cProtocol.take_restart.Tag, take_restart);
+            _cs.RegisterRequest(S2cProtocol.take_xuanpao.Tag, take_xuanpao);
+            _cs.RegisterRequest(S2cProtocol.take_xuanque.Tag, take_xuanque);
+            _cs.RegisterRequest(S2cProtocol.xuanpao.Tag, xuanpao);
+            _cs.RegisterRequest(S2cProtocol.xuanque.Tag, xuanque);
+            _cs.RegisterRequest(S2cProtocol.rchat.Tag, rchat);
 
             _cs.RegisterRequest(S2cProtocol.radio.Tag, radio);
         }
@@ -40,6 +45,7 @@ namespace Bacon {
             return responseObj;
         }
 
+        #region enter room
         public SprotoTypeBase join(uint session, SprotoTypeBase requestObj) {
             GameService service = (GameService)_ctx.QueryService(GameService.Name);
             UnityEngine.Debug.Assert(service != null);
@@ -56,6 +62,8 @@ namespace Bacon {
             MainController controller = _ctx.Top() as MainController;
             return controller.OnMatch(requestObj);
         }
+        #endregion
+
 
         public SprotoTypeBase ready(uint session, SprotoTypeBase requestObj) {
             GameController controller = _ctx.Top() as GameController;
@@ -122,9 +130,35 @@ namespace Bacon {
             return controller.OnTakeRestart(requestObj);
         }
 
+        public SprotoTypeBase take_xuanpao(uint session, SprotoTypeBase requestObj) {
+            GameController controller = _ctx.Top() as GameController;
+            return controller.OnTakeXuanPao(requestObj);
+        }
+
+        public SprotoTypeBase xuanpao(uint session, SprotoTypeBase requestObj) {
+            GameController controller = _ctx.Top() as GameController;
+            return controller.OnXuanPao(requestObj);
+        }
+
+        public SprotoTypeBase take_xuanque(uint session, SprotoTypeBase requestObj) {
+            GameController controller = _ctx.Top() as GameController;
+            return controller.OnTakeXuanQue(requestObj);
+        }
+
+        public SprotoTypeBase xuanque(uint session, SprotoTypeBase requestObj) {
+            GameController controller = _ctx.Top() as GameController;
+            return controller.OnXuanQue(requestObj);
+        }
+
+        public SprotoTypeBase rchat(uint session, SprotoTypeBase requestObj) {
+            GameController controller = _ctx.Top() as GameController;
+            return controller.OnRChat(requestObj);
+        }
+
         public SprotoTypeBase radio(uint session, SprotoTypeBase requestObj) {
             InitService service = (InitService)_ctx.QueryService(InitService.Name);
             return service.OnRadio(requestObj);
         }
+
     }
 }

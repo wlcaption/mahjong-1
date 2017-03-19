@@ -55,4 +55,6 @@ public class App : MonoBehaviour {
         _app.Enqueue(cmd);
     }
 
+    public ABLoader ABLoader { get { return GetComponent<ABLoader>(); } }
+
 }

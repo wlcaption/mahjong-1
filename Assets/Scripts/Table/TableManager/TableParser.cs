@@ -8,7 +8,7 @@ using UnityEngine;
 
 public static class TableParser
 {
-    static void ParsePropertyValue<T>(T obj, FieldInfo fieldInfo, string valueStr)
+    private static void ParsePropertyValue<T>(T obj, FieldInfo fieldInfo, string valueStr)
     {
         System.Object value = valueStr;
         if (fieldInfo.FieldType.IsEnum)
@@ -44,7 +44,7 @@ public static class TableParser
         fieldInfo.SetValue(obj, value);
     }
 
-    static T ParseObject<T>(string[] lines, int idx, Dictionary<int, FieldInfo> propertyInfos)
+    private static T ParseObject<T>(string[] lines, int idx, Dictionary<int, FieldInfo> propertyInfos)
     {
         T obj = Activator.CreateInstance<T>();
         string line = lines[idx];
@@ -76,7 +76,7 @@ public static class TableParser
         return obj;
     }
 
-    static Dictionary<int, FieldInfo> GetPropertyInfos<T>(string memberLine)
+    private static Dictionary<int, FieldInfo> GetPropertyInfos<T>(string memberLine)
     {
         Type objType = typeof(T);
 
@@ -92,32 +92,18 @@ public static class TableParser
 
         return propertyInfos;
     }
-    //private static TextAsset GetAsset(string name, string key)
-    //{
-    //    WWW www=new WWW("");
-
-    //    AssetBundle assetBundle = www.assetBundle;
-    //    return assetBundle.Load(key) as TextAsset;
-    //}
-    //// parse a data array from the table data.
-    //static T[] LoadTable<T>(string name)
-    //{
-    //    TextAsset textAsset = GetAsset("Tables.unity3d", name);
-    //    MemoryStream stream = new MemoryStream(textAsset.bytes);
-    //    return ProtoBuf.Serializer.Deserialize<T[]>(stream)
-    //}
-
+    
     public static T[] Parse<T>(string name)
     {
         // here we load the text asset.
-        TextAsset textAsset = (TextAsset)Resources.Load("Table/" + name);
+        //TextAsset textAsset = (TextAsset)Resources.Load("Table/" + name);
+        //TextAsset textAsset = ResourceManager.Instance.LoadAsset<TextAsset>("Excels/" + name, name);
+        TextAsset textAsset = ABLoader.current.LoadRes<TextAsset>("Excels/" + name);
         if (textAsset == null)
         {
             UnityEngine.Debug.LogError("无法加载表格文件：" + name);
             return null;
         }
-
-        //UnityEngine.Debug.Log("Data =" + textAsset.text);
 
         // try parse the table lines.
         string[] lines = textAsset.text.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);

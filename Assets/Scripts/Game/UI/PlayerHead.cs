@@ -24,7 +24,7 @@ public class PlayerHead : MonoBehaviour {
     }
 
     public void SetGold(int num) {
-        string txt = string.Format("{0}", null);
+        string txt = string.Format("{0}", num);
         _Gold.text = txt;
     }
 

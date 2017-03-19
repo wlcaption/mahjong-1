@@ -10,6 +10,8 @@ namespace Bacon {
     class BottomPlayer : Player {
 
         private Card _leadcard1 = null;
+        private GameObject _xuanpao = null;
+        private GameObject _xuanque = null;
 
         public BottomPlayer(Context ctx, GameService service) : base(ctx, service) {
 
@@ -214,6 +216,34 @@ namespace Bacon {
                             _ctx.Enqueue(cmd);
                         }
                     });
+            }
+        }
+
+        protected override void RenderTakeXuanPao() {
+            if (_xuanpao == null) {
+                ResourceManager.Instance.LoadAssetAsync<GameObject>("Prefabs/UI/SxXuanPao.prefab", "SxXuanPao", (GameObject go) => {
+                    GameObject inst = GameObject.Instantiate<GameObject>(go);
+                    if (inst) {
+                        _xuanpao = inst;
+                        _xuanpao.transform.SetParent(_go.GetComponent<global::BottomPlayer>()._Canvas.transform);
+                    }
+                });
+            } else {
+                _xuanpao.GetComponent<XuanPao>().Show();
+            }
+        }
+
+        protected override void RenderTakeXuanQue() {
+            if (_xuanque == null) {
+                ResourceManager.Instance.LoadAssetAsync<GameObject>("Prefabs/UI/ScXuanQue.prefab", "SxXuanQue", (GameObject go) => {
+                    GameObject inst = GameObject.Instantiate<GameObject>(go);
+                    if (inst) {
+                        _xuanque = inst;
+                        _xuanque.transform.SetParent(_go.GetComponent<global::BottomPlayer>()._Canvas.transform);
+                    }
+                });
+            } else {
+                _xuanpao.GetComponent<XuanQue>().Show();
             }
         }
 

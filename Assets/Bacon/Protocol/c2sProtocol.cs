@@ -53,6 +53,10 @@ public class C2sProtocol : ProtocolBase {
 		Protocol.SetRequest<C2sSprotoType.match.request> (match.Tag);
 		Protocol.SetResponse<C2sSprotoType.match.response> (match.Tag);
 
+		Protocol.SetProtocol<rchat> (rchat.Tag);
+		Protocol.SetRequest<C2sSprotoType.rchat.request> (rchat.Tag);
+		Protocol.SetResponse<C2sSprotoType.rchat.response> (rchat.Tag);
+
 		Protocol.SetProtocol<restart> (restart.Tag);
 		Protocol.SetRequest<C2sSprotoType.restart.request> (restart.Tag);
 		Protocol.SetResponse<C2sSprotoType.restart.response> (restart.Tag);
@@ -71,6 +75,14 @@ public class C2sProtocol : ProtocolBase {
 		Protocol.SetProtocol<toast2> (toast2.Tag);
 		Protocol.SetResponse<C2sSprotoType.toast2.response> (toast2.Tag);
 
+		Protocol.SetProtocol<xuanpao> (xuanpao.Tag);
+		Protocol.SetRequest<C2sSprotoType.xuanpao.request> (xuanpao.Tag);
+		Protocol.SetResponse<C2sSprotoType.xuanpao.response> (xuanpao.Tag);
+
+		Protocol.SetProtocol<xuanque> (xuanque.Tag);
+		Protocol.SetRequest<C2sSprotoType.xuanque.request> (xuanque.Tag);
+		Protocol.SetResponse<C2sSprotoType.xuanque.response> (xuanque.Tag);
+
 	}
 
 	public class call {
@@ -78,7 +90,7 @@ public class C2sProtocol : ProtocolBase {
 	}
 
 	public class checkindaily {
-		public const int Tag = 21;
+		public const int Tag = 31;
 	}
 
 	public class cmatch {
@@ -94,15 +106,15 @@ public class C2sProtocol : ProtocolBase {
 	}
 
 	public class fetchsysmail {
-		public const int Tag = 24;
+		public const int Tag = 34;
 	}
 
 	public class fetchsysmail1 {
-		public const int Tag = 25;
+		public const int Tag = 35;
 	}
 
 	public class first {
-		public const int Tag = 20;
+		public const int Tag = 30;
 	}
 
 	public class handshake {
@@ -125,6 +137,10 @@ public class C2sProtocol : ProtocolBase {
 		public const int Tag = 2;
 	}
 
+	public class rchat {
+		public const int Tag = 13;
+	}
+
 	public class restart {
 		public const int Tag = 12;
 	}
@@ -138,11 +154,19 @@ public class C2sProtocol : ProtocolBase {
 	}
 
 	public class toast1 {
-		public const int Tag = 22;
+		public const int Tag = 32;
 	}
 
 	public class toast2 {
-		public const int Tag = 23;
+		public const int Tag = 33;
+	}
+
+	public class xuanpao {
+		public const int Tag = 14;
+	}
+
+	public class xuanque {
+		public const int Tag = 15;
 	}
 
 }

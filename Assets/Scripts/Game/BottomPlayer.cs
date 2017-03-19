@@ -6,6 +6,7 @@ using Bacon;
 public class BottomPlayer : MonoBehaviour {
 
     public RootBehaviour _Root;
+    public GameObject _Canvas;
     public GameObject _UI;
     public GameObject _Gang;
     public GameObject _Peng;

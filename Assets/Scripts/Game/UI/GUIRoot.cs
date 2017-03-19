@@ -7,6 +7,8 @@ using Bacon;
 
 public class GUIRoot : MonoBehaviour {
 
+    public GameObject _ChatItem;
+    public TextAsset _SayTextAsset;
     public RootBehaviour _Root;
     public GameObject _RoomId;
     public GameObject _OverWnd;

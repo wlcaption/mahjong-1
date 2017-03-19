@@ -10,10 +10,6 @@ public class S2cProtocol : ProtocolBase {
 		Protocol.SetRequest<S2cSprotoType.call.request> (call.Tag);
 		Protocol.SetResponse<S2cSprotoType.call.response> (call.Tag);
 
-		Protocol.SetProtocol<chat> (chat.Tag);
-		Protocol.SetRequest<S2cSprotoType.chat.request> (chat.Tag);
-		Protocol.SetResponse<S2cSprotoType.chat.response> (chat.Tag);
-
 		Protocol.SetProtocol<deal> (deal.Tag);
 		Protocol.SetRequest<S2cSprotoType.deal.request> (deal.Tag);
 		Protocol.SetResponse<S2cSprotoType.deal.response> (deal.Tag);
@@ -65,6 +61,10 @@ public class S2cProtocol : ProtocolBase {
 		Protocol.SetRequest<S2cSprotoType.rcard.request> (rcard.Tag);
 		Protocol.SetResponse<S2cSprotoType.rcard.response> (rcard.Tag);
 
+		Protocol.SetProtocol<rchat> (rchat.Tag);
+		Protocol.SetRequest<S2cSprotoType.rchat.request> (rchat.Tag);
+		Protocol.SetResponse<S2cSprotoType.rchat.response> (rchat.Tag);
+
 		Protocol.SetProtocol<ready> (ready.Tag);
 		Protocol.SetResponse<S2cSprotoType.ready.response> (ready.Tag);
 
@@ -83,14 +83,25 @@ public class S2cProtocol : ProtocolBase {
 		Protocol.SetRequest<S2cSprotoType.take_turn.request> (take_turn.Tag);
 		Protocol.SetResponse<S2cSprotoType.take_turn.response> (take_turn.Tag);
 
+		Protocol.SetProtocol<take_xuanpao> (take_xuanpao.Tag);
+		Protocol.SetResponse<S2cSprotoType.take_xuanpao.response> (take_xuanpao.Tag);
+
+		Protocol.SetProtocol<take_xuanque> (take_xuanque.Tag);
+		Protocol.SetRequest<S2cSprotoType.take_xuanque.request> (take_xuanque.Tag);
+		Protocol.SetResponse<S2cSprotoType.take_xuanque.response> (take_xuanque.Tag);
+
+		Protocol.SetProtocol<xuanpao> (xuanpao.Tag);
+		Protocol.SetRequest<S2cSprotoType.xuanpao.request> (xuanpao.Tag);
+		Protocol.SetResponse<S2cSprotoType.xuanpao.response> (xuanpao.Tag);
+
+		Protocol.SetProtocol<xuanque> (xuanque.Tag);
+		Protocol.SetRequest<S2cSprotoType.xuanque.request> (xuanque.Tag);
+		Protocol.SetResponse<S2cSprotoType.xuanque.response> (xuanque.Tag);
+
 	}
 
 	public class call {
 		public const int Tag = 9;
-	}
-
-	public class chat {
-		public const int Tag = 22;
 	}
 
 	public class deal {
@@ -138,11 +149,15 @@ public class S2cProtocol : ProtocolBase {
 	}
 
 	public class radio {
-		public const int Tag = 21;
+		public const int Tag = 31;
 	}
 
 	public class rcard {
-		public const int Tag = 20;
+		public const int Tag = 30;
+	}
+
+	public class rchat {
+		public const int Tag = 18;
 	}
 
 	public class ready {
@@ -163,6 +178,22 @@ public class S2cProtocol : ProtocolBase {
 
 	public class take_turn {
 		public const int Tag = 5;
+	}
+
+	public class take_xuanpao {
+		public const int Tag = 19;
+	}
+
+	public class take_xuanque {
+		public const int Tag = 21;
+	}
+
+	public class xuanpao {
+		public const int Tag = 20;
+	}
+
+	public class xuanque {
+		public const int Tag = 22;
 	}
 
 }

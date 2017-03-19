@@ -27,6 +27,9 @@ namespace Maria.Network {
             _cs.RegisterResponse(C2sProtocol.first.Tag, first);
             _cs.RegisterResponse(C2sProtocol.fetchsysmail.Tag, fetchsysmail);
             _cs.RegisterResponse(C2sProtocol.fetchsysmail1.Tag, fetchsysmail1);
+            _cs.RegisterResponse(C2sProtocol.rchat.Tag, rchat);
+            _cs.RegisterResponse(C2sProtocol.xuanpao.Tag, xuanpao);
+            _cs.RegisterResponse(C2sProtocol.xuanque.Tag, xuanque);
         }
 
         public void handshake(uint session, SprotoTypeBase responseObj) {
@@ -90,5 +93,10 @@ namespace Maria.Network {
             ctr.FetchSysmail1(responseObj);
         }
 
+        public void rchat(uint session, SprotoTypeBase responseObj) { }
+
+        public void xuanpao(uint session, SprotoTypeBase responseObj) { }
+        public void xuanque(uint session, SprotoTypeBase responseObj) { }
+        
     }
 }
