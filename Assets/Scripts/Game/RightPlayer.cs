@@ -5,7 +5,7 @@ using UnityEngine;
 public class RightPlayer : MonoBehaviour {
 
     public RootBehaviour _Root;
-    public GameObject _UI;
+    public RightPlayerHead Head;
 
     // Use this for initialization
     void Start() {
@@ -19,9 +19,10 @@ public class RightPlayer : MonoBehaviour {
     }
 
     public void ShowUI() {
-        _UI.SetActive(true);
+        Head.Show();
     }
+
     public void HideUI() {
-        _UI.SetActive(false);
+        Head.Close();
     }
 }

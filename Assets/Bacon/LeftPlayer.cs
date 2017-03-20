@@ -122,6 +122,44 @@ namespace Bacon {
             }
         }
 
+        protected override void RenderTakeXuanPao() { }
+
+        protected override void RenderXuanPao() {
+            _go.GetComponent<global::LeftPlayer>().Head.SetMark(string.Format("{0}", _fen));
+        }
+
+        protected override void RenderTakeFirstCard() {
+
+            UnityEngine.Debug.Assert(_takefirst);
+            UnityEngine.Debug.Assert(_holdcard != null);
+            Vector3 dst = CalcPos(_cards.Count + 1);
+            dst.y = dst.y + Card.Length;
+            _holdcard.Go.transform.localPosition = dst;
+            _holdcard.Go.transform.localRotation = _backv;
+
+            Sequence mySequence = DOTween.Sequence();
+            mySequence.Append(_holdcard.Go.transform.DOMoveY(Card.Length / 2.0f, _holddelta))
+                .AppendCallback(() => {
+                    Command cmd = new Command(MyEventCmd.EVENT_TAKEFIRSTCARD);
+                    _ctx.Enqueue(cmd);
+                });
+        }
+
+        protected override void RenderTakeXuanQue() {
+        }
+
+        protected override void RenderXuanQue() {
+            if (_que == Card.CardType.Bam) {
+                _go.GetComponent<global::LeftPlayer>().Head.SetMark("条");
+            } else if (_que == Card.CardType.Crak) {
+                _go.GetComponent<global::LeftPlayer>().Head.SetMark("万");
+            } else if (_que == Card.CardType.Dot) {
+                _go.GetComponent<global::LeftPlayer>().Head.SetMark("同");
+            }
+            RenderSortCardsToDo(() => {
+            });
+        }
+
         protected override void RenderTakeTurn() {
             if (_turntype == 1) {
                 Vector3 dst = CalcPos(_cards.Count + 1);

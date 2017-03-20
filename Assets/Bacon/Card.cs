@@ -23,6 +23,7 @@ namespace Bacon {
         protected int _num;
         protected int _idx;
         protected int _pos;
+        protected int _que;
         protected Player _player = null;
 
         public Card(Context ctx, Controller controller, GameObject go)
@@ -35,12 +36,28 @@ namespace Bacon {
         public int Idx { set { _idx = value; } get { return _idx; } }
         public int Pos { set { _pos = value; } get { return _pos; } }
 
+        public void SetQue(CardType value) {
+            if (_type == value) {
+                _que = 1;
+            } else {
+                _que = 0;
+            }
+        }
+
+        public void Clear() {
+            _que = 0;
+        }
+
         public void SetPlayer(Player player) { _player = player; }
         public void ClearPlayer() { _player = null; }
         public Player GetPlayer() { return _player; }
 
         public int CompareTo(Card other) {
-            return (int)(_value - other._value);
+            if (_que == other._que) {
+                return (int)(_value - other._value);
+            } else {
+                return _que - other._que;
+            }
         }
 
         public static bool operator ==(Card lhs, Card rhs) {

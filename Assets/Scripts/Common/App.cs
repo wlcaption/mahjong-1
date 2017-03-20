@@ -12,11 +12,15 @@ public class App : MonoBehaviour {
     void Start() {
         DontDestroyOnLoad(this);
         _app = new Bacon.App(this);
-        if (_start == null) {
+        if (_start != null) {
+            _start.SetupStartRoot();
+        } else {
             throw new System.Exception("not imple");
         }
-        _start.SetupStartRoot();
-        GetComponent<AudioSource>().Play();
+
+        ABLoader.current.LoadResAsync<AudioClip>("Sound/Special/clap", (AudioClip clip) => {
+            SoundMgr.current.PlayMusic(clip);
+        });
     }
 
     // Update is called once per frame

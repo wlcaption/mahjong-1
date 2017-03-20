@@ -5,7 +5,8 @@ using UnityEngine;
 public class LeftPlayer : MonoBehaviour {
 
     public RootBehaviour _Root;
-    public GameObject _UI;
+
+    public LeftPlayerHead Head;
 
     // Use this for initialization
     void Start() {
@@ -19,9 +20,9 @@ public class LeftPlayer : MonoBehaviour {
     }
 
     public void ShowUI() {
-        _UI.SetActive(true);
+        Head.Show();
     }
     public void HideUI() {
-        _UI.SetActive(false);
+        Head.Show();
     }
 }

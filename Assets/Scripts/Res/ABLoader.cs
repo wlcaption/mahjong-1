@@ -21,6 +21,13 @@ public class ABLoader : MonoBehaviour {
         }
     }
 
+    void Start() {
+    }
+
+    void Update() {
+
+    }
+
     public T LoadAB<T>(string path, string name) where T : UnityEngine.Object {
         if (_dic.ContainsKey(path)) {
             AssetBundle ab = _dic[path];
@@ -93,8 +100,13 @@ public class ABLoader : MonoBehaviour {
         ResourceRequest request = Resources.LoadAsync<T>(path);
         yield return request;
         T asset = request.asset as T;
-        _res[path] = asset;
-        cb(asset);
+        if (asset == null) {
+            Debug.LogErrorFormat("load res occor wrong, path is {0}", path);
+            cb(asset);
+        } else {
+            _res[path] = asset;
+            cb(asset);
+        }
     }
 
     public T LoadRes<T>(string path) where T : UnityEngine.Object {

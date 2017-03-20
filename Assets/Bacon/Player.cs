@@ -17,7 +17,7 @@ namespace Bacon {
         protected long _d1;
         protected long _d2;
 
-        protected bool _takefirst = false;
+        protected bool _takefirst = false;                 // 庄家
         protected const float _takeleftoffset = 0.44f;
         protected const float _takebottomoffset = 0.20f;
         protected int _takecardsidx = 0;
@@ -50,6 +50,9 @@ namespace Bacon {
         protected Card _leadcard;
 
         protected long _turntype;
+        protected long _fen;
+        protected Card.CardType _que;
+
 
         public Player(Context ctx, GameController controller)
             : base(ctx, controller) {
@@ -204,7 +207,20 @@ namespace Bacon {
             _ctx.EnqueueRenderQueue(RenderXuanPao);
         }
 
-        protected void RenderXuanPao() { }
+        protected virtual void RenderXuanPao() { }
+
+        public void TakeFirsteCard(long c) {
+            _takefirst = true;
+            Card card;
+            if (((GameController)_controller).TakeCard(out card)) {
+                _holdcard = card;
+                _holdcard.SetQue(_que);
+                UnityEngine.Debug.Assert(card.Value == c);
+            }
+            _ctx.EnqueueRenderQueue(RenderTakeFirstCard);
+        }
+
+        protected virtual void RenderTakeFirstCard() {}
 
         public void TakeXuanQue() {
             _ctx.EnqueueRenderQueue(RenderTakeXuanQue);
@@ -212,12 +228,19 @@ namespace Bacon {
 
         protected virtual void RenderTakeXuanQue() { }
 
-        public void XuanQue() {
+        public void XuanQue(long que) {
+            _que = (Card.CardType)que;
+            foreach (var item in _cards) {
+                item.SetQue(_que);
+            }
+            if (_takefirst) {
+                _holdcard.SetQue(_que);
+            }
+            QuickSort(0, _cards.Count - 1);
             _ctx.EnqueueRenderQueue(RenderXuanQue);
         }
 
-        protected virtual void RenderXuanQue() {
-        }
+        protected virtual void RenderXuanQue() { }
 
         public void TakeTurn(long type, long c) {
             _turntype = type;
@@ -225,12 +248,14 @@ namespace Bacon {
                 Card card;
                 if (((GameController)_controller).TakeCard(out card)) {
                     _holdcard = card;
+                    _holdcard.SetQue(_que);
                     UnityEngine.Debug.Assert(card.Value == c);
                     _ctx.EnqueueRenderQueue(RenderTakeTurn);
                 } else {
                     // over
                 }
             } else if (type == 0) {
+                // 碰后出牌，先找出holdcard
                 if (c != 0) {
                     for (int i = _cards.Count - 1; i >= 0; i--) {
                         if (_cards[i].Value == c) {
@@ -241,8 +266,13 @@ namespace Bacon {
                     }
                     UnityEngine.Debug.Assert(_holdcard.Value == c);
                 }
-
-                UnityEngine.Debug.Assert(_holdcard.Value == c);
+                _ctx.EnqueueRenderQueue(RenderTakeTurn);
+            } else if (type == 2) {
+                // 选缺后的庄家出牌
+                UnityEngine.Debug.Assert(c == 0);
+                if (_takefirst) {
+                    UnityEngine.Debug.Assert(_holdcard != null);
+                }
                 _ctx.EnqueueRenderQueue(RenderTakeTurn);
             }
         }

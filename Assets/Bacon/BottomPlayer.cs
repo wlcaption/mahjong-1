@@ -33,12 +33,17 @@ namespace Bacon {
             EventListenerCmd listener4 = new EventListenerCmd(MyEventCmd.EVENT_HU, OnSendHu);
             _ctx.EventDispatcher.AddCmdEventListener(listener4);
 
-            EventListenerCmd listener5 = new EventListenerCmd(MyEventCmd.EVENT_GANG, OnSendGuo);
+            EventListenerCmd listener5 = new EventListenerCmd(MyEventCmd.EVENT_GUO, OnSendGuo);
             _ctx.EventDispatcher.AddCmdEventListener(listener5);
 
             EventListenerCmd listener6 = new EventListenerCmd(MyEventCmd.EVENT_LEAD, OnSendLead);
             _ctx.EventDispatcher.AddCmdEventListener(listener6);
 
+            EventListenerCmd listener7 = new EventListenerCmd(MyEventCmd.EVENT_XUANQUE, OnSendQue);
+            _ctx.EventDispatcher.AddCmdEventListener(listener7);
+
+            EventListenerCmd listener8 = new EventListenerCmd(MyEventCmd.EVENT_XUANPAO, OnSendPao);
+            _ctx.EventDispatcher.AddCmdEventListener(listener8);
         }
 
         private void OnSetup(EventCmd e) {
@@ -153,6 +158,20 @@ namespace Bacon {
             _ctx.SendReq<C2sProtocol.lead>(C2sProtocol.lead.Tag, request);
         }
 
+        private void OnSendQue(EventCmd e) {
+            C2sSprotoType.xuanque.request request = new C2sSprotoType.xuanque.request();
+            request.idx = _idx;
+            request.que = (long)(Card.CardType)e.Msg["cardtype"];
+            _ctx.SendReq<C2sProtocol.xuanque>(C2sProtocol.xuanque.Tag, request);
+        }
+
+        private void OnSendPao(EventCmd e) {
+            C2sSprotoType.xuanpao.request request = new C2sSprotoType.xuanpao.request();
+            request.idx = _idx;
+            request.fen = (long)e.Msg["fen"];
+            _ctx.SendReq<C2sProtocol.xuanpao>(C2sProtocol.xuanpao.Tag, request);
+        }
+
         protected override void RenderBoxing() {
             Desk desk = ((GameController)_controller).Desk;
             for (int i = 0; i < _takecards.Count; i++) {
@@ -233,9 +252,29 @@ namespace Bacon {
             }
         }
 
+        protected override void RenderXuanPao() {
+            _go.GetComponent<global::BottomPlayer>().Head.SetMark(string.Format("{0}", _fen));
+        }
+
+        protected override void RenderTakeFirstCard() {
+            UnityEngine.Debug.Assert(_takefirst);
+            Vector3 dst = CalcPos(_cards.Count + 1);
+            dst.y = dst.y + Card.Length;
+            _holdcard.Go.transform.localPosition = dst;
+            _holdcard.Go.transform.localRotation = Quaternion.AngleAxis(-60, Vector3.right);
+
+            Sequence mySequence = DOTween.Sequence();
+            mySequence.Append(_holdcard.Go.transform.DOMoveY(Card.Length / 2.0f, _holddelta))
+                .AppendCallback(() => {
+                    _go.GetComponent<global::BottomPlayer>().HoldCard = _holdcard.Go;
+                    Command cmd = new Command(MyEventCmd.EVENT_TAKEFIRSTCARD);
+                    _ctx.Enqueue(cmd);
+                });
+        }
+
         protected override void RenderTakeXuanQue() {
             if (_xuanque == null) {
-                ResourceManager.Instance.LoadAssetAsync<GameObject>("Prefabs/UI/ScXuanQue.prefab", "SxXuanQue", (GameObject go) => {
+                ABLoader.current.LoadResAsync<GameObject>("Prefabs/UI/ScXuanQue", (GameObject go) => {
                     GameObject inst = GameObject.Instantiate<GameObject>(go);
                     if (inst) {
                         _xuanque = inst;
@@ -243,8 +282,21 @@ namespace Bacon {
                     }
                 });
             } else {
-                _xuanpao.GetComponent<XuanQue>().Show();
+                _xuanque.GetComponent<XuanQue>().Show();
             }
+        }
+
+        protected override void RenderXuanQue() {
+            if (_que == Card.CardType.Bam) {
+                _go.GetComponent<global::BottomPlayer>().Head.SetMark("条");
+            } else if (_que == Card.CardType.Crak) {
+                _go.GetComponent<global::BottomPlayer>().Head.SetMark("万");
+            } else if (_que == Card.CardType.Dot) {
+                _go.GetComponent<global::BottomPlayer>().Head.SetMark("同");
+            }
+            RenderSortCardsToDo(() => {
+
+            });
         }
 
         protected override void RenderTakeTurn() {
@@ -271,6 +323,13 @@ namespace Bacon {
                         _go.GetComponent<global::BottomPlayer>().HoldCard = _holdcard.Go;
                         _go.GetComponent<global::BottomPlayer>().SwitchOnTouch();
                     });
+            } else if (_turntype == 2) {
+                if (_xuanque) {
+                    _xuanque.GetComponent<XuanQue>().Close();
+                }
+                _go.GetComponent<global::BottomPlayer>().Head.ShowTips("你是庄家，请先出牌");
+                _go.GetComponent<global::BottomPlayer>().HoldCard = _holdcard.Go;
+                _go.GetComponent<global::BottomPlayer>().SwitchOnTouch();
             }
         }
 
@@ -328,7 +387,7 @@ namespace Bacon {
         }
 
         protected override void RenderLead() {
-            UnityEngine.Debug.Assert(_leadcard1.Value == _leadcard.Value);
+            //UnityEngine.Debug.Assert(_leadcard1.Value == _leadcard.Value);
             UnityEngine.Debug.Assert(_leadcards.Count > 0);
             Vector3 dst = CalcLeadPos(_leadcards.Count - 1);
             _leadcard.Go.transform.localPosition = dst;

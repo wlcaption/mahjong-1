@@ -10,12 +10,13 @@ public class SettingWnd : MonoBehaviour {
     public Toggle _MusicToggle;
     public Toggle _SoundToggle;
 
-    private float _music = 1;
-    private float _sound = 1;
+    private float _music = 1.0f;
+    private float _sound = 1.0f;
 
     // Use this for initialization
     void Start() {
-
+        SoundMgr.current.SetMusic(_music);
+        SoundMgr.current.SetSound(_sound);
     }
 
     // Update is called once per frame
@@ -43,6 +44,7 @@ public class SettingWnd : MonoBehaviour {
             _music = _MusicSlider.minValue;
             _MusicSlider.value = _MusicSlider.minValue;
         }
+        SoundMgr.current.SetMusic(_music);
     }
 
     public void OnSoundChanged(bool value) {
@@ -53,6 +55,7 @@ public class SettingWnd : MonoBehaviour {
             _sound = _SoundSlider.minValue;
             _SoundSlider.value = _SoundSlider.minValue;
         }
+        SoundMgr.current.SetSound(_sound);
     }
 
     public void OnMusicSliderChanged(float value) {
@@ -66,6 +69,7 @@ public class SettingWnd : MonoBehaviour {
                 _MusicToggle.isOn = true;
             }
         }
+        SoundMgr.current.SetMusic(_music);
     }
 
     public void OnSoundSliderChanged(float value) {
@@ -79,5 +83,6 @@ public class SettingWnd : MonoBehaviour {
                 _SoundToggle.isOn = true;
             }
         }
+        SoundMgr.current.SetSound(_sound);
     }
 }

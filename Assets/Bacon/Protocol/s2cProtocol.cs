@@ -84,6 +84,7 @@ public class S2cProtocol : ProtocolBase {
 		Protocol.SetResponse<S2cSprotoType.take_turn.response> (take_turn.Tag);
 
 		Protocol.SetProtocol<take_xuanpao> (take_xuanpao.Tag);
+		Protocol.SetRequest<S2cSprotoType.take_xuanpao.request> (take_xuanpao.Tag);
 		Protocol.SetResponse<S2cSprotoType.take_xuanpao.response> (take_xuanpao.Tag);
 
 		Protocol.SetProtocol<take_xuanque> (take_xuanque.Tag);

@@ -7,11 +7,13 @@ public class BottomPlayer : MonoBehaviour {
 
     public RootBehaviour _Root;
     public GameObject _Canvas;
-    public GameObject _UI;
+    
     public GameObject _Gang;
     public GameObject _Peng;
     public GameObject _Hu;
     public GameObject _Guo;
+
+    public BottomPlayerHead Head;
 
     private Dictionary<GameObject, Card> _cards = new Dictionary<GameObject, Card>();
     private bool _touch = false;
@@ -140,9 +142,9 @@ public class BottomPlayer : MonoBehaviour {
     }
 
     public void ShowUI() {
-        _UI.SetActive(true);
+        Head.Show();
     }
     public void HideUI() {
-        _UI.SetActive(false);
+        Head.Close();
     }
 }

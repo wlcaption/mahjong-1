@@ -75,6 +75,9 @@ namespace Bacon {
 
             EventListenerCmd listener13 = new EventListenerCmd(MyEventCmd.EVENT_SENDCHATMSG, OnSendChatMsg);
             _ctx.EventDispatcher.AddCmdEventListener(listener13);
+
+            EventListenerCmd listener14 = new EventListenerCmd(MyEventCmd.EVENT_TAKEFIRSTCARD, OnTakeFirstCard);
+            _ctx.EventDispatcher.AddCmdEventListener(listener14);
         }
 
         public override void Update(float delta) {
@@ -614,7 +617,10 @@ namespace Bacon {
         }
 
         public SprotoTypeBase OnTakeXuanPao(SprotoTypeBase requestObj) {
+            S2cSprotoType.take_xuanpao.request obj = requestObj as S2cSprotoType.take_xuanpao.request;
             try {
+                _ctx.Countdown(Timer.CLOCK, (int)obj.countdown, OnUpdateClock, null);
+
                 _service.GetPlayer(_service.MyIdx).TakeXuanPao();
 
                 S2cSprotoType.take_xuanpao.response responseObj = new S2cSprotoType.take_xuanpao.response();
@@ -643,7 +649,10 @@ namespace Bacon {
         }
 
         public SprotoTypeBase OnTakeXuanQue(SprotoTypeBase requestObj) {
+            S2cSprotoType.take_xuanque.request obj = requestObj as S2cSprotoType.take_xuanque.request;
             try {
+                _ctx.Countdown(Timer.CLOCK, (int)obj.countdown, OnUpdateClock, null);
+                _service.GetPlayer(obj.your_turn).TakeFirsteCard(obj.card);
 
                 S2cSprotoType.take_xuanque.response responseObj = new S2cSprotoType.take_xuanque.response();
                 responseObj.errorcode = Errorcode.SUCCESS;
@@ -656,8 +665,16 @@ namespace Bacon {
             }
         }
 
+        public void OnTakeFirstCard(EventCmd e) {
+            _service.GetPlayer(_service.MyIdx).TakeXuanQue();
+        }
+
         public SprotoTypeBase OnXuanQue(SprotoTypeBase requestObj) {
+            S2cSprotoType.xuanque.request obj = requestObj as S2cSprotoType.xuanque.request;
             try {
+
+                _service.GetPlayer(obj.idx).XuanQue(obj.que);
+
                 S2cSprotoType.xuanque.response responseObj = new S2cSprotoType.xuanque.response();
                 responseObj.errorcode = Errorcode.SUCCESS;
                 return responseObj;
