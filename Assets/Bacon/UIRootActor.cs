@@ -35,5 +35,13 @@ namespace Bacon {
                 com.ShowPing(_ping);
             }
         }
+
+        public void ShowOver() {
+            _ctx.EnqueueRenderQueue(RenderShowOver);
+        }
+
+        public void RenderShowOver() {
+            _go.GetComponent<GUIRoot>().ShowOver();
+        }
     }
 }

@@ -40,8 +40,8 @@ namespace Bacon {
 
         protected override Vector3 CalcLeadPos(int pos) {
             Desk desk = ((GameController)_controller).Desk;
-            int row = (pos + 1) / 6;
-            int col = (pos + 1) % 6;
+            int row = pos / 6;
+            int col = pos % 6;
 
             float x = desk.Width - (_leadbottomoffset - (Card.Length * row) - (Card.Length / 2.0f));
             float y = Card.Height / 2.0f;
@@ -234,6 +234,8 @@ namespace Bacon {
             Vector3 dst = CalcLeadPos(_leadcards.Count - 1);
             _leadcard.Go.transform.localPosition = dst;
             _leadcard.Go.transform.localRotation = _upv;
+            dst.y = dst.y + 0.1f;
+            ((GameController)_controller).Desk.RenderChangeCursor(dst);
 
             // 整理手上的牌
             if (_leadcard.Value != _holdcard.Value) {
@@ -287,11 +289,12 @@ namespace Bacon {
                     pg.Cards[i].Go.transform.localRotation = _upv;
                 }
                 pg.Cards[i].Go.transform.localPosition = new Vector3(x, y, z);
+
                 Sequence mySequence = DOTween.Sequence();
-                mySequence.Append(pg.Cards[i].Go.transform.DOMoveZ(z + move, 0.1f))
+                mySequence.Append(pg.Cards[i].Go.transform.DOMoveZ(z + move, _putmovedelta))
                     .AppendCallback(() => {
                         count++;
-                        if (count >= (pg.Cards.Count - 1)) {
+                        if (count >= pg.Cards.Count) {
                             RenderSortCardsToDo(() => {
                                 Command cmd = new Command(MyEventCmd.EVENT_PENGCARD);
                                 _ctx.Enqueue(cmd);
@@ -318,13 +321,13 @@ namespace Bacon {
                     float y = Card.Height / 2.0f;
                     float z = 0.0f;
                     if (i == pg.Hor) {
-                        x = _putbottomoffset + Card.Width / 2.0f;
+                        x = desk.Width - (_putbottomoffset + Card.Width / 2.0f);
                         z = desk.Length - (offset + Card.Length / 2.0f + move);
                         offset += Card.Length;
                         pg.Width += Card.Length;
                         pg.Cards[i].Go.transform.localRotation = _uph;
                     } else {
-                        x = _putbottomoffset + Card.Length / 2.0f;
+                        x = desk.Width - (_putbottomoffset + Card.Length / 2.0f);
                         z = desk.Length - (offset + Card.Width / 2.0f + move);
                         offset += Card.Width;
                         pg.Width += Card.Width;
@@ -333,10 +336,10 @@ namespace Bacon {
                     pg.Cards[i].Go.transform.localPosition = new Vector3(x, y, z);
 
                     Sequence mySequence = DOTween.Sequence();
-                    mySequence.Append(pg.Cards[i].Go.transform.DOMoveZ(z + move, 0.1f))
+                    mySequence.Append(pg.Cards[i].Go.transform.DOMoveZ(z + move, _putmovedelta))
                         .AppendCallback(() => {
                             count++;
-                            if (count >= (pg.Cards.Count - 1)) {
+                            if (count >= pg.Cards.Count) {
                                 RenderSortCardsToDo(() => {
                                     Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
                                     _ctx.Enqueue(cmd);
@@ -363,7 +366,7 @@ namespace Bacon {
                     mySequence.Append(pg.Cards[i].Go.transform.DOMoveZ(z + move, 0.1f))
                         .AppendCallback(() => {
                             count++;
-                            if (count >= (pg.Cards.Count - 1)) {
+                            if (count >= pg.Cards.Count) {
                                 if (pg.Cards[3].Value == _holdcard.Value) {
                                     RenderSortCardsToDo(() => {
                                         Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
@@ -390,6 +393,7 @@ namespace Bacon {
                 float y = Card.Height / 2.0f;
                 float z = desk.Length - (offset + Card.Width * pg.Hor + Card.Width / 2.0f + move);
                 pg.Cards[3].Go.transform.localPosition = new Vector3(x, y, z);
+                pg.Cards[3].Go.transform.localRotation = _uph;
 
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(pg.Cards[3].Go.transform.DOMoveZ(z + move, 0.1f))
@@ -409,13 +413,28 @@ namespace Bacon {
         }
 
         protected override void RenderHu() {
-            _go.GetComponent<global::RightPlayer>().Head.Show();
+            _go.GetComponent<global::RightPlayer>().Head.SetHu(true);
             Command cmd = new Command(MyEventCmd.EVENT_HUCARD);
             _ctx.Enqueue(cmd);
         }
 
-        protected override void RenderOver() {
+        protected override void RenderWinAndLose() {
+            _go.GetComponent<global::RightPlayer>().Head.ShowWAL(string.Format("{0}", _wal));
+        }
 
+        protected override void RenderOver() {
+            Desk desk = ((GameController)_controller).Desk;
+            for (int i = 0; i < _cards.Count; i++) {
+                float x = desk.Width - (_bottomoffset + Card.Height / 2.0f);
+                float y = Card.Height / 2.0f;
+                float z = _leftoffset + Card.Width * i + Card.Width / 2.0f;
+                _cards[i].Go.transform.localPosition = new Vector3(x, y, z);
+                _cards[i].Go.transform.localRotation = _upv;
+            }
+        }
+
+        protected override void RenderSay() {
+            _go.GetComponent<global::RightPlayer>().Say(_say);
         }
     }
 }

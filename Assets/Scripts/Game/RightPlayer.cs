@@ -25,4 +25,17 @@ public class RightPlayer : MonoBehaviour {
     public void HideUI() {
         Head.Close();
     }
+
+    public void Say(long code) {
+        SayItem i = SayConfig.Instance.GetItem((int)code);
+        Head.SetSay(i.text);
+        string path = i.sound;
+        int idx = path.IndexOf('.');
+        if (idx != -1) {
+            path = path.Remove(idx);
+        }
+
+        AudioClip clip = ABLoader.current.LoadRes<AudioClip>(path);
+        SoundMgr.current.PlaySound(gameObject, clip);
+    }
 }

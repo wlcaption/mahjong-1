@@ -67,8 +67,10 @@ namespace Bacon {
 
         protected override Vector3 CalcLeadPos(int pos) {
             Desk desk = ((GameController)_controller).Desk;
-            int row = (pos + 1) / 6;
-            int col = (pos + 1) % 6;
+            //int row = (pos + 1) / 6;
+            //int col = (pos + 1) % 6;
+            int row = (pos) / 6;
+            int col = (pos) % 6;
 
             float x = _leadleftoffset + (Card.Width * col) + (Card.Width / 2.0f);
             float y = Card.Height / 2.0f;
@@ -392,6 +394,8 @@ namespace Bacon {
             Vector3 dst = CalcLeadPos(_leadcards.Count - 1);
             _leadcard.Go.transform.localPosition = dst;
             _leadcard.Go.transform.localRotation = _upv;
+            dst.y = dst.y + 0.1f;
+            ((GameController)_controller).Desk.RenderChangeCursor(dst);
 
             if (_leadcard.Value != _holdcard.Value) {
                 _go.GetComponent<global::BottomPlayer>().Remove(_leadcard);
@@ -418,6 +422,44 @@ namespace Bacon {
                 UnityEngine.Debug.LogFormat("bottom player send event lead card");
                 Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
                 _ctx.Enqueue(cmd);
+            }
+        }
+
+        protected override void RenderCall() {
+            if (Call.Gang == OpCodes.OPCODE_ANGANG ||
+                Call.Gang == OpCodes.OPCODE_BUGANG ||
+                (Call.Hu.Code != HuType.NONE && Call.Hu.Jiao == JiaoType.ZIMO)) {
+                Vector3 dst = CalcPos(_cards.Count + 1);
+                dst.y = dst.y + Card.Length;
+                _holdcard.Go.transform.localPosition = dst;
+                _holdcard.Go.transform.localRotation = Quaternion.AngleAxis(-60, Vector3.right);
+
+                Sequence mySequence = DOTween.Sequence();
+                mySequence.Append(_holdcard.Go.transform.DOMoveY(Card.Length / 2.0f, _holddelta))
+                    .AppendCallback(() => {
+                        if (Call.Peng == OpCodes.OPCODE_PENG) {
+                            _go.GetComponent<global::BottomPlayer>().ShowPeng();
+                        }
+                        if (Call.Gang == OpCodes.OPCODE_ANGANG || Call.Gang == OpCodes.OPCODE_BUGANG || Call.Gang == OpCodes.OPCODE_ZHIGANG) {
+                            _go.GetComponent<global::BottomPlayer>().ShowGang();
+                        }
+                        if (Call.Hu.Code != HuType.NONE) {
+                            _go.GetComponent<global::BottomPlayer>().ShowHu();
+                        }
+                        _go.GetComponent<global::BottomPlayer>().ShowGuo();
+                    });
+
+            } else {
+                if (Call.Peng == OpCodes.OPCODE_PENG) {
+                    _go.GetComponent<global::BottomPlayer>().ShowPeng();
+                }
+                if (Call.Gang == OpCodes.OPCODE_ANGANG || Call.Gang == OpCodes.OPCODE_BUGANG || Call.Gang == OpCodes.OPCODE_ZHIGANG) {
+                    _go.GetComponent<global::BottomPlayer>().ShowGang();
+                }
+                if (Call.Hu.Code != HuType.NONE) {
+                    _go.GetComponent<global::BottomPlayer>().ShowHu();
+                }
+                _go.GetComponent<global::BottomPlayer>().ShowGuo();
             }
         }
 
@@ -555,6 +597,7 @@ namespace Bacon {
                 float y = Card.Height / 2.0f;
                 float z = _putbottomoffset + Card.Width + Card.Width / 2.0f;
                 pg.Cards[3].Go.transform.localPosition = new Vector3(x, y, z);
+                pg.Cards[3].Go.transform.localRotation = _uph;
 
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(pg.Cards[3].Go.transform.DOMoveX(x + move, _putmovedelta))
@@ -570,29 +613,36 @@ namespace Bacon {
                             });
                         }
                     });
+
             } else {
                 UnityEngine.Debug.Assert(false);
             }
         }
 
         protected override void RenderHu() {
-            _go.GetComponent<global::BottomPlayer>().Head.Show();
+            _go.GetComponent<global::BottomPlayer>().Head.SetHu(true);
             Command cmd = new Command(MyEventCmd.EVENT_HUCARD);
             _ctx.Enqueue(cmd);
         }
 
-        protected override void RenderCall() {
-            if (Call.Peng == OpCodes.OPCODE_PENG) {
-                _go.GetComponent<global::BottomPlayer>().ShowPeng();
-            }
-            if (Call.Gang == OpCodes.OPCODE_ANGANG || Call.Gang == OpCodes.OPCODE_BUGANG || Call.Gang == OpCodes.OPCODE_ZHIGANG) {
-                _go.GetComponent<global::BottomPlayer>().ShowGang();
-            }
-            if (Call.Hu.Code != HuType.NONE) {
-                _go.GetComponent<global::BottomPlayer>().ShowHu();
-            }
-            _go.GetComponent<global::BottomPlayer>().ShowGuo();
+        protected override void RenderWinAndLose() {
+            _go.GetComponent<global::BottomPlayer>().Head.ShowTips(string.Format("{0}", _wal));
         }
 
+        protected override void RenderOver() {
+            Desk desk = ((GameController)_controller).Desk;
+            for (int i = 0; i < _cards.Count; i++) {
+                float x = _leftoffset + Card.Width * i + Card.Width / 2.0f;
+                float y = Card.Height / 2.0f;
+                float z = _bottomoffset + Card.Length / 2.0f;
+
+                _cards[i].Go.transform.localPosition = new Vector3(x, y, z);
+                _cards[i].Go.transform.localRotation = _upv;
+            }
+        }
+
+        protected override void RenderSay() {
+            _go.GetComponent<global::BottomPlayer>().Say(_say);
+        }
     }
 }

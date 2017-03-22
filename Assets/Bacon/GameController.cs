@@ -28,7 +28,7 @@ namespace Bacon {
         private long _curidx = 0;
         private long _curtake = 0;
 
-        private int _hus = 0;
+        private int _huscount = 0;
         private int _oknum = 0;
         private int _take1time = 0;
         private int _takeround = 0;
@@ -521,7 +521,7 @@ namespace Bacon {
             S2cSprotoType.hu.request obj = requestObj as S2cSprotoType.hu.request;
             try {
                 _oknum = 0;
-                _hus = obj.hus.Count;
+                _huscount = obj.hus.Count;
                 if (obj.hus.Count > 1) {
                     // 一炮多响
                 }
@@ -544,7 +544,7 @@ namespace Bacon {
 
         public void HuCard(EventCmd e) {
             _oknum++;
-            if (_oknum >= _hus) {
+            if (_oknum >= _huscount) {
                 C2sSprotoType.step.request request = new C2sSprotoType.step.request();
                 request.idx = _service.MyIdx;
                 _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
@@ -576,6 +576,11 @@ namespace Bacon {
         public SprotoTypeBase OnOver(SprotoTypeBase requestObj) {
             S2cSprotoType.over.request obj = requestObj as S2cSprotoType.over.request;
             try {
+                _service.Foreach((Player player) => {
+                    player.Over();
+                });
+
+                _ui.ShowOver();
 
                 S2cSprotoType.over.response responseObj = new S2cSprotoType.over.response();
                 responseObj.errorcode = Errorcode.SUCCESS;
@@ -591,6 +596,10 @@ namespace Bacon {
         public SprotoTypeBase OnRestart(SprotoTypeBase requestObj) {
             S2cSprotoType.restart.request obj = requestObj as S2cSprotoType.restart.request;
             try {
+
+                _service.Foreach((Player player) => {
+                    player.Restart();
+                });
 
                 S2cSprotoType.restart.response responseObj = new S2cSprotoType.restart.response();
                 responseObj.errorcode = Errorcode.SUCCESS;
@@ -706,7 +715,11 @@ namespace Bacon {
         }
 
         public SprotoTypeBase OnRChat(SprotoTypeBase requestObj) {
+            S2cSprotoType.rchat.request obj = requestObj as S2cSprotoType.rchat.request;
             try {
+
+                _service.GetPlayer(obj.idx).Say(obj.textid);
+
                 S2cSprotoType.rchat.response responseObj = new S2cSprotoType.rchat.response();
                 responseObj.errorcode = Errorcode.SUCCESS;
                 return responseObj;

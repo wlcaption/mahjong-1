@@ -35,6 +35,12 @@ namespace Bacon {
             }
         }
 
+        public void Foreach(Action<Player> cb) {
+            foreach (var item in _playes) {
+                cb(item.Value);
+            }
+        }
+
         public void Create(SprotoTypeBase responseObj) {
             C2sSprotoType.create.response obj = responseObj as C2sSprotoType.create.response;
             UnityEngine.Debug.Assert(obj.errorcode == Errorcode.SUCCESS);
@@ -160,7 +166,6 @@ namespace Bacon {
             C2sSprotoType.step.response obj = responseObj as C2sSprotoType.step.response;
             UnityEngine.Debug.Assert(obj.errorcode == Errorcode.SUCCESS);
         }
-
 
         public void LoadedCards(EventCmd e) {
             _loadedcards = true;

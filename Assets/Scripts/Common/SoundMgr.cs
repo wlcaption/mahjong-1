@@ -10,6 +10,7 @@ public class SoundMgr : MonoBehaviour {
     private float _sound = 1.0f;
     private AudioClip _musicClip;
     private GameObject _soundGo;
+    private AudioClip _soundClip;
 
     void Awake() {
         if (current == null) {
@@ -18,14 +19,14 @@ public class SoundMgr : MonoBehaviour {
     }
 
     // Use this for initialization
-    void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    void Start() {
+
+    }
+
+    // Update is called once per frame
+    void Update() {
+
+    }
 
     public void SetMusic(float value) {
         if (_music > 0.0f) {
@@ -56,11 +57,23 @@ public class SoundMgr : MonoBehaviour {
     public void PlayMusic(AudioClip clip) {
         _musicClip = clip;
         gameObject.GetComponent<AudioSource>().clip = clip;
-        gameObject.GetComponent<AudioSource>().Play();
+        if (_music > 0.0f) {
+            gameObject.GetComponent<AudioSource>().Play();
+        }
     }
 
-    public void PlaySound(GameObject go) {
-        go.GetComponent<AudioSource>().Play();
+    public void PlaySound(GameObject go, AudioClip clip) {
+        _soundGo = go;
+        _soundClip = clip;
+        if (clip == null) {
+            if (_sound > 0.0f) {
+                go.GetComponent<AudioSource>().Play();
+            }
+        } else {
+            go.GetComponent<AudioSource>().clip = clip;
+            if (_sound > 0.0f) {
+                go.GetComponent<AudioSource>().Play();
+            }
+        }
     }
-
 }

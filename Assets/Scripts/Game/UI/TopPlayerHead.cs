@@ -11,6 +11,7 @@ public class TopPlayerHead : MonoBehaviour {
     public GameObject _Say;
     public GameObject _Head;
     public GameObject _Hu;
+    public GameObject _WAL;
 
     // Use this for initialization
     void Start () {
@@ -19,6 +20,7 @@ public class TopPlayerHead : MonoBehaviour {
         _Mark.SetActive(false);
         _Say.SetActive(false);
         _Hu.SetActive(false);
+        _WAL.SetActive(false);
     }
 	
 	// Update is called once per frame
@@ -80,5 +82,26 @@ public class TopPlayerHead : MonoBehaviour {
                 _Hu.SetActive(true);
             }
         }
+    }
+
+    public void ShowWAL(string value) {
+        if (!_WAL.activeSelf) {
+            _WAL.SetActive(true);
+            _WAL.GetComponent<Text>().text = value;
+        }
+    }
+
+    public void CloseWAL() {
+        if (_WAL.activeSelf) {
+            _WAL.SetActive(false);
+        }
+    }
+
+    public void Clear() {
+        _Leave.SetActive(false);
+        _Mark.SetActive(false);
+        _Say.SetActive(false);
+        _Hu.SetActive(false);
+        _WAL.SetActive(false);
     }
 }

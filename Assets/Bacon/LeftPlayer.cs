@@ -41,8 +41,8 @@ namespace Bacon {
 
         protected override Vector3 CalcLeadPos(int pos) {
             Desk desk = ((GameController)_controller).Desk;
-            int row = (pos + 1) / 6;
-            int col = (pos + 1) % 6;
+            int row = pos / 6;
+            int col = pos % 6;
 
             float x = _leadbottomoffset - (Card.Length * row) - (Card.Length / 2.0f);
             float y = Card.Height / 2.0f;
@@ -250,6 +250,8 @@ namespace Bacon {
             Vector3 dst = CalcLeadPos(_leadcards.Count - 1);
             _leadcard.Go.transform.localPosition = dst;
             _leadcard.Go.transform.localRotation = _upv;
+            dst.y = dst.y + 0.1f;
+            ((GameController)_controller).Desk.RenderChangeCursor(dst);
 
             // 可能更新插牌位置
             if (_leadcard.Value != _holdcard.Value) {
@@ -352,7 +354,7 @@ namespace Bacon {
                     pg.Cards[i].Go.transform.localPosition = new Vector3(x, y, z);
 
                     Sequence mySequence = DOTween.Sequence();
-                    mySequence.Append(pg.Cards[i].Go.transform.DOMoveZ(x - move, _putmovedelta))
+                    mySequence.Append(pg.Cards[i].Go.transform.DOMoveZ(z - move, _putmovedelta))
                         .AppendCallback(() => {
                             count++;
                             if (count >= pg.Cards.Count) {
@@ -406,6 +408,7 @@ namespace Bacon {
                 float y = Card.Height / 2.0f;
                 float z = offset + Card.Width * pg.Hor + Card.Length / 2.0f + move;
                 pg.Cards[3].Go.transform.localPosition = new Vector3(x, y, z);
+                pg.Cards[3].Go.transform.localRotation = _uph;
 
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(pg.Cards[3].Go.transform.DOMoveZ(z - move, 0.1f))
@@ -427,9 +430,28 @@ namespace Bacon {
         }
 
         protected override void RenderHu() {
-            _go.GetComponent<global::LeftPlayer>().Head.Show();
+            _go.GetComponent<global::LeftPlayer>().Head.SetHu(true);
             Command cmd = new Command(MyEventCmd.EVENT_HUCARD);
             _ctx.Enqueue(cmd);
+        }
+
+        protected override void RenderWinAndLose() {
+            _go.GetComponent<global::LeftPlayer>().Head.ShowWAL(string.Format("{0}", _wal));
+        }
+
+        protected override void RenderOver() {
+            Desk desk = ((GameController)_controller).Desk;
+            for (int i = 0; i < _cards.Count; i++) {
+                float x = _bottomoffset + Card.Length / 2.0f;
+                float y = Card.Height / 2.0f;
+                float z = desk.Length - (_leftoffset + Card.Width * i + Card.Width / 2.0f);
+                _cards[i].Go.transform.localPosition = new Vector3(x, y, z);
+                _cards[i].Go.transform.localRotation = _upv;
+            }
+        }
+
+        protected override void RenderSay() {
+            _go.GetComponent<global::LeftPlayer>().Say(_say);
         }
     }
 }

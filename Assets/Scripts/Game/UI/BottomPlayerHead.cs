@@ -11,6 +11,7 @@ public class BottomPlayerHead : MonoBehaviour {
     public GameObject _Say;
     public GameObject _Head;
     public GameObject _Hu;
+    public GameObject _WAL;
     public GameObject _Tips;
 
     // Use this for initialization
@@ -20,6 +21,7 @@ public class BottomPlayerHead : MonoBehaviour {
         _Mark.SetActive(false);
         _Say.SetActive(false);
         _Hu.SetActive(false);
+        _WAL.SetActive(false);
         _Tips.SetActive(false);
     }
 
@@ -84,6 +86,19 @@ public class BottomPlayerHead : MonoBehaviour {
         }
     }
 
+    public void ShowWAL(string value) {
+        if (!_WAL.activeSelf) {
+            _WAL.SetActive(true);
+            _WAL.GetComponent<Text>().text = value;
+        }
+    }
+
+    public void CloseWAL() {
+        if (_WAL.activeSelf) {
+            _WAL.SetActive(false);
+        }
+    }
+
     public void ShowTips(string content) {
         if (_Tips != null) {
             if (!_Tips.activeSelf) {
@@ -101,15 +116,12 @@ public class BottomPlayerHead : MonoBehaviour {
         }
     }
 
-    public void ShowHu() {
-        _Hu.SetActive(true);
-    }
-
     public void Clear() {
         _Leave.SetActive(false);
         _Mark.SetActive(false);
         _Say.SetActive(false);
         _Hu.SetActive(false);
+        _WAL.SetActive(false);
         _Tips.SetActive(false);
     }
 }
