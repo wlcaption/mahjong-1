@@ -122,7 +122,7 @@ namespace Bacon {
 
         public void RenderLoadCard() {
             _cardsgo = _scene.Go.transform.FindChild("cards").gameObject;
-            string prefix = "Mahjongs/";
+            string prefix = "Prefabs/Mahjongs/";
             string folder = string.Empty;
             for (int i = 1; i < 4; i++) {
                 if (i == (int)Card.CardType.Crak) {
@@ -134,7 +134,7 @@ namespace Bacon {
                 }
                 for (int j = 1; j < 10; j++) {
                     string path = folder + string.Format("{0}", j);
-                    UnityEngine.Object model = Resources.Load(path, typeof(GameObject));
+                    UnityEngine.Object model = ABLoader.current.LoadRes<GameObject>(path);
                     if (model == null) {
                         UnityEngine.Debug.LogErrorFormat("Type:{0}, Num:{1} load failed.", i, j);
                         continue;

@@ -1866,7 +1866,7 @@ namespace C2sSprotoType {
 
 
 	public class opinfo : SprotoTypeBase {
-		private static int max_field_count = 6;
+		private static int max_field_count = 7;
 		
 		
 		private Int64 _idx; // tag 0
@@ -1887,40 +1887,49 @@ namespace C2sSprotoType {
 			get { return base.has_field.has_field (1); }
 		}
 
-		private Int64 _guo; // tag 2
-		public Int64 guo {
-			get { return _guo; }
-			set { base.has_field.set_field (2, true); _guo = value; }
+		private Int64 _dian; // tag 2
+		public Int64 dian {
+			get { return _dian; }
+			set { base.has_field.set_field (2, true); _dian = value; }
 		}
-		public bool HasGuo {
+		public bool HasDian {
 			get { return base.has_field.has_field (2); }
 		}
 
-		private Int64 _peng; // tag 3
-		public Int64 peng {
-			get { return _peng; }
-			set { base.has_field.set_field (3, true); _peng = value; }
+		private Int64 _guo; // tag 3
+		public Int64 guo {
+			get { return _guo; }
+			set { base.has_field.set_field (3, true); _guo = value; }
 		}
-		public bool HasPeng {
+		public bool HasGuo {
 			get { return base.has_field.has_field (3); }
 		}
 
-		private Int64 _gang; // tag 4
-		public Int64 gang {
-			get { return _gang; }
-			set { base.has_field.set_field (4, true); _gang = value; }
+		private Int64 _peng; // tag 4
+		public Int64 peng {
+			get { return _peng; }
+			set { base.has_field.set_field (4, true); _peng = value; }
 		}
-		public bool HasGang {
+		public bool HasPeng {
 			get { return base.has_field.has_field (4); }
 		}
 
-		private huinfo _hu; // tag 5
+		private Int64 _gang; // tag 5
+		public Int64 gang {
+			get { return _gang; }
+			set { base.has_field.set_field (5, true); _gang = value; }
+		}
+		public bool HasGang {
+			get { return base.has_field.has_field (5); }
+		}
+
+		private huinfo _hu; // tag 6
 		public huinfo hu {
 			get { return _hu; }
-			set { base.has_field.set_field (5, true); _hu = value; }
+			set { base.has_field.set_field (6, true); _hu = value; }
 		}
 		public bool HasHu {
-			get { return base.has_field.has_field (5); }
+			get { return base.has_field.has_field (6); }
 		}
 
 		public opinfo () : base(max_field_count) {}
@@ -1940,15 +1949,18 @@ namespace C2sSprotoType {
 					this.card = base.deserialize.read_integer ();
 					break;
 				case 2:
-					this.guo = base.deserialize.read_integer ();
+					this.dian = base.deserialize.read_integer ();
 					break;
 				case 3:
-					this.peng = base.deserialize.read_integer ();
+					this.guo = base.deserialize.read_integer ();
 					break;
 				case 4:
-					this.gang = base.deserialize.read_integer ();
+					this.peng = base.deserialize.read_integer ();
 					break;
 				case 5:
+					this.gang = base.deserialize.read_integer ();
+					break;
+				case 6:
 					this.hu = base.deserialize.read_obj<huinfo> ();
 					break;
 				default:
@@ -1970,19 +1982,23 @@ namespace C2sSprotoType {
 			}
 
 			if (base.has_field.has_field (2)) {
-				base.serialize.write_integer (this.guo, 2);
+				base.serialize.write_integer (this.dian, 2);
 			}
 
 			if (base.has_field.has_field (3)) {
-				base.serialize.write_integer (this.peng, 3);
+				base.serialize.write_integer (this.guo, 3);
 			}
 
 			if (base.has_field.has_field (4)) {
-				base.serialize.write_integer (this.gang, 4);
+				base.serialize.write_integer (this.peng, 4);
 			}
 
 			if (base.has_field.has_field (5)) {
-				base.serialize.write_obj (this.hu, 5);
+				base.serialize.write_integer (this.gang, 5);
+			}
+
+			if (base.has_field.has_field (6)) {
+				base.serialize.write_obj (this.hu, 6);
 			}
 
 			return base.serialize.close ();
