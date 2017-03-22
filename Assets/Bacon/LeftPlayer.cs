@@ -427,6 +427,9 @@ namespace Bacon {
         }
 
         protected override void RenderHu() {
+            _go.GetComponent<global::LeftPlayer>().Head.Show();
+            Command cmd = new Command(MyEventCmd.EVENT_HUCARD);
+            _ctx.Enqueue(cmd);
         }
     }
 }

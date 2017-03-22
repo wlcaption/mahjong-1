@@ -220,7 +220,7 @@ namespace Bacon {
             _ctx.EnqueueRenderQueue(RenderTakeFirstCard);
         }
 
-        protected virtual void RenderTakeFirstCard() {}
+        protected virtual void RenderTakeFirstCard() { }
 
         public void TakeXuanQue() {
             _ctx.EnqueueRenderQueue(RenderTakeXuanQue);
@@ -312,6 +312,7 @@ namespace Bacon {
                 }
             }
         }
+
         public void RemoveLead(Card card) {
             UnityEngine.Debug.Assert(_leadcards.Count > 0);
             Card other = _leadcards[_leadcards.Count - 1];
@@ -369,7 +370,7 @@ namespace Bacon {
         protected virtual void RenderSortCardsAfterFly(Action cb) { }
         protected virtual void RenderFly(Action cb) { }
 
-        public void Peng(long code, long c, Card card, long hor) {
+        public void Peng(long code, long c, long hor, Player player, Card card) {
             List<Card> cards = new List<Card>();
             for (int i = 0; i < _cards.Count; i++) {
                 if (card == _cards[i]) {
@@ -383,7 +384,10 @@ namespace Bacon {
             for (int i = 0; i < cards.Count; i++) {
                 Remove(cards[i]);
             }
+            player.RemoveLead(card);
             cards.Add(card);
+            UnityEngine.Debug.Assert(cards.Count == 3);
+
             PGCards pgcards = new PGCards();
             pgcards.Cards = cards;
             pgcards.Opcode = code;
@@ -398,7 +402,7 @@ namespace Bacon {
 
         protected virtual void RenderPeng() { }
 
-        public void Gang(long code, long c, Card card, long hor) {
+        public void Gang(long code, long c, long hor, Player player, Card card) {
             if (code == OpCodes.OPCODE_ANGANG) {
                 UnityEngine.Debug.Assert(_holdcard != null);
                 List<Card> cards = new List<Card>();
@@ -457,8 +461,11 @@ namespace Bacon {
                 for (int i = 0; i < cards.Count; i++) {
                     Remove(cards[i]);
                 }
-
                 UnityEngine.Debug.Assert(cards.Count == 3);
+                player.RemoveLead(card);
+                cards.Add(card);
+                UnityEngine.Debug.Assert(cards.Count == 4);
+
                 PGCards pg = new PGCards();
                 pg.Cards = cards;
                 pg.Opcode = code;
@@ -466,6 +473,7 @@ namespace Bacon {
                 pg.Width = 0.0f;
                 _putcards.Add(pg);
                 _putidx = _putcards.Count - 1;
+
                 ((GameController)_controller).CurIdx = _idx;
                 _ctx.EnqueueRenderQueue(RenderGang);
             } else if (code == OpCodes.OPCODE_BUGANG) {

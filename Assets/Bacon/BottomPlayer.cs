@@ -131,7 +131,7 @@ namespace Bacon {
             request.op.hu = new C2sSprotoType.huinfo();
             request.op.hu.idx = _idx;
             request.op.hu.code = Call.Hu.Code;
-            request.op.hu.card = Call.Card;
+            request.op.hu.card = Call.Hu.Card;
             request.op.hu.jiao = Call.Hu.Jiao;
             request.op.hu.dian = Call.Hu.Dian;
 
@@ -575,7 +575,11 @@ namespace Bacon {
             }
         }
 
-        protected override void RenderHu() { }
+        protected override void RenderHu() {
+            _go.GetComponent<global::BottomPlayer>().Head.Show();
+            Command cmd = new Command(MyEventCmd.EVENT_HUCARD);
+            _ctx.Enqueue(cmd);
+        }
 
         protected override void RenderCall() {
             if (Call.Peng == OpCodes.OPCODE_PENG) {

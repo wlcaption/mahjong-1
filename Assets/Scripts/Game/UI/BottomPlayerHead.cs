@@ -20,6 +20,7 @@ public class BottomPlayerHead : MonoBehaviour {
         _Mark.SetActive(false);
         _Say.SetActive(false);
         _Hu.SetActive(false);
+        _Tips.SetActive(false);
     }
 
     // Update is called once per frame
@@ -98,5 +99,17 @@ public class BottomPlayerHead : MonoBehaviour {
                 _Tips.SetActive(false);
             }
         }
+    }
+
+    public void ShowHu() {
+        _Hu.SetActive(true);
+    }
+
+    public void Clear() {
+        _Leave.SetActive(false);
+        _Mark.SetActive(false);
+        _Say.SetActive(false);
+        _Hu.SetActive(false);
+        _Tips.SetActive(false);
     }
 }

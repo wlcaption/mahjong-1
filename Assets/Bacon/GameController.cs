@@ -14,6 +14,7 @@ namespace Bacon {
         private GameObject _uiroot = null;
         private GameObject _d1 = null;
         private GameObject _d2 = null;
+        private GameObject _cuour = null;  // 游标
         private Dictionary<long, Card> _cards = new Dictionary<long, Card>();
 
         private Map _map = null;
@@ -27,6 +28,7 @@ namespace Bacon {
         private long _curidx = 0;
         private long _curtake = 0;
 
+        private int _hus = 0;
         private int _oknum = 0;
         private int _take1time = 0;
         private int _takeround = 0;
@@ -438,6 +440,7 @@ namespace Bacon {
                     call.Hu.Code = obj.opcodes[i].hu.code;
                     call.Hu.Jiao = obj.opcodes[i].hu.jiao;
                     call.Hu.Dian = obj.opcodes[i].hu.dian;
+                    call.Hu.Card = obj.opcodes[i].hu.card;
 
                     Player player = _service.GetPlayer(obj.opcodes[i].idx);
                     player.Call = call;
@@ -463,8 +466,8 @@ namespace Bacon {
                 // 
                 UnityEngine.Debug.Assert(obj.code == OpCodes.OPCODE_PENG);
                 UnityEngine.Debug.Assert(obj.card == _lastCard.Value);
-                _service.GetPlayer(_lastidx).RemoveLead(_lastCard);
-                _service.GetPlayer(obj.idx).Peng(obj.code, obj.card, _lastCard, obj.hor);
+
+                _service.GetPlayer(obj.idx).Peng(obj.code, obj.card, obj.hor, _service.GetPlayer(_lastidx), _lastCard);
 
                 S2cSprotoType.peng.response responseObj = new S2cSprotoType.peng.response();
                 responseObj.errorcode = Errorcode.SUCCESS;
@@ -487,13 +490,13 @@ namespace Bacon {
             S2cSprotoType.gang.request obj = requestObj as S2cSprotoType.gang.request;
             try {
                 if (OpCodes.OPCODE_ANGANG == obj.code) {
-                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_ANGANG, obj.card, null, obj.hor);
+                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_ANGANG, obj.card, obj.hor, _service.GetPlayer(obj.idx), _lastCard);
                 } else if (OpCodes.OPCODE_ZHIGANG == obj.code) {
                     UnityEngine.Debug.Assert(_lastCard.Value == obj.card);
-                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_ZHIGANG, obj.card, _lastCard, obj.hor);
+                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_ZHIGANG, obj.card, obj.hor, _service.GetPlayer(_lastidx), _lastCard);
                 } else if (OpCodes.OPCODE_BUGANG == obj.code) {
                     UnityEngine.Debug.Assert(_lastCard.Value == obj.card);
-                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_BUGANG, obj.card, _lastCard, obj.hor);
+                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_BUGANG, obj.card, obj.hor, _service.GetPlayer(_lastidx), _lastCard);
                 }
 
                 S2cSprotoType.gang.response responseObj = new S2cSprotoType.gang.response();
@@ -517,7 +520,8 @@ namespace Bacon {
         public SprotoTypeBase OnHu(SprotoTypeBase requestObj) {
             S2cSprotoType.hu.request obj = requestObj as S2cSprotoType.hu.request;
             try {
-
+                _oknum = 0;
+                _hus = obj.hus.Count;
                 if (obj.hus.Count > 1) {
                     // 一炮多响
                 }
@@ -539,9 +543,12 @@ namespace Bacon {
         }
 
         public void HuCard(EventCmd e) {
-            C2sSprotoType.step.request request = new C2sSprotoType.step.request();
-            request.idx = _service.MyIdx;
-            _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+            _oknum++;
+            if (_oknum >= _hus) {
+                C2sSprotoType.step.request request = new C2sSprotoType.step.request();
+                request.idx = _service.MyIdx;
+                _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+            }
         }
 
         public SprotoTypeBase OnLead(SprotoTypeBase requestObj) {
