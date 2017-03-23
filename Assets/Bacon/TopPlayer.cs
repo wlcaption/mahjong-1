@@ -123,6 +123,9 @@ namespace Bacon {
             _go.GetComponent<global::TopPlayer>().Head.SetMark(string.Format("{0}", _fen));
         }
 
+        protected override void RenderXuanPao() {
+        }
+
         protected override void RenderTakeFirstCard() {
             UnityEngine.Debug.Assert(_takefirst);
             Vector3 dst = CalcPos(_cards.Count + 1);
@@ -428,6 +431,12 @@ namespace Bacon {
                 _cards[i].Go.transform.localPosition = new Vector3(x, y, z);
                 _cards[i].Go.transform.localRotation = _upv;
             }
+        }
+
+        protected override void RenderRestart() {
+            _go.GetComponent<global::TopPlayer>().Head.CloseWAL();
+            _go.GetComponent<global::TopPlayer>().Head.SetHu(false);
+            _go.GetComponent<global::TopPlayer>().Head.SetReady(true);
         }
 
         protected override void RenderSay() {

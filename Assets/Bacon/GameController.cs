@@ -9,16 +9,11 @@ namespace Bacon {
     public class GameController : Controller {
 
         private GameService _service = null;
-        private UIRootActor _ui = null;
+        private GUIRootActor _ui = null;
         private GameObject _cardsgo = null;
-        private GameObject _uiroot = null;
-        private GameObject _d1 = null;
-        private GameObject _d2 = null;
-        private GameObject _cuour = null;  // 游标
+
         private Dictionary<long, Card> _cards = new Dictionary<long, Card>();
 
-        private Map _map = null;
-        private View _view = null;
         private Scene _scene = null;
         private Desk _desk = null;
 
@@ -40,16 +35,13 @@ namespace Bacon {
         public GameController(Context ctx) : base(ctx) {
 
             _service = (GameService)_ctx.QueryService(GameService.Name);
-            _ui = new UIRootActor(_ctx, this);
+            _ui = new GUIRootActor(_ctx, this);
 
             EventListenerCmd listener1 = new EventListenerCmd(MyEventCmd.EVENT_SETUP_SCENE, SetupScene);
             _ctx.EventDispatcher.AddCmdEventListener(listener1);
 
             EventListenerCmd listener2 = new EventListenerCmd(MyEventCmd.EVENT_BOXINGCARDS, BoxingCards);
             _ctx.EventDispatcher.AddCmdEventListener(listener2);
-
-            EventListenerCmd listener4 = new EventListenerCmd(MyEventCmd.EVENT_SETUP_GUIROOT, SetupUI);
-            _ctx.EventDispatcher.AddCmdEventListener(listener4);
 
             EventListenerCmd listener5 = new EventListenerCmd(MyEventCmd.EVENT_THROWDICE, OnThrowDice);
             _ctx.EventDispatcher.AddCmdEventListener(listener5);
@@ -159,29 +151,8 @@ namespace Bacon {
                 }
             }
 
-            UnityEngine.Object xmodel = Resources.Load(prefix + "Dice", typeof(GameObject));
-            if (xmodel == null) {
-                UnityEngine.Debug.LogError("dice load failture.");
-            }
-            _d1 = GameObject.Instantiate(xmodel) as GameObject;
-            _d1.transform.SetParent(_cardsgo.transform);
-            _d1.transform.localPosition = new Vector3(1.0f + 0.05f, 0.1f, 1.0f - 0.05f);
-            _d2 = GameObject.Instantiate(xmodel) as GameObject;
-            _d2.transform.SetParent(_cardsgo.transform);
-            _d2.transform.localPosition = new Vector3(1.0f - 0.05f, 0.1f, 1.0f - 0.05f);
-
             Command cmd = new Command(MyEventCmd.EVENT_LOADEDCARDS);
             _ctx.Enqueue(cmd);
-        }
-
-        public void SetupUI(EventCmd e) {
-            _uiroot = e.Orgin;
-            _ctx.EnqueueRenderQueue(RenderUI);
-        }
-
-        public void RenderUI() {
-            GameService service = (GameService)_ctx.QueryService(GameService.Name);
-            _uiroot.GetComponent<GUIRoot>().InitUI((int)service.RoomId);
         }
 
         public bool TakeCard(out Card card) {
@@ -314,37 +285,8 @@ namespace Bacon {
             }
         }
 
-        private void RenderThrowSDice(long d, GameObject go) {
-            switch (d) {
-                case 1:
-                    go.transform.localRotation = Quaternion.AngleAxis(-180.0f, Vector3.forward);
-                    break;
-                case 2:
-                    go.transform.localRotation = Quaternion.AngleAxis(180.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
-                    break;
-                case 3:
-                    go.transform.localRotation = Quaternion.AngleAxis(-90.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
-                    break;
-                case 4:
-                    go.transform.localRotation = Quaternion.AngleAxis(270.0f, Vector3.forward);
-                    break;
-                case 5:
-                    go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
-                    break;
-                case 6:
-                    go.transform.localRotation = Quaternion.AngleAxis(0.0f, Vector3.right);
-                    break;
-                default:
-                    UnityEngine.Debug.Assert(false);
-                    break;
-            }
-        }
-
         public void RenderThrowDice(long d1, long d2) {
-            RenderThrowSDice(d1, _d1);
-            RenderThrowSDice(d2, _d2);
-            Command cmd = new Command(MyEventCmd.EVENT_THROWDICE);
-            _ctx.Enqueue(cmd);
+            _desk.RenderThrowDice(d1, d2);
         }
 
         public void OnThrowDice(EventCmd e) {
@@ -495,7 +437,6 @@ namespace Bacon {
                     UnityEngine.Debug.Assert(_lastCard.Value == obj.card);
                     _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_ZHIGANG, obj.card, obj.hor, _service.GetPlayer(_lastidx), _lastCard);
                 } else if (OpCodes.OPCODE_BUGANG == obj.code) {
-                    UnityEngine.Debug.Assert(_lastCard.Value == obj.card);
                     _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_BUGANG, obj.card, obj.hor, _service.GetPlayer(_lastidx), _lastCard);
                 }
 
@@ -597,9 +538,7 @@ namespace Bacon {
             S2cSprotoType.restart.request obj = requestObj as S2cSprotoType.restart.request;
             try {
 
-                _service.Foreach((Player player) => {
-                    player.Restart();
-                });
+                _service.GetPlayer(obj.idx).Restart();
 
                 S2cSprotoType.restart.response responseObj = new S2cSprotoType.restart.response();
                 responseObj.errorcode = Errorcode.SUCCESS;
@@ -614,6 +553,31 @@ namespace Bacon {
 
         public SprotoTypeBase OnTakeRestart(SprotoTypeBase requestObj) {
             try {
+                _fistidx = 0;
+                _fisttake = 0;
+
+                _curidx = 0;
+                _curtake = 0;
+
+                _huscount = 0;
+                _oknum = 0;
+                _take1time = 0;
+                _takeround = 0;
+                _takepoint = 0;  // 最多是6 
+
+                _lastidx = 0;
+                _lastCard = null;
+
+                _service.Foreach((Player player) => {
+                    player.TakeRestart();
+                });
+
+                {
+                    C2sSprotoType.step.request request = new C2sSprotoType.step.request();
+                    request.idx = _service.MyIdx;
+                    _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+                }
+
                 S2cSprotoType.take_restart.response responseObj = new S2cSprotoType.take_restart.response();
                 responseObj.errorcode = Errorcode.SUCCESS;
                 return responseObj;
@@ -623,13 +587,6 @@ namespace Bacon {
                 responseObj.errorcode = Errorcode.FAIL;
                 return responseObj;
             }
-        }
-
-        public void OnSendRestart(EventCmd e) {
-            UnityEngine.Debug.LogFormat("send restart.");
-            C2sSprotoType.restart.request request = new C2sSprotoType.restart.request();
-            request.idx = _service.MyIdx;
-            _ctx.SendReq<C2sProtocol.restart>(C2sProtocol.restart.Tag, request);
         }
 
         public SprotoTypeBase OnTakeXuanPao(SprotoTypeBase requestObj) {

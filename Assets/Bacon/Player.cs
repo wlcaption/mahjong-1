@@ -550,7 +550,7 @@ namespace Bacon {
         }
 
         public void Over() {
-
+            _ctx.EnqueueRenderQueue(RenderOver);
         }
 
         protected virtual void RenderOver() {
@@ -558,7 +558,13 @@ namespace Bacon {
         }
 
         public void Restart() {
+            _ctx.EnqueueRenderQueue(RenderRestart);
+        }
 
+        protected virtual void RenderRestart() {
+        }
+
+        public void TakeRestart() {
             Dictionary<int, Card> _takecards = new Dictionary<int, Card>();
             List<Card> _cards = new List<Card>();
             List<Card> _leadcards = new List<Card>();

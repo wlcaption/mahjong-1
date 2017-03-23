@@ -8,6 +8,7 @@ using Bacon;
 public class GUIRoot : MonoBehaviour {
 
     public RootBehaviour _Root;
+    public GameObject _Canvas;
     public GameObject _RoomId;
     public GameObject _OverWnd;
     public GameObject _ChatWnd;
@@ -17,18 +18,18 @@ public class GUIRoot : MonoBehaviour {
 
     public Text _Time;
     public Text _Left;
-    
 
-	// Use this for initialization
-	void Start () {
+
+    // Use this for initialization
+    void Start() {
         Command cmd = new Maria.Command(MyEventCmd.EVENT_SETUP_GUIROOT, gameObject);
         _Root.App.Enqueue(cmd);
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+
+    // Update is called once per frame
+    void Update() {
+
+    }
 
     public void InitUI(int id) {
         string name = string.Format("Room ID: {0}", id);
@@ -49,7 +50,7 @@ public class GUIRoot : MonoBehaviour {
         }
     }
 
-    public  void OnHelp() {
+    public void OnHelp() {
         if (_HelpWnd != null) {
             _HelpWnd.GetComponent<RuleWnd>().Show();
             _HelpWnd.SetActive(true);
@@ -68,27 +69,11 @@ public class GUIRoot : MonoBehaviour {
         }
     }
 
-    public void OnClose() {
-        CloseOver();
-    }
-
     public void ShowOver() {
-        if (_OverWnd != null) {
-            _OverWnd.SetActive(true);
-        }
+        _OverWnd.GetComponent<OverWnd>().Show();
     }
 
     public void CloseOver() {
-        if (_OverWnd != null) {
-            _OverWnd.SetActive(false);
-        }
-    }
-
-    public void OnRestart() {
-        if (_OverWnd != null) {
-            _OverWnd.SetActive(false);
-        }
-        Command cmd = new Command(MyEventCmd.EVENT_RESTART);
-        _Root.App.Enqueue(cmd);
+        _OverWnd.GetComponent<OverWnd>().Close();
     }
 }

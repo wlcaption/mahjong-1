@@ -13,8 +13,8 @@ namespace Bacon {
         public static readonly string Name = "game";
 
         private long _myidx = 0;
+        private long _online = 0;
         private Dictionary<long, Player> _playes = new Dictionary<long, Player>();
-        private int _online = 0;
         private bool _loadedcards = false;
 
         public GameService(Context ctx) : base(ctx) {

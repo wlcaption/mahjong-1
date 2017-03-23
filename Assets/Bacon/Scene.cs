@@ -5,9 +5,6 @@ using UnityEngine;
 namespace Bacon {
     public class Scene : Actor {
 
-        private View _view = null;
-        private Map _map = null;
-
         public Scene(Context ctx, Controller controller, GameObject go) : base(ctx, controller, go) {
         }
 

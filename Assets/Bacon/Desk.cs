@@ -33,5 +33,9 @@ namespace Bacon {
         public void RenderChangeCursor(Vector3 pos) {
             _go.GetComponent<Board>().ChangeCursor(pos);
         }
+
+        public void RenderThrowDice(long d1, long d2) {
+            _go.GetComponent<Board>().ThrowDice(d1, d2);
+        }
     }
 }

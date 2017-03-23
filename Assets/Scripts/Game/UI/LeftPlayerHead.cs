@@ -12,6 +12,7 @@ public class LeftPlayerHead : MonoBehaviour {
     public GameObject _Head;
     public GameObject _Hu;
     public GameObject _WAL;
+    public GameObject _Ready;
 
     // Use this for initialization
     void Start () {
@@ -21,6 +22,7 @@ public class LeftPlayerHead : MonoBehaviour {
         _Say.SetActive(false);
         _Hu.SetActive(false);
         _WAL.SetActive(false);
+        _Ready.SetActive(false);
     }
 	
 	// Update is called once per frame
@@ -87,6 +89,18 @@ public class LeftPlayerHead : MonoBehaviour {
         }
     }
 
+    public void SetReady(bool value) {
+        if (value) {
+            if (!_Ready.activeSelf) {
+                _Ready.SetActive(true);
+            }
+        } else {
+            if (_Ready.activeSelf) {
+                _Ready.SetActive(false);
+            }
+        }
+    }
+
     public void ShowWAL(string value) {
         if (!_WAL.activeSelf) {
             _WAL.SetActive(true);
@@ -106,5 +120,6 @@ public class LeftPlayerHead : MonoBehaviour {
         _Say.SetActive(false);
         _Hu.SetActive(false);
         _WAL.SetActive(false);
+        _Ready.SetActive(false);
     }
 }

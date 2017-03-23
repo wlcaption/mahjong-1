@@ -641,6 +641,13 @@ namespace Bacon {
             }
         }
 
+        protected override void RenderRestart() {
+            _go.GetComponent<global::BottomPlayer>().Head.CloseTips();
+            _go.GetComponent<global::BottomPlayer>().Head.CloseWAL();
+            _go.GetComponent<global::BottomPlayer>().Head.SetHu(false);
+            _go.GetComponent<global::BottomPlayer>().Head.SetReady(true);
+        }
+
         protected override void RenderSay() {
             _go.GetComponent<global::BottomPlayer>().Say(_say);
         }

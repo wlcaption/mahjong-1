@@ -11,8 +11,6 @@ namespace Bacon {
 
         public UIRootActor(Context ctx, Controller controller) : base(ctx, controller) {
 
-            EventListenerCmd listener1 = new EventListenerCmd(MyEventCmd.EVENT_SETUP_UIROOT, SetupUIRoot);
-            _ctx.EventDispatcher.AddCmdEventListener(listener1);
         }
 
         public override void Update(float delta) {
@@ -36,12 +34,5 @@ namespace Bacon {
             }
         }
 
-        public void ShowOver() {
-            _ctx.EnqueueRenderQueue(RenderShowOver);
-        }
-
-        public void RenderShowOver() {
-            _go.GetComponent<GUIRoot>().ShowOver();
-        }
     }
 }
