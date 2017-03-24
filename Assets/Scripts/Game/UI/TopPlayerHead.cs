@@ -22,6 +22,7 @@ public class TopPlayerHead : MonoBehaviour {
         _Say.SetActive(false);
         _Hu.SetActive(false);
         _WAL.SetActive(false);
+        _Ready.SetActive(false);
     }
 	
 	// Update is called once per frame

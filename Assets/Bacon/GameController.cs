@@ -17,6 +17,7 @@ namespace Bacon {
         private Scene _scene = null;
         private Desk _desk = null;
 
+        // 游戏数据
         private long _fistidx = 0;
         private long _fisttake = 0;
 
@@ -238,16 +239,24 @@ namespace Bacon {
             _oknum = 0;
             S2cSprotoType.shuffle.request obj = requestObj as S2cSprotoType.shuffle.request;
             try {
+                foreach (var item in _cards) {
+                    item.Value.Clear();
+                }
+
                 GameService service = (GameService)_ctx.QueryService(GameService.Name);
+                UnityEngine.Debug.Assert(obj.p1.Count == 28);
                 Player player1 = service.GetPlayer(1);
                 player1.Boxing(obj.p1, _cards);
 
+                UnityEngine.Debug.Assert(obj.p2.Count == 28);
                 Player player2 = service.GetPlayer(2);
                 player2.Boxing(obj.p2, _cards);
 
+                UnityEngine.Debug.Assert(obj.p3.Count == 26);
                 Player player3 = service.GetPlayer(3);
                 player3.Boxing(obj.p3, _cards);
 
+                UnityEngine.Debug.Assert(obj.p4.Count == 26);
                 Player player4 = service.GetPlayer(4);
                 player4.Boxing(obj.p4, _cards);
 
@@ -271,6 +280,10 @@ namespace Bacon {
             try {
                 _fistidx = obj.first;
                 _fisttake = obj.firsttake;
+
+                long min = Math.Min(obj.d1, obj.d2);
+                _service.GetPlayer(_fisttake).Takecardsidx = (int)(min * 2);
+                
                 var player = _service.GetPlayer(obj.first);
                 player.ThrowDice(obj.d1, obj.d2);
 
@@ -567,6 +580,10 @@ namespace Bacon {
 
                 _lastidx = 0;
                 _lastCard = null;
+
+                foreach (var item in _cards) {
+                    item.Value.Clear();
+                }
 
                 _service.Foreach((Player player) => {
                     player.TakeRestart();

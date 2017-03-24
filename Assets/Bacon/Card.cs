@@ -24,7 +24,7 @@ namespace Bacon {
         protected int _idx;
         protected int _pos;
         protected int _que;
-        protected Player _player = null;
+        protected Player _parent;
 
         public Card(Context ctx, Controller controller, GameObject go)
             : base(ctx, controller, go) {
@@ -35,6 +35,7 @@ namespace Bacon {
         public int Num { set { _num = value; } get { return _num; } }
         public int Idx { set { _idx = value; } get { return _idx; } }
         public int Pos { set { _pos = value; } get { return _pos; } }
+        public Player Parent { set { _parent = value; } get { return _parent; } }
 
         public void SetQue(CardType value) {
             if (_type == value) {
@@ -46,11 +47,9 @@ namespace Bacon {
 
         public void Clear() {
             _que = 0;
+            _pos = 0;
+            _parent = null;
         }
-
-        public void SetPlayer(Player player) { _player = player; }
-        public void ClearPlayer() { _player = null; }
-        public Player GetPlayer() { return _player; }
 
         public int CompareTo(Card other) {
             if (_que == other._que) {

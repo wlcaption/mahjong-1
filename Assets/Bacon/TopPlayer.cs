@@ -439,6 +439,10 @@ namespace Bacon {
             _go.GetComponent<global::TopPlayer>().Head.SetReady(true);
         }
 
+        protected override void RenderTakeRestart() {
+            _go.GetComponent<global::TopPlayer>().Head.SetReady(false);
+        }
+
         protected override void RenderSay() {
             _go.GetComponent<global::TopPlayer>().Say(_say);
         }

@@ -17,9 +17,9 @@ namespace Bacon {
         protected long _d1;
         protected long _d2;
 
-        protected bool _takefirst = false;                 // 庄家
         protected const float _takeleftoffset = 0.44f;
         protected const float _takebottomoffset = 0.20f;
+
         protected int _takecardsidx = 0;
         protected int _takecardscnt = 0;
         protected int _takecardslen = 0;
@@ -31,6 +31,8 @@ namespace Bacon {
         protected const float _sortcardsdelta = 0.8f;
         protected const float _leftoffset = 0.56f;
         protected const float _bottomoffset = 0.1f;
+
+        protected bool _takefirst = false;                 // 庄家
         protected List<Card> _cards = new List<Card>();
 
         protected const float _leadleftoffset = 0.7f;
@@ -55,7 +57,6 @@ namespace Bacon {
         protected long _fen;
         protected Card.CardType _que;
         protected long _wal;         // 赢的钱或者输的钱
-
         protected long _say;
 
 
@@ -68,6 +69,7 @@ namespace Bacon {
         }
 
         public int Idx { get { return _idx; } set { _idx = value; } }
+        public int Takecardsidx { get { return _takecardsidx; } set { _takecardsidx = value; } }
 
         public List<long> CS { get; set; }
         public CallInfo Call { get; set; }
@@ -114,7 +116,12 @@ namespace Bacon {
                     long c = cs[i];
                     if (cards.ContainsKey(c)) {
                         Card card = cards[c];
-                        card.SetPlayer(this);
+                        if (card.Parent == null) {
+                            card.Parent = this;
+                        } else {
+                            UnityEngine.Debug.Assert(false);
+                        }
+                        card.Parent = this;
                         _takecards[i] = card;
                     } else {
                         UnityEngine.Debug.LogError(string.Format("not found key {0}", c));
@@ -135,8 +142,6 @@ namespace Bacon {
         public void ThrowDice(long d1, long d2) {
             _d1 = d1;
             _d2 = d2;
-            long min = Math.Min(_d1, _d2);
-            _takecardsidx = (int)(min * 2);
             _ctx.EnqueueRenderQueue(RenderThrowDice);
         }
 
@@ -514,7 +519,7 @@ namespace Bacon {
                     Remove(xcard);
                     Insert(_holdcard);
                 }
-                
+
                 for (int i = 0; i < _putcards.Count; i++) {
                     PGCards pg = _putcards[i];
                     if (pg.Opcode == OpCodes.OPCODE_PENG && pg.Cards[0] == xcard) {
@@ -565,18 +570,35 @@ namespace Bacon {
         }
 
         public void TakeRestart() {
-            Dictionary<int, Card> _takecards = new Dictionary<int, Card>();
-            List<Card> _cards = new List<Card>();
-            List<Card> _leadcards = new List<Card>();
+            UnityEngine.Debug.LogFormat("player {0} take restart", _idx);
+            _d1 = 0;
+            _d2 = 0;
+
+            _takecardsidx = 0;
+            _takecardscnt = 0;
+            _takecardslen = 0;
+            _takecards = new Dictionary<int, Card>();
+
+            _takefirst = false;                 // 庄家
+            _cards = new List<Card>();
+            _leadcards = new List<Card>();
+
             _putidx = 0;
-            List<PGCards> _putcards = new List<PGCards>();
+            _putcards = new List<PGCards>();
+
+            _hucards = new List<Card>();
+
             _holdcard = null;
             _leadcard = null;
+
             _turntype = 0;
             _fen = 0;
             _que = 0;
+            _wal = 0;         // 赢的钱或者输的钱
             _say = 0;
         }
+
+        protected virtual void RenderTakeRestart() { }
 
         public void Say(long code) {
             _say = code;

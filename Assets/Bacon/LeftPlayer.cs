@@ -456,6 +456,10 @@ namespace Bacon {
             _go.GetComponent<global::LeftPlayer>().Head.SetReady(true);
         }
 
+        protected override void RenderTakeRestart() {
+            _go.GetComponent<global::LeftPlayer>().Head.SetReady(false);
+        }
+
         protected override void RenderSay() {
             _go.GetComponent<global::LeftPlayer>().Say(_say);
         }

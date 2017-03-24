@@ -648,6 +648,10 @@ namespace Bacon {
             _go.GetComponent<global::BottomPlayer>().Head.SetReady(true);
         }
 
+        protected override void RenderTakeRestart() {
+            _go.GetComponent<global::BottomPlayer>().Head.SetReady(false);
+        }
+
         protected override void RenderSay() {
             _go.GetComponent<global::BottomPlayer>().Say(_say);
         }
