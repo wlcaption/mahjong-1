@@ -7,6 +7,8 @@ using System.Threading;
 using UnityEngine;
 
 namespace Maria {
+
+    [XLua.Hotfix]
     public class Application : DisposeObject {
         protected enum CoType {
             NONE = 0,
@@ -24,6 +26,8 @@ namespace Maria {
         protected Context _ctx = null;
         protected EventDispatcher _dispatcher = null;
         protected CoType _cotype = CoType.THREAD;
+        protected XLua.LuaEnv _luaenv = new XLua.LuaEnv();
+        protected int _count = 0;
 
         public Application(global::App app) {
             _app = app;
@@ -37,6 +41,15 @@ namespace Maria {
                 _worker.IsBackground = true;
                 _worker.Start();
             }
+            _luaenv.AddLoader((ref string filepath) => {
+                filepath = filepath.Replace('.', '/') + ".lua";
+                TextAsset file = ABLoader.current.LoadAB<TextAsset>("xlua/src.normal", filepath);
+                if (file != null) {
+                    return file.bytes;
+                } else {
+                    return null;
+                }
+            });
         }
 
         protected override void Dispose(bool disposing) {
@@ -47,10 +60,13 @@ namespace Maria {
                 // 清理托管资源，调用自己管理的对象的Dispose方法
                 _ctx.Dispose();
                 //_worker.Abort();
+                //_luaenv.Dispose();
             }
             // 清理非托管资源
             _disposed = true;
         }
+
+        public XLua.LuaEnv Env { get { return _luaenv; } }
 
         private void Worker() {
             while (true) {
@@ -126,6 +142,10 @@ namespace Maria {
             }
         }
 
+        public void XluaTest() {
+            UnityEngine.Debug.Log("hello world");
+        }
+
         // Update is called once per frame
         public void Update() {
             if (_cotype == CoType.CO) {
@@ -137,6 +157,14 @@ namespace Maria {
                     handler = _renderQueue.Dequeue();
                 }
                 handler();
+            }
+            _luaenv.Tick();
+            XluaTest();
+            _count++;
+            if (_count == 2) {
+                _luaenv.DoString(@"
+-- require 'main'
+");
             }
         }
 
@@ -154,10 +182,14 @@ namespace Maria {
         public void OnApplicationPause(bool pauseStatus) {
             if (pauseStatus) {
                 UnityEngine.Debug.Log("游戏暂停 一切停止");  // 缩到桌面的时候触发  
-                _semaphore.WaitOne();
+                if (_cotype == CoType.THREAD) {
+                    _semaphore.WaitOne();
+                }
             } else {
                 UnityEngine.Debug.Log("游戏开始  万物生机");  //回到游戏的时候触发 最晚  
-                _semaphore.Release();
+                if (_cotype == CoType.THREAD) {
+                    _semaphore.Release();
+                }
             }
         }
 

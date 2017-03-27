@@ -124,12 +124,12 @@ public class ABLoader : MonoBehaviour {
             return ab.LoadAsset<T>(name);
         } else {
             if (_manifest == null) {
-                if (_path[ABConfig.ABMANIFEST] == PathType.STR) {
-                    AssetBundle manifest = AssetBundle.LoadFromFile(Application.streamingAssetsPath + ABConfig.ABMANIFEST);
+                if (_path.ContainsKey(ABConfig.ABMANIFEST) && _path[ABConfig.ABMANIFEST] == PathType.PER) {
+                    AssetBundle manifest = AssetBundle.LoadFromFile(Application.persistentDataPath + "/" + ABConfig.ABMANIFEST);
                     _manifest = manifest.LoadAsset<AssetBundleManifest>(ABConfig.ABMANIFEST);
                 } else {
-                    AssetBundle manifest = AssetBundle.LoadFromFile(Application.persistentDataPath + ABConfig.ABMANIFEST);
-                    _manifest = manifest.LoadAsset<AssetBundleManifest>(ABConfig.ABMANIFEST);
+                    AssetBundle manifest = AssetBundle.LoadFromFile(Application.streamingAssetsPath + "/" + ABConfig.ABMANIFEST);
+                    _manifest = manifest.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
                 }
             }
             if (_manifest != null) {
@@ -138,27 +138,22 @@ public class ABLoader : MonoBehaviour {
                     LoadAB<UnityEngine.Object>(path, depends[i]);
                 }
             }
-            if (_path.ContainsKey(path)) {
-                if (_path[path] == PathType.STR) {
-                    AssetBundle ab = AssetBundle.LoadFromFile(Application.streamingAssetsPath + path);
-                    if (ab.Contains(name)) {
-                        return ab.LoadAsset<T>(name);
-                    } else {
-                        Debug.LogError("no exits");
-                        return null;
-                    }
-                } else if (_path[path] == PathType.PER) {
-                    AssetBundle ab = AssetBundle.LoadFromFile(Application.persistentDataPath + path);
-                    if (ab.Contains(name)) {
-                        return ab.LoadAsset<T>(name);
-                    } else {
-                        Debug.LogError("no exits");
-                        return null;
-                    }
+            if (_path.ContainsKey(path) && _path[path] == PathType.PER) {
+                AssetBundle ab = AssetBundle.LoadFromFile(Application.persistentDataPath + "/" + path);
+                if (ab.Contains(name)) {
+                    return ab.LoadAsset<T>(name);
+                } else {
+                    Debug.LogError("no exits");
+                    return null;
                 }
             } else {
-                UnityEngine.Debug.Assert(false);
-                return null;
+                AssetBundle ab = AssetBundle.LoadFromFile(Application.streamingAssetsPath + "/" + path);
+                if (ab != null && ab.Contains(name)) {
+                    return ab.LoadAsset<T>(name);
+                } else {
+                    Debug.LogError("no exits");
+                    return null;
+                }
             }
         }
         return null;
@@ -178,12 +173,12 @@ public class ABLoader : MonoBehaviour {
 
     IEnumerator LoadABAsyncImp<T>(string path, string name, Action<T> cb) where T : UnityEngine.Object {
         if (_manifest == null) {
-            if (_path[path] == PathType.STR) {
-                AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(Application.streamingAssetsPath + ABConfig.ABMANIFEST);
+            if (_path.ContainsKey(ABConfig.ABMANIFEST) && _path[ABConfig.ABMANIFEST] == PathType.PER) {
+                AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(Application.persistentDataPath + ABConfig.ABMANIFEST);
                 yield return request;
                 _manifest = request.assetBundle.LoadAsset<AssetBundleManifest>(ABConfig.ABMANIFEST);
-            } else if (_path[path] == PathType.PER) {
-                AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(Application.persistentDataPath + ABConfig.ABMANIFEST);
+            } else {
+                AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(Application.streamingAssetsPath + ABConfig.ABMANIFEST);
                 yield return request;
                 _manifest = request.assetBundle.LoadAsset<AssetBundleManifest>(ABConfig.ABMANIFEST);
             }
@@ -191,16 +186,22 @@ public class ABLoader : MonoBehaviour {
         if (_manifest != null) {
             string[] depends = _manifest.GetAllDependencies(path);
             for (int i = 0; i < depends.Length; i++) {
-                if (_path[depends[i]] == PathType.STR) {
-                    AssetBundleCreateRequest depend_request = AssetBundle.LoadFromFileAsync(Application.streamingAssetsPath + depends[i]);
+                if (_path.ContainsKey(depends[i]) && _path[depends[i]] == PathType.PER) {
+                    AssetBundleCreateRequest depend_request = AssetBundle.LoadFromFileAsync(Application.persistentDataPath + "/" + depends[i]);
                     yield return depend_request;
-                } else if (_path[depends[i]] == PathType.PER) {
-                    AssetBundleCreateRequest depend_request = AssetBundle.LoadFromFileAsync(Application.persistentDataPath + depends[i]);
+                } else {
+                    AssetBundleCreateRequest depend_request = AssetBundle.LoadFromFileAsync(Application.streamingAssetsPath + "/" + depends[i]);
                     yield return depend_request;
                 }
             }
-            if (_path[path] == PathType.STR) {
-                AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(Application.streamingAssetsPath + path);
+            if (_path.ContainsKey(path) && _path[path] == PathType.PER) {
+                AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(Application.persistentDataPath + "/" + path);
+                yield return request;
+                AssetBundle ab = request.assetBundle;
+                T asset = ab.LoadAsset<T>(name);
+                cb(asset);
+            } else {
+                AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(Application.streamingAssetsPath + "/" + path);
                 yield return request;
                 AssetBundle ab = request.assetBundle;
                 T asset = ab.LoadAsset<T>(name);

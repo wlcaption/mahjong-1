@@ -8,5 +8,6 @@ using UnityEngine;
 class ABConfig {
     public static string ABPATH = Application.streamingAssetsPath;
     public static string ABMANIFEST = "StreamingAssets";
+    //public static string ABMANIFEST = "StreamingAssets.manifest";
 }
 

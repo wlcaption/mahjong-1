@@ -5,9 +5,17 @@ using System.Collections.Generic;
 
 public class App : MonoBehaviour {
 
+    public static App current = null;
+
     public StartBehaviour _start = null;
     private Bacon.App _app = null;
-    
+
+    void Awake() {
+        if (current == null) {
+            current = this;
+        }
+    }
+
     // Use this for initialization
     void Start() {
         DontDestroyOnLoad(this);

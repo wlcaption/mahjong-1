@@ -35,8 +35,6 @@ namespace Maria {
             _config = config;
             _ts = ts;
             _sharpc = new SharpC();
-            _logger = new Debug(this);
-
             _dispatcher = new EventDispatcher(this);
 
             _login = new ClientLogin(this);
@@ -101,17 +99,12 @@ namespace Maria {
             }
         }
 
-        public EventDispatcher EventDispatcher { get { return _dispatcher; } set { _dispatcher = value; } }
-
-        public Config Config { get { return _config; } set { _config = value; } }
-
-        public TimeSync TiSync { get { return _ts; } set { _ts = value; } }
-
+        public EventDispatcher EventDispatcher { get { return _dispatcher; } }
+        public Config Config { get { return _config; } }
+        public TimeSync TiSync { get { return _ts; } }
         public SharpC SharpC { get { return _sharpc; } }
 
         public User U { get { return _user; } }
-
-        public Debug Logger { get { return _logger; } }
 
         public T GetController<T>(string name) where T : Controller {
             try {
@@ -275,10 +268,6 @@ namespace Maria {
             _application.EnqueueRenderQueue(handler);
         }
 
-        public void FireCustomEvent(string eventName, object ud) {
-            _dispatcher.FireCustomEvent(eventName, ud);
-        }
-
         public void OnGateAuthed(int code) {
             if (code == 200) {
                 _authtcp = true;
@@ -296,17 +285,23 @@ namespace Maria {
         public void OnGateDisconnected() {
             EventDispatcher.FireCustomEvent(EventCustom.OnDisconnected, null);
             var controller = Top();
-            controller.OnGateDisconnected();
+            if (controller != null) {
+                controller.OnGateDisconnected();
+            }
         }
 
         public void OnUdpSync() {
             var controller = Top();
-            controller.OnUdpSync();
+            if (controller != null) {
+                controller.OnUdpSync();
+            }
         }
 
         public void OnUdpRecv(PackageSocketUdp.R r) {
             var controller = Top();
-            controller.OnUdpRecv(r);
+            if (controller != null) {
+                controller.OnUdpRecv(r);
+            }
         }
     }
 }
