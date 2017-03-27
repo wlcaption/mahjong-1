@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Maria;
 using Sproto;
+using UnityEngine;
 
 namespace Bacon {
     class MainController : Controller {
@@ -34,19 +35,35 @@ namespace Bacon {
         public override void Enter() {
             base.Enter();
             if (_service == null) {
-                _service = (InitService)_ctx.QueryService(InitService.Name);
+                _service = _ctx.QueryService<InitService>(InitService.Name);
             }
             SMActor actor = _service.SMActor;
             actor.LoadScene(_name);
 
             _ctx.SendReq<C2sProtocol.first>(C2sProtocol.first.Tag, null);
             _ctx.SendReq<C2sProtocol.fetchsysmail>(C2sProtocol.fetchsysmail.Tag, null);
+            _ctx.EnqueueRenderQueue(RenderEnter);
+        }
+
+        protected void RenderEnter() {
+            ABLoader.current.LoadResAsync<AudioClip>("Sound/MusicEx/MusicEx_Welcome", (AudioClip clip) => {
+                SoundMgr.current.PlayMusic(clip);
+            });
+        }
+
+        public override void Exit() {
+            base.Exit();
+            _ctx.EnqueueRenderQueue(RenderExit);
+        }
+
+        protected void RenderExit() {
+            SoundMgr.current.StopMusic();
         }
 
         public void First(SprotoTypeBase responseObj) {
             C2sSprotoType.first.response obj = responseObj as C2sSprotoType.first.response;
             if (_service == null) {
-                _service = (InitService)_ctx.QueryService(InitService.Name);
+                _service = _ctx.QueryService<InitService>(InitService.Name);
             }
             User u = _service.User;
             u.Name = obj.name;
@@ -62,7 +79,7 @@ namespace Bacon {
         public void FetchSysmail(SprotoTypeBase responseObj) {
             C2sSprotoType.fetchsysmail.response obj = responseObj as C2sSprotoType.fetchsysmail.response;
             if (_service == null) {
-                _service = (InitService)_ctx.QueryService(InitService.Name);
+                _service = _ctx.QueryService<InitService>(InitService.Name);
             }
 
             SysInbox sib = _service.SysInBox;
@@ -77,8 +94,8 @@ namespace Bacon {
         }
 
         public void OnSendMatch(EventCmd e) {
-            if (((AppConfig)_ctx.Config).VERSION == AppConfig.VERSION_TYPE.TEST) {
-                _ctx.Push("game");
+            if (((AppConfig)_ctx.Config).VTYPE == AppConfig.VERSION_TYPE.TEST) {
+                _ctx.Push(typeof(GameController));
             } else {
                 C2sSprotoType.match.request request = new C2sSprotoType.match.request();
                 request.mode = 1;
@@ -135,7 +152,7 @@ namespace Bacon {
 
         public void OnSendJoin(EventCmd e) {
             int roomid = (int)e.Msg["roomid"];
-            GameService service = (GameService)_ctx.QueryService(GameService.Name);
+            GameService service = _ctx.QueryService<GameService>(GameService.Name);
             service.RoomId = roomid;
 
 
@@ -156,7 +173,7 @@ namespace Bacon {
         public void FetchSysmail1(SprotoTypeBase responseObj) {
             C2sSprotoType.fetchsysmail1.response obj = responseObj as C2sSprotoType.fetchsysmail1.response;
             if (_service == null) {
-                _service = (InitService)_ctx.QueryService(InitService.Name);
+                _service = _ctx.QueryService<InitService>(InitService.Name);
             }
 
             //SysInbox sib = _service.SysInBox;
@@ -169,6 +186,14 @@ namespace Bacon {
             //    sib.Add(mail);
             //}
             _mui.SetupMsg();
+        }
+
+        public void Records(SprotoTypeBase responseObj) {
+
+        }
+
+        public void Record(SprotoTypeBase responseObj) {
+
         }
 
     }

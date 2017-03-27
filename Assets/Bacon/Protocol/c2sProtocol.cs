@@ -57,6 +57,13 @@ public class C2sProtocol : ProtocolBase {
 		Protocol.SetRequest<C2sSprotoType.rchat.request> (rchat.Tag);
 		Protocol.SetResponse<C2sSprotoType.rchat.response> (rchat.Tag);
 
+		Protocol.SetProtocol<record> (record.Tag);
+		Protocol.SetRequest<C2sSprotoType.record.request> (record.Tag);
+		Protocol.SetResponse<C2sSprotoType.record.response> (record.Tag);
+
+		Protocol.SetProtocol<records> (records.Tag);
+		Protocol.SetResponse<C2sSprotoType.records.response> (records.Tag);
+
 		Protocol.SetProtocol<restart> (restart.Tag);
 		Protocol.SetRequest<C2sSprotoType.restart.request> (restart.Tag);
 		Protocol.SetResponse<C2sSprotoType.restart.response> (restart.Tag);
@@ -139,6 +146,14 @@ public class C2sProtocol : ProtocolBase {
 
 	public class rchat {
 		public const int Tag = 13;
+	}
+
+	public class record {
+		public const int Tag = 37;
+	}
+
+	public class records {
+		public const int Tag = 36;
 	}
 
 	public class restart {

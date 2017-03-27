@@ -8,6 +8,8 @@ using UnityEngine;
 namespace Bacon {
     public class GameController : Controller {
 
+        public static readonly string Name = "game";
+
         private GameService _service = null;
         private GUIRootActor _ui = null;
         private GameObject _cardsgo = null;
@@ -16,6 +18,8 @@ namespace Bacon {
 
         private Scene _scene = null;
         private Desk _desk = null;
+
+        private int _type;
 
         // 游戏数据
         private long _fistidx = 0;
@@ -35,8 +39,9 @@ namespace Bacon {
 
         public GameController(Context ctx) : base(ctx) {
 
-            _service = (GameService)_ctx.QueryService(GameService.Name);
+            _service = _ctx.QueryService<GameService>(GameService.Name);
             _ui = new GUIRootActor(_ctx, this);
+            _type = GameType.GAME;
 
             EventListenerCmd listener1 = new EventListenerCmd(MyEventCmd.EVENT_SETUP_SCENE, SetupScene);
             _ctx.EventDispatcher.AddCmdEventListener(listener1);
@@ -84,7 +89,7 @@ namespace Bacon {
 
         public override void Enter() {
             base.Enter();
-            InitService service = (InitService)_ctx.QueryService("init");
+            InitService service = _ctx.QueryService<InitService>(InitService.Name);
             if (service != null) {
                 SMActor actor = service.SMActor;
                 actor.LoadScene("game");
@@ -101,6 +106,7 @@ namespace Bacon {
         public long LastIdx { get { return _lastidx; } set { _lastidx = value; } }
         public Card LastCard { get { return _lastCard; } set { _lastCard = value; } }
         public int TakeRound { get { return _takeround; } }
+        public int Type { get { return _type; } set { _type = value; } }
 
         public void SetupMap(EventCmd e) {
             GameObject map = e.Orgin;
@@ -136,9 +142,6 @@ namespace Bacon {
 
                         GameObject go = GameObject.Instantiate(model) as GameObject;
                         go.transform.SetParent(_cardsgo.transform);
-                        var bc = go.AddComponent<BoxCollider>();
-                        bc.center = Vector3.zero;
-                        bc.size = new Vector3(Card.Width / 2.0f, Card.Height / 2.0f, Card.Length / 2.0f);
 
                         lock (_cards) {
                             long value = ((i & 0xff) << 8) | ((j & 0x0f) << 4) | (k & 0x0f);
@@ -228,10 +231,12 @@ namespace Bacon {
             if (_oknum == 4) {
                 _oknum = 0;
                 UnityEngine.Debug.LogFormat("send step.");
-                GameService service = (GameService)_ctx.QueryService(GameService.Name);
-                C2sSprotoType.step.request request = new C2sSprotoType.step.request();
-                request.idx = service.MyIdx;
-                _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+                GameService service = _ctx.QueryService<GameService>(GameService.Name);
+                if (_type == GameType.GAME) {
+                    C2sSprotoType.step.request request = new C2sSprotoType.step.request();
+                    request.idx = service.MyIdx;
+                    _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+                }
             }
         }
 
@@ -243,7 +248,7 @@ namespace Bacon {
                     item.Value.Clear();
                 }
 
-                GameService service = (GameService)_ctx.QueryService(GameService.Name);
+                GameService service = _ctx.QueryService<GameService>(GameService.Name);
                 UnityEngine.Debug.Assert(obj.p1.Count == 28);
                 Player player1 = service.GetPlayer(1);
                 player1.Boxing(obj.p1, _cards);
@@ -283,7 +288,7 @@ namespace Bacon {
 
                 long min = Math.Min(obj.d1, obj.d2);
                 _service.GetPlayer(_fisttake).Takecardsidx = (int)(min * 2);
-                
+
                 var player = _service.GetPlayer(obj.first);
                 player.ThrowDice(obj.d1, obj.d2);
 
@@ -303,9 +308,11 @@ namespace Bacon {
         }
 
         public void OnThrowDice(EventCmd e) {
-            C2sSprotoType.step.request request = new C2sSprotoType.step.request();
-            request.idx = _service.MyIdx;
-            _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+            if (_type == GameType.GAME) {
+                C2sSprotoType.step.request request = new C2sSprotoType.step.request();
+                request.idx = _service.MyIdx;
+                _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+            }
         }
 
         public SprotoTypeBase OnDeal(SprotoTypeBase requestObj) {
@@ -436,9 +443,11 @@ namespace Bacon {
         }
 
         public void PengCard(EventCmd e) {
-            C2sSprotoType.step.request request = new C2sSprotoType.step.request();
-            request.idx = _service.MyIdx;
-            _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+            if (_type == GameType.GAME) {
+                C2sSprotoType.step.request request = new C2sSprotoType.step.request();
+                request.idx = _service.MyIdx;
+                _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+            }
         }
 
         public SprotoTypeBase OnGang(SprotoTypeBase requestObj) {
@@ -466,9 +475,11 @@ namespace Bacon {
         }
 
         public void GangCard(EventCmd e) {
-            C2sSprotoType.step.request request = new C2sSprotoType.step.request();
-            request.idx = _service.MyIdx;
-            _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+            if (_type == GameType.GAME) {
+                C2sSprotoType.step.request request = new C2sSprotoType.step.request();
+                request.idx = _service.MyIdx;
+                _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+            }
         }
 
         public SprotoTypeBase OnHu(SprotoTypeBase requestObj) {
@@ -499,9 +510,11 @@ namespace Bacon {
         public void HuCard(EventCmd e) {
             _oknum++;
             if (_oknum >= _huscount) {
-                C2sSprotoType.step.request request = new C2sSprotoType.step.request();
-                request.idx = _service.MyIdx;
-                _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+                if (_type == GameType.GAME) {
+                    C2sSprotoType.step.request request = new C2sSprotoType.step.request();
+                    request.idx = _service.MyIdx;
+                    _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+                }
             }
         }
 
@@ -522,9 +535,11 @@ namespace Bacon {
         }
 
         private void OnLeadCard(EventCmd e) {
-            C2sSprotoType.step.request request = new C2sSprotoType.step.request();
-            request.idx = _service.MyIdx;
-            _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+            if (_type == GameType.GAME) {
+                C2sSprotoType.step.request request = new C2sSprotoType.step.request();
+                request.idx = _service.MyIdx;
+                _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+            }
         }
 
         public SprotoTypeBase OnOver(SprotoTypeBase requestObj) {
@@ -677,15 +692,17 @@ namespace Bacon {
         }
 
         public void OnSendChatMsg(EventCmd e) {
-            C2sSprotoType.rchat.request request = new C2sSprotoType.rchat.request();
-            request.idx = _service.MyIdx;
-            if ((int)e.Msg["type"] == 1) {
-                request.type = 1;
-                request.textid = (long)e.Msg["code"];
-            } else if ((int)e.Msg["type"] == 2) {
+            if (_type == GameType.GAME) {
+                C2sSprotoType.rchat.request request = new C2sSprotoType.rchat.request();
+                request.idx = _service.MyIdx;
+                if ((int)e.Msg["type"] == 1) {
+                    request.type = 1;
+                    request.textid = (long)e.Msg["code"];
+                } else if ((int)e.Msg["type"] == 2) {
 
+                }
+                _ctx.SendReq<C2sProtocol.rchat>(C2sProtocol.rchat.Tag, request);
             }
-            _ctx.SendReq<C2sProtocol.rchat>(C2sProtocol.rchat.Tag, request);
         }
 
         public SprotoTypeBase OnRChat(SprotoTypeBase requestObj) {

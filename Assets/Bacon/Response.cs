@@ -30,10 +30,13 @@ namespace Maria.Network {
             _cs.RegisterResponse(C2sProtocol.rchat.Tag, rchat);
             _cs.RegisterResponse(C2sProtocol.xuanpao.Tag, xuanpao);
             _cs.RegisterResponse(C2sProtocol.xuanque.Tag, xuanque);
+
+            _cs.RegisterResponse(C2sProtocol.records.Tag, records);
+            _cs.RegisterResponse(C2sProtocol.record.Tag, record);
         }
 
         public void handshake(uint session, SprotoTypeBase responseObj) {
-            InitService service = (InitService)_ctx.QueryService("init");
+            InitService service = _ctx.QueryService<InitService>(InitService.Name);
             if (service != null) {
                 service.Handshake(responseObj);
             }
@@ -45,31 +48,31 @@ namespace Maria.Network {
         }
 
         public void create(uint session, SprotoTypeBase responseObj) {
-            GameService service = (GameService)_ctx.QueryService(GameService.Name);
+            GameService service = _ctx.QueryService<GameService>(GameService.Name);
             UnityEngine.Debug.Assert(service != null);
             service.Create(responseObj);
         }
 
         public void join(uint session, SprotoTypeBase responseObj) {
-            GameService service = (GameService)_ctx.QueryService(GameService.Name);
+            GameService service = _ctx.QueryService<GameService>(GameService.Name);
             if (service != null) {
                 service.Join(responseObj);
             }
         }
 
         public void leave(uint session, SprotoTypeBase responseObj) {
-            GameService service = (GameService)_ctx.QueryService(GameService.Name);
+            GameService service = _ctx.QueryService<GameService>(GameService.Name);
             if (service != null) {
                 service.Leave(responseObj);
             }
         }
 
-        public void call(uint session, SprotoTypeBase responseObj) {}
+        public void call(uint session, SprotoTypeBase responseObj) { }
 
-        public void lead(uint session, SprotoTypeBase responseObj) {}
+        public void lead(uint session, SprotoTypeBase responseObj) { }
 
         public void step(uint session, SprotoTypeBase responseObj) {
-            GameService service = (GameService)_ctx.QueryService(GameService.Name);
+            GameService service = _ctx.QueryService<GameService>(GameService.Name);
             if (service != null) {
                 service.Step(responseObj);
             }
@@ -97,6 +100,16 @@ namespace Maria.Network {
 
         public void xuanpao(uint session, SprotoTypeBase responseObj) { }
         public void xuanque(uint session, SprotoTypeBase responseObj) { }
-        
+
+        public void records(uint session, SprotoTypeBase responseObj) {
+            MainController ctr = _ctx.Top() as MainController;
+            ctr.Records(responseObj);
+        }
+
+        public void record(uint session, SprotoTypeBase responseObj) {
+            PlayService service = _ctx.QueryService<PlayService>(PlayService.Name);
+            UnityEngine.Debug.Assert(service != null);
+            service.record(responseObj);
+        }
     }
 }

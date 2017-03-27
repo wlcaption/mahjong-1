@@ -17,10 +17,6 @@ public class App : MonoBehaviour {
         } else {
             throw new System.Exception("not imple");
         }
-
-        ABLoader.current.LoadResAsync<AudioClip>("Sound/Special/clap", (AudioClip clip) => {
-            SoundMgr.current.PlayMusic(clip);
-        });
     }
 
     // Update is called once per frame
@@ -53,12 +49,11 @@ public class App : MonoBehaviour {
         if (_app != null) {
             _app.OnApplicationQuit();
         }
+        ABLoader.current.Unload();
     }
 
     public void Enqueue(Command cmd) {
         _app.Enqueue(cmd);
     }
-
-    public ABLoader ABLoader { get { return GetComponent<ABLoader>(); } }
 
 }

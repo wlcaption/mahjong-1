@@ -245,6 +245,8 @@ namespace Bacon {
         }
 
         protected override void RenderLead() {
+            base.RenderLead();
+
             // 设置好出牌位置后
             UnityEngine.Debug.Assert(_leadcards.Count > 0);
             Vector3 dst = CalcLeadPos(_leadcards.Count - 1);
@@ -279,6 +281,8 @@ namespace Bacon {
         }
 
         protected override void RenderPeng() {
+            base.RenderPeng();
+
             Desk desk = ((GameController)_controller).Desk;
             PGCards pg = _putcards[_putidx];
             UnityEngine.Debug.Assert(pg.Cards.Count == 3);
@@ -323,6 +327,8 @@ namespace Bacon {
         }
 
         protected override void RenderGang() {
+            base.RenderGang();
+
             Desk desk = ((GameController)_controller).Desk;
             PGCards pg = _putcards[_putidx];
             float offset = _putrightoffset;
@@ -430,6 +436,8 @@ namespace Bacon {
         }
 
         protected override void RenderHu() {
+            base.RenderHu();
+
             _go.GetComponent<global::LeftPlayer>().Head.SetHu(true);
             Command cmd = new Command(MyEventCmd.EVENT_HUCARD);
             _ctx.Enqueue(cmd);

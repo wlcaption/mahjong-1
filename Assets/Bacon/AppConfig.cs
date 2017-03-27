@@ -1,28 +1,38 @@
 ﻿using Maria;
 
-namespace Bacon
-{
-    class AppConfig : Config
-    {
+namespace Bacon {
+    class AppConfig : Config {
         public enum VERSION_TYPE {
             TEST,
             DEV,
+            PUBLIC,
         }
 
-        public VERSION_TYPE VERSION = VERSION_TYPE.DEV;
+        public AppConfig() : base() {
 
-        public AppConfig()
-            : base()
-        {
-            _loginIp = "192.168.1.123";
-            _loginPort = 3002;
-            _gateIp = "192.168.1.123";
-            _gatePort = 3301;
+            VTYPE = VERSION_TYPE.PUBLIC;
+            UpdateRes = false;
+            if (VTYPE == VERSION_TYPE.PUBLIC) {
+                _loginIp = "120.76.248.223";
+                _loginPort = 3002;
+                _gateIp = "120.76.248.223";
+                _gatePort = 3301;
+
+            } else {
+                _loginIp = "192.168.1.123";
+                _loginPort = 3002;
+                _gateIp = "192.168.1.123";
+                _gatePort = 3301;
+            }
+
 
             c2s = C2sProtocol.Instance;
             s2c = S2cProtocol.Instance;
+
         }
 
-        
+        public VERSION_TYPE VTYPE { get; set; }
+        public bool UpdateRes { get; set; }
+
     }
 }

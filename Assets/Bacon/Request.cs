@@ -47,13 +47,13 @@ namespace Bacon {
 
         #region enter room
         public SprotoTypeBase join(uint session, SprotoTypeBase requestObj) {
-            GameService service = (GameService)_ctx.QueryService(GameService.Name);
+            GameService service = _ctx.QueryService<GameService>(GameService.Name);
             UnityEngine.Debug.Assert(service != null);
             return service.OnJoin(requestObj);
         }
 
         public SprotoTypeBase leave(uint session, SprotoTypeBase requestObj) {
-            GameService service = (GameService)_ctx.QueryService(GameService.Name);
+            GameService service = _ctx.QueryService<GameService>(GameService.Name);
             UnityEngine.Debug.Assert(service != null);
             return service.OnLeave(requestObj);
         }
@@ -156,7 +156,7 @@ namespace Bacon {
         }
 
         public SprotoTypeBase radio(uint session, SprotoTypeBase requestObj) {
-            InitService service = (InitService)_ctx.QueryService(InitService.Name);
+            InitService service = _ctx.QueryService<InitService>(InitService.Name);
             return service.OnRadio(requestObj);
         }
 

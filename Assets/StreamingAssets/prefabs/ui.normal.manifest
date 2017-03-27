@@ -1,0 +1,56 @@
+ManifestFileVersion: 0
+CRC: 1482181315
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: c5ba2311786e1f6698c120bac56a87e5
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: c6ca89400dd76b0d99ac0edfb54d18ef
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 1392445389, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+- Class: 114
+  Script: {fileID: 1741964061, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+- Class: 114
+  Script: {fileID: -2095666955, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+- Class: 114
+  Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+- Class: 114
+  Script: {fileID: -1200242548, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+- Class: 114
+  Script: {fileID: -2061169968, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+- Class: 114
+  Script: {fileID: 1367256648, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+- Class: 114
+  Script: {fileID: 708705254, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 9b8eacb58aa8d1940a616b2fd4d24471, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 7973aa39f180b854ea7be038d3ef6033, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: ed0bc459e3724dc41834828e6b0ea6e5, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 128
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+- Class: 222
+  Script: {instanceID: 0}
+- Class: 224
+  Script: {instanceID: 0}
+Assets:
+- Assets/Resources/Prefabs/UI/BottomHead.prefab
+- Assets/Resources/Prefabs/UI/ChatWnd.prefab
+- Assets/Resources/Prefabs/UI/ChatItem.prefab
+Dependencies: []

@@ -7,7 +7,8 @@ using System.Text;
 namespace Bacon {
     class MyEventCmd : EventCmd {
 
-        public static uint EVENT_SETUP_STARTROOT = 108;
+        public static uint EVENT_SETUP_STARTROOT = 51;
+        public static uint EVENT_UPdATERES = 52;
 
         public static uint EVENT_ONBORN = 109;
         public static uint EVENT_ONJOIN = 110;

@@ -7,6 +7,7 @@ namespace Maria {
     public class Timer {
 
         public static string CLOCK = "CLOCK";
+        public static string PLAY = "PLAY";
 
         public delegate void CountdownCb();
         public delegate void CountdownDeltaCb(int past, int left);

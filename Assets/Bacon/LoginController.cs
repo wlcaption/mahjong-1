@@ -18,7 +18,7 @@ namespace Bacon {
         public override void Enter() {
             base.Enter();
 
-            InitService service = (InitService)_ctx.QueryService("init");
+            InitService service = _ctx.QueryService<InitService>(InitService.Name);
             if (service != null) {
                 SMActor actor = service.SMActor;
                 actor.LoadScene("login");
@@ -30,8 +30,8 @@ namespace Bacon {
         }
 
         public void LoginAuth(string server, string username, string password) {
-            if (((AppConfig)_ctx.Config).VERSION == AppConfig.VERSION_TYPE.TEST) {
-                _ctx.Push("main");
+            if (((AppConfig)_ctx.Config).VTYPE == AppConfig.VERSION_TYPE.TEST) {
+                _ctx.Push(typeof(MainController));
             } else {
                 _server = server;
                 _username = username;
@@ -43,7 +43,7 @@ namespace Bacon {
         public override void OnGateAuthed(int code) {
             base.OnGateAuthed(code);
             if (code == 200) {
-                _ctx.Push("main");
+                _ctx.Push(typeof(MainController));
             } else {
                 _loginActor.EnableCommitOk();
             }

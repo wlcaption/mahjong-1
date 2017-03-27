@@ -16,6 +16,7 @@ namespace Bacon {
         private long _online = 0;
         private Dictionary<long, Player> _playes = new Dictionary<long, Player>();
         private bool _loadedcards = false;
+        private GameController _controller = null;
 
         public GameService(Context ctx) : base(ctx) {
             EventListenerCmd listener1 = new EventListenerCmd(MyEventCmd.EVENT_LOADEDCARDS, LoadedCards);
@@ -52,7 +53,8 @@ namespace Bacon {
             _playes[obj.me.idx].Idx = (int)obj.me.idx;
             _online++;
             SendStep();
-            _ctx.Push("game");
+
+            _controller = (GameController)_ctx.Push(typeof(GameController));
         }
 
         public void Join(SprotoTypeBase responseObj) {
@@ -97,7 +99,7 @@ namespace Bacon {
                 }
             }
             SendStep();
-            _ctx.Push("game");
+            _ctx.Push(typeof(GameController));
         }
 
         public SprotoTypeBase OnJoin(SprotoTypeBase requestObj) {
@@ -171,5 +173,6 @@ namespace Bacon {
             _loadedcards = true;
             SendStep();
         }
+
     }
 }

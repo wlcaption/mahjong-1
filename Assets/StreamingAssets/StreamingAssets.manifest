@@ -1,7 +1,13 @@
 ManifestFileVersion: 0
-CRC: 3632388850
+CRC: 2666961106
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
-      Name: prefabs/ui/chatitem.normal
+      Name: sound/man.normal
+      Dependencies: {}
+    Info_1:
+      Name: sound/woman.normal
+      Dependencies: {}
+    Info_2:
+      Name: prefabs/ui.normal
       Dependencies: {}

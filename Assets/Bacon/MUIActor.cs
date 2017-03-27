@@ -18,7 +18,7 @@ namespace Bacon {
         public void SetupUI(EventCmd e) {
             _go = e.Orgin;
             if (_service == null) {
-                _service = (InitService)_ctx.QueryService(InitService.Name);
+                _service = _ctx.QueryService<InitService>(InitService.Name);
             }
             if (_first) {
                 _ctx.EnqueueRenderQueue(RenderSetupUI);
@@ -34,7 +34,7 @@ namespace Bacon {
 
         private void RenderSetupUI() {
             if (_service == null) {
-                _service = (InitService)_ctx.QueryService(InitService.Name);
+                _service = (InitService)_ctx.QueryService<InitService>(InitService.Name);
             }
             MUIRoot com = _go.GetComponent<global::MUIRoot>();
             com.SetBoard(_service.Board);

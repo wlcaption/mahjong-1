@@ -242,7 +242,7 @@ namespace Bacon {
 
         protected override void RenderTakeXuanPao() {
             if (_xuanpao == null) {
-                ResourceManager.Instance.LoadAssetAsync<GameObject>("Prefabs/UI/SxXuanPao.prefab", "SxXuanPao", (GameObject go) => {
+                ABLoader.current.LoadABAsync<GameObject>("Prefabs/UI/SxXuanPao", "SxXuanPao", (GameObject go) => {
                     GameObject inst = GameObject.Instantiate<GameObject>(go);
                     if (inst) {
                         _xuanpao = inst;
@@ -389,14 +389,15 @@ namespace Bacon {
         }
 
         protected override void RenderLead() {
-            //UnityEngine.Debug.Assert(_leadcard1.Value == _leadcard.Value);
+            base.RenderLead();
+
             UnityEngine.Debug.Assert(_leadcards.Count > 0);
             Vector3 dst = CalcLeadPos(_leadcards.Count - 1);
             _leadcard.Go.transform.localPosition = dst;
             _leadcard.Go.transform.localRotation = _upv;
             dst.y = dst.y + 0.1f;
             ((GameController)_controller).Desk.RenderChangeCursor(dst);
-
+            
             if (_leadcard.Value != _holdcard.Value) {
                 _go.GetComponent<global::BottomPlayer>().Remove(_leadcard);
                 _go.GetComponent<global::BottomPlayer>().Add(_holdcard);
@@ -464,6 +465,8 @@ namespace Bacon {
         }
 
         protected override void RenderPeng() {
+            base.RenderPeng();
+
             Desk desk = ((GameController)_controller).Desk;
             PGCards pg = _putcards[_putidx];
             UnityEngine.Debug.Assert(pg.Cards.Count == 3);
@@ -508,6 +511,8 @@ namespace Bacon {
         }
 
         protected override void RenderGang() {
+            base.RenderGang();
+
             Desk desk = ((GameController)_controller).Desk;
             PGCards pg = _putcards[_putidx];
             float offset = _putrightoffset;
@@ -620,6 +625,8 @@ namespace Bacon {
         }
 
         protected override void RenderHu() {
+            base.RenderHu();
+
             _go.GetComponent<global::BottomPlayer>().Head.SetHu(true);
             Command cmd = new Command(MyEventCmd.EVENT_HUCARD);
             _ctx.Enqueue(cmd);

@@ -62,18 +62,18 @@ public class SoundMgr : MonoBehaviour {
         }
     }
 
+    public void StopMusic() {
+        gameObject.GetComponent<AudioSource>().Stop();
+    }
+
     public void PlaySound(GameObject go, AudioClip clip) {
         _soundGo = go;
         _soundClip = clip;
-        if (clip == null) {
-            if (_sound > 0.0f) {
-                go.GetComponent<AudioSource>().Play();
-            }
-        } else {
+        if (clip != null) {
             go.GetComponent<AudioSource>().clip = clip;
-            if (_sound > 0.0f) {
-                go.GetComponent<AudioSource>().Play();
-            }
+        }
+        if (_sound > 0.0f) {
+            go.GetComponent<AudioSource>().Play();
         }
     }
 }

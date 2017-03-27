@@ -8,9 +8,9 @@ using UnityEngine;
 namespace Bacon {
     public class Card : Maria.Actor, IComparable<Card> {
 
-        public static float Width = 0.08f;
-        public static float Height = 0.05f;
-        public static float Length = 0.14f;
+        public static float Width = 0.074f;
+        public static float Height = 0.054f;
+        public static float Length = 0.1f;
 
         public enum CardType {
             Crak = 1,

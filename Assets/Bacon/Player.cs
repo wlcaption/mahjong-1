@@ -14,6 +14,9 @@ namespace Bacon {
         protected Quaternion _backv = Quaternion.identity;
 
         protected int _idx;
+        protected int _sex; // 1, 男； 2， 女
+        protected int _chip;
+
         protected long _d1;
         protected long _d2;
 
@@ -360,7 +363,30 @@ namespace Bacon {
             _ctx.EnqueueRenderQueue(RenderLead);
         }
 
-        protected virtual void RenderLead() { }
+        protected virtual void RenderLead() {
+            string prefix = "Sound/";
+            string path = prefix;
+            string name = string.Empty;
+            if (_sex == 1) {
+                path += "Man";
+            } else {
+                path += "Woman";
+            }
+
+            if (_leadcard.Type == Card.CardType.Bam) {
+                name = "bam";
+            } else if (_leadcard.Type == Card.CardType.Crak) {
+                name = "crak";
+            } else if (_leadcard.Type == Card.CardType.Dot) {
+                name = "dot";
+            }
+            name += string.Format("{0}", _leadcard.Num);
+
+            ABLoader.current.LoadABAsync<AudioClip>(path.ToLower(), name, (AudioClip clip) => {
+                SoundMgr.current.PlaySound(_leadcard.Go, clip);
+            });
+        }
+
         protected virtual void RenderSortCardsToDo(Action cb) {
             int count = 0;
             for (int i = 0; i < _cards.Count; i++) {
@@ -427,7 +453,22 @@ namespace Bacon {
             _ctx.EnqueueRenderQueue(RenderPeng);
         }
 
-        protected virtual void RenderPeng() { }
+        protected virtual void RenderPeng() {
+            string prefix = "Sound/";
+            string path = prefix;
+            string name = string.Empty;
+            if (_sex == 1) {
+                path += "Man";
+            } else {
+                path += "Woman";
+            }
+
+            name = "peng";
+
+            ABLoader.current.LoadABAsync<AudioClip>(path.ToLower(), name, (AudioClip clip) => {
+                SoundMgr.current.PlaySound(_leadcard.Go, clip);
+            });
+        }
 
         public void Gang(long code, long c, long hor, Player player, Card card) {
             if (code == OpCodes.OPCODE_ZHIGANG) {
@@ -537,14 +578,44 @@ namespace Bacon {
             }
         }
 
-        protected virtual void RenderGang() { }
+        protected virtual void RenderGang() {
+            string prefix = "Sound/";
+            string path = prefix;
+            string name = string.Empty;
+            if (_sex == 1) {
+                path += "Man";
+            } else {
+                path += "Woman";
+            }
+
+            name = "gang";
+
+            ABLoader.current.LoadABAsync<AudioClip>(path.ToLower(), name, (AudioClip clip) => {
+                SoundMgr.current.PlaySound(_leadcard.Go, clip);
+            });
+        }
 
         public void Hu(long code, long c, Card card, long jiao) {
             ((GameController)_controller).CurIdx = _idx;
             _ctx.EnqueueRenderQueue(RenderHu);
         }
 
-        protected virtual void RenderHu() { }
+        protected virtual void RenderHu() {
+            string prefix = "Sound/";
+            string path = prefix;
+            string name = string.Empty;
+            if (_sex == 1) {
+                path += "Man";
+            } else {
+                path += "Woman";
+            }
+
+            name = "hu";
+
+            ABLoader.current.LoadABAsync<AudioClip>(path.ToLower(), name, (AudioClip clip) => {
+                SoundMgr.current.PlaySound(_leadcard.Go, clip);
+            });
+        }
 
         public void WinAndLose(long chip) {
             _wal = chip;

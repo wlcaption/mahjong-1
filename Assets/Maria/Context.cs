@@ -200,15 +200,27 @@ namespace Maria {
             return null;
         }
 
-        public void Push(string name) {
-            var ctr = _hash[name];
-            Logger.Assert(ctr != null);
-            _stack.Push(ctr);
-            ctr.Enter();
+        public Controller Push(Type type) {
+            Controller controller = (Controller)Activator.CreateInstance(type, this);
+            if (_stack.Count > 0) {
+                _stack.Peek().Exit();
+            }
+            _stack.Push(controller);
+            controller.Enter();
+            return controller;
         }
 
-        public void Pop() {
-            _stack.Pop();
+        public Controller Pop() {
+            Controller controller = null;
+            if (_stack.Count > 0) {
+                controller = _stack.Peek();
+                controller.Exit();
+                _stack.Pop();
+            }
+            if (_stack.Count > 0) {
+                _stack.Peek().Enter();
+            }
+            return controller;
         }
 
         public void Countdown(string name, int cd, Timer.CountdownDeltaCb dcb, Timer.CountdownCb cb) {
@@ -248,9 +260,9 @@ namespace Maria {
             }
         }
 
-        public Service QueryService(string name) {
+        public T QueryService<T>(string name) where T : Service {
             if (_services.ContainsKey(name)) {
-                return _services[name];
+                return _services[name] as T;
             }
             return null;
         }

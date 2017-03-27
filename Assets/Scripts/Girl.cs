@@ -33,14 +33,14 @@ public class Girl : MonoBehaviour {
 #elif UNITY_IOS || UNITY_ANDROID
         if (Input.touchCount > 0) {
             if (Input.touches[0].phase == TouchPhase.Began) {
-                _spos = Input.touches[0].position;
+                _lastPos = Input.touches[0].position;
             } else if (Input.touches[0].phase == TouchPhase.Moved) {
                 float deg = Input.touches[0].deltaPosition.x / 60;
                 transform.Rotate(Vector3.up, deg);
             } else if (Input.touches[1].phase == TouchPhase.Ended) {
-
             }
         }
 #endif
-        }
+
+    }
 }

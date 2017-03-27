@@ -8,22 +8,27 @@ namespace Bacon {
         public StartActor(Context ctx, Controller controller) : base(ctx, controller) {
             EventListenerCmd listener1 = new EventListenerCmd(Bacon.MyEventCmd.EVENT_SETUP_STARTROOT, SetupStartRoot);
             _ctx.EventDispatcher.AddCmdEventListener(listener1);
+
+            EventListenerCmd listener2 = new EventListenerCmd(Bacon.MyEventCmd.EVENT_UPdATERES, CountdownCb);
+            _ctx.EventDispatcher.AddCmdEventListener(listener2);
         }
 
         private void SetupStartRoot(EventCmd e) {
             _go = e.Orgin;
-            _ctx.Countdown("startcontroller", 2, null, CountdownCb);
-
-        }
-
-        private void CountdownCb() {
-            _ctx.Push("login");
-        }
-
-        private void OnRecv(byte[] buffer, int start, int len) {
-            for (int i = 0; i < len; i++) {
-                UnityEngine.Debug.Log(string.Format("{0}", buffer[i]));
+            if (((AppConfig)_ctx.Config).UpdateRes) {
+                _ctx.EnqueueRenderQueue(RenderUpdateRes);
+            } else {
+                _ctx.Push(typeof(LoginController));
             }
         }
+
+        public void RenderUpdateRes() {
+            _go.GetComponent<StartBehaviour>().UpdateRes();
+        }
+
+        private void CountdownCb(EventCmd e) {
+            _ctx.Push(typeof(LoginController));
+        }
+
     }
 }

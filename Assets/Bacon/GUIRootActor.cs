@@ -21,7 +21,7 @@ namespace Bacon {
         }
 
         private void RenderRoomId() {
-            GameService service = (GameService)_ctx.QueryService(GameService.Name);
+            GameService service = _ctx.QueryService<GameService>(GameService.Name);
             _go.GetComponent<GUIRoot>().InitUI((int)service.RoomId);
         }
 
@@ -43,7 +43,7 @@ namespace Bacon {
 
         private void OnSendRestart(EventCmd e) {
             UnityEngine.Debug.LogFormat("send restart.");
-            GameService service = (GameService)_ctx.QueryService(GameService.Name);
+            GameService service = _ctx.QueryService<GameService>(GameService.Name);
             C2sSprotoType.restart.request request = new C2sSprotoType.restart.request();
             request.idx = service.MyIdx;
             _ctx.SendReq<C2sProtocol.restart>(C2sProtocol.restart.Tag, request);

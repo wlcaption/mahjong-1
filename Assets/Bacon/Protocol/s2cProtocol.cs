@@ -72,6 +72,9 @@ public class S2cProtocol : ProtocolBase {
 		Protocol.SetRequest<S2cSprotoType.restart.request> (restart.Tag);
 		Protocol.SetResponse<S2cSprotoType.restart.response> (restart.Tag);
 
+		Protocol.SetProtocol<roomover> (roomover.Tag);
+		Protocol.SetResponse<S2cSprotoType.roomover.response> (roomover.Tag);
+
 		Protocol.SetProtocol<shuffle> (shuffle.Tag);
 		Protocol.SetRequest<S2cSprotoType.shuffle.request> (shuffle.Tag);
 		Protocol.SetResponse<S2cSprotoType.shuffle.response> (shuffle.Tag);
@@ -167,6 +170,10 @@ public class S2cProtocol : ProtocolBase {
 
 	public class restart {
 		public const int Tag = 16;
+	}
+
+	public class roomover {
+		public const int Tag = 23;
 	}
 
 	public class shuffle {
