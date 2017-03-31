@@ -19,6 +19,10 @@ namespace Bacon {
             _cs.RegisterRequest(S2cProtocol.shuffle.Tag, shuffle);
             _cs.RegisterRequest(S2cProtocol.dice.Tag, dice);
             _cs.RegisterRequest(S2cProtocol.deal.Tag, deal);
+            _cs.RegisterRequest(S2cProtocol.take_xuanpao.Tag, take_xuanpao);
+            _cs.RegisterRequest(S2cProtocol.take_xuanque.Tag, take_xuanque);
+            _cs.RegisterRequest(S2cProtocol.xuanpao.Tag, xuanpao);
+            _cs.RegisterRequest(S2cProtocol.xuanque.Tag, xuanque);
             _cs.RegisterRequest(S2cProtocol.call.Tag, call);
             _cs.RegisterRequest(S2cProtocol.take_turn.Tag, take_turn);
 
@@ -28,14 +32,12 @@ namespace Bacon {
             _cs.RegisterRequest(S2cProtocol.lead.Tag, lead);
 
             _cs.RegisterRequest(S2cProtocol.over.Tag, over);
+            _cs.RegisterRequest(S2cProtocol.settle.Tag, settle);
+            _cs.RegisterRequest(S2cProtocol.final_settle.Tag, final_settle);
             _cs.RegisterRequest(S2cProtocol.restart.Tag, restart);
             _cs.RegisterRequest(S2cProtocol.take_restart.Tag, take_restart);
-            _cs.RegisterRequest(S2cProtocol.take_xuanpao.Tag, take_xuanpao);
-            _cs.RegisterRequest(S2cProtocol.take_xuanque.Tag, take_xuanque);
-            _cs.RegisterRequest(S2cProtocol.xuanpao.Tag, xuanpao);
-            _cs.RegisterRequest(S2cProtocol.xuanque.Tag, xuanque);
-            _cs.RegisterRequest(S2cProtocol.rchat.Tag, rchat);
 
+            _cs.RegisterRequest(S2cProtocol.rchat.Tag, rchat);
             _cs.RegisterRequest(S2cProtocol.radio.Tag, radio);
         }
 
@@ -85,6 +87,26 @@ namespace Bacon {
             return controller.OnDeal(requestObj);
         }
 
+        public SprotoTypeBase take_xuanpao(uint session, SprotoTypeBase requestObj) {
+            GameController controller = _ctx.Top() as GameController;
+            return controller.OnTakeXuanPao(requestObj);
+        }
+
+        public SprotoTypeBase xuanpao(uint session, SprotoTypeBase requestObj) {
+            GameController controller = _ctx.Top() as GameController;
+            return controller.OnXuanPao(requestObj);
+        }
+
+        public SprotoTypeBase take_xuanque(uint session, SprotoTypeBase requestObj) {
+            GameController controller = _ctx.Top() as GameController;
+            return controller.OnTakeXuanQue(requestObj);
+        }
+
+        public SprotoTypeBase xuanque(uint session, SprotoTypeBase requestObj) {
+            GameController controller = _ctx.Top() as GameController;
+            return controller.OnXuanQue(requestObj);
+        }
+
         public SprotoTypeBase take_turn(uint session, SprotoTypeBase requestObj) {
             GameController controller = _ctx.Top() as GameController;
             return controller.OnTakeTurn(requestObj);
@@ -120,6 +142,16 @@ namespace Bacon {
             return controller.OnOver(requestObj);
         }
 
+        public SprotoTypeBase settle(uint session, SprotoTypeBase requestObj) {
+            GameController controller = _ctx.Top() as GameController;
+            return controller.OnSettle(requestObj);
+        }
+
+        public SprotoTypeBase final_settle(uint session, SprotoTypeBase requestObj) {
+            GameController controller = _ctx.Top() as GameController;
+            return controller.OnFinalSettle(requestObj);
+        }
+
         public SprotoTypeBase restart(uint session, SprotoTypeBase requestObj) {
             GameController controller = _ctx.Top() as GameController;
             return controller.OnRestart(requestObj);
@@ -128,26 +160,6 @@ namespace Bacon {
         public SprotoTypeBase take_restart(uint session, SprotoTypeBase requestObj) {
             GameController controller = _ctx.Top() as GameController;
             return controller.OnTakeRestart(requestObj);
-        }
-
-        public SprotoTypeBase take_xuanpao(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
-            return controller.OnTakeXuanPao(requestObj);
-        }
-
-        public SprotoTypeBase xuanpao(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
-            return controller.OnXuanPao(requestObj);
-        }
-
-        public SprotoTypeBase take_xuanque(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
-            return controller.OnTakeXuanQue(requestObj);
-        }
-
-        public SprotoTypeBase xuanque(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
-            return controller.OnXuanQue(requestObj);
         }
 
         public SprotoTypeBase rchat(uint session, SprotoTypeBase requestObj) {

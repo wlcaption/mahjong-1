@@ -16,6 +16,15 @@ public class RightPlayerHead : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
+        
+    }
+
+    // Update is called once per frame
+    void Update() {
+
+    }
+
+    public void Init() {
         SetGold(0);
         _Leave.SetActive(false);
         _Mark.SetActive(false);
@@ -23,11 +32,6 @@ public class RightPlayerHead : MonoBehaviour {
         _Hu.SetActive(false);
         _WAL.SetActive(false);
         _Ready.SetActive(false);
-    }
-
-    // Update is called once per frame
-    void Update() {
-
     }
 
     public void Show() {

@@ -17,7 +17,16 @@ public class BottomPlayerHead : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
+    }
+
+    // Update is called once per frame
+    void Update() {
+
+    }
+
+    public void Init() {
         SetGold(0);
+        UnityEngine.Debug.Log("1");
         _Leave.SetActive(false);
         _Mark.SetActive(false);
         _Say.SetActive(false);
@@ -25,11 +34,6 @@ public class BottomPlayerHead : MonoBehaviour {
         _WAL.SetActive(false);
         _Ready.SetActive(false);
         _Tips.SetActive(false);
-    }
-
-    // Update is called once per frame
-    void Update() {
-
     }
 
     public void Show() {
@@ -46,6 +50,7 @@ public class BottomPlayerHead : MonoBehaviour {
 
     public void SetGold(int num) {
         string txt = string.Format("{0}", num);
+        UnityEngine.Debug.Log(txt);
         _Gold.text = txt;
     }
 

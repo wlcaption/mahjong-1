@@ -17,12 +17,10 @@ namespace Bacon {
 
         private void SetupGuiRoot(EventCmd e) {
             _go = e.Orgin;
-            _ctx.EnqueueRenderQueue(RenderRoomId);
         }
 
-        private void RenderRoomId() {
-            GameService service = _ctx.QueryService<GameService>(GameService.Name);
-            _go.GetComponent<GUIRoot>().InitUI((int)service.RoomId);
+        public void RenderRoomId(int roomid) {
+            _go.GetComponent<GUIRoot>().InitUI(roomid);
         }
 
         public void ShowOver() {

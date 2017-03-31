@@ -101,6 +101,7 @@ namespace Bacon {
         }
 
         public Desk Desk { get { return _desk; } }
+        public Scene Scene { get { return _scene; } }
 
         public long CurIdx { get { return _curidx; } set { _curidx = value; } }
         public long LastIdx { get { return _lastidx; } set { _lastidx = value; } }
@@ -119,7 +120,7 @@ namespace Bacon {
             _ctx.EnqueueRenderQueue(RenderLoadCard);
         }
 
-        public void RenderLoadCard() {
+        private void RenderLoadCard() {
             _cardsgo = _scene.Go.transform.FindChild("cards").gameObject;
             string prefix = "Prefabs/Mahjongs/";
             string folder = string.Empty;
@@ -157,6 +158,14 @@ namespace Bacon {
 
             Command cmd = new Command(MyEventCmd.EVENT_LOADEDCARDS);
             _ctx.Enqueue(cmd);
+        }
+
+        public void FlushUI() {
+            _ctx.EnqueueRenderQueue(RenderFlushUI);
+        }
+
+        private void RenderFlushUI() {
+            _ui.RenderRoomId((int)_service.RoomId);
         }
 
         public bool TakeCard(out Card card) {
@@ -209,11 +218,11 @@ namespace Bacon {
 
         public SprotoTypeBase OnReady(SprotoTypeBase requestObj) {
             try {
-                for (int i = 1; i <= 4; i++) {
-                    _service.GetPlayer(i).Controller = this;
-                }
                 _oknum = 0;
-                _scene.SetupPlayer();
+
+                C2sSprotoType.step.request request = new C2sSprotoType.step.request();
+                request.idx = _service.MyIdx;
+                _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
 
                 S2cSprotoType.ready.response responseObj = new S2cSprotoType.ready.response();
                 responseObj.errorcode = Errorcode.SUCCESS;
@@ -367,260 +376,6 @@ namespace Bacon {
             SendStep();
         }
 
-        public void OnUpdateClock(int past, int left) {
-            _desk.UpdateClock(left);
-        }
-
-        public SprotoTypeBase OnTakeTurn(SprotoTypeBase requestObj) {
-            S2cSprotoType.take_turn.request obj = requestObj as S2cSprotoType.take_turn.request;
-            try {
-                _curidx = obj.your_turn;
-                _ctx.Countdown(Timer.CLOCK, (int)obj.countdown, OnUpdateClock, null);
-                _service.GetPlayer(obj.your_turn).TakeTurn(obj.type, obj.card);
-
-                S2cSprotoType.take_turn.response responseObj = new S2cSprotoType.take_turn.response();
-                responseObj.errorcode = Errorcode.SUCCESS;
-                return responseObj;
-            } catch (KeyNotFoundException ex) {
-                UnityEngine.Debug.LogException(ex);
-                S2cSprotoType.take_turn.response responseObj = new S2cSprotoType.take_turn.response();
-                responseObj.errorcode = Errorcode.FAIL;
-                return responseObj;
-            }
-        }
-
-        public SprotoTypeBase OnCall(SprotoTypeBase requestObj) {
-            S2cSprotoType.call.request obj = requestObj as S2cSprotoType.call.request;
-            try {
-                UnityEngine.Debug.Assert(obj.opcodes.Count > 0);
-                for (int i = 0; i < obj.opcodes.Count; i++) {
-                    CallInfo call = new CallInfo();
-                    call.Card = obj.opcodes[i].card;
-                    call.Peng = obj.opcodes[i].peng;
-                    call.Gang = obj.opcodes[i].gang;
-                    call.Hu = new CallInfo.HuInfo();
-                    call.Hu.Code = obj.opcodes[i].hu.code;
-                    call.Hu.Jiao = obj.opcodes[i].hu.jiao;
-                    call.Hu.Dian = obj.opcodes[i].hu.dian;
-                    call.Hu.Card = obj.opcodes[i].hu.card;
-
-                    Player player = _service.GetPlayer(obj.opcodes[i].idx);
-                    player.Call = call;
-                    player.SetupCall(call.Card, obj.opcodes[i].countdown);
-                }
-
-                _ctx.Countdown(Timer.CLOCK, (int)obj.opcodes[0].countdown, OnUpdateClock, null);
-
-                S2cSprotoType.call.response responseObj = new S2cSprotoType.call.response();
-                responseObj.errorcode = Errorcode.SUCCESS;
-                return responseObj;
-            } catch (Exception ex) {
-                UnityEngine.Debug.LogException(ex);
-                S2cSprotoType.call.response responseObj = new S2cSprotoType.call.response();
-                responseObj.errorcode = Errorcode.FAIL;
-                return responseObj;
-            }
-        }
-
-        public SprotoTypeBase OnPeng(SprotoTypeBase requestObj) {
-            S2cSprotoType.peng.request obj = requestObj as S2cSprotoType.peng.request;
-            try {
-                // 
-                UnityEngine.Debug.Assert(obj.code == OpCodes.OPCODE_PENG);
-                UnityEngine.Debug.Assert(obj.card == _lastCard.Value);
-
-                _service.GetPlayer(obj.idx).Peng(obj.code, obj.card, obj.hor, _service.GetPlayer(_lastidx), _lastCard);
-
-                S2cSprotoType.peng.response responseObj = new S2cSprotoType.peng.response();
-                responseObj.errorcode = Errorcode.SUCCESS;
-                return responseObj;
-            } catch (KeyNotFoundException ex) {
-                UnityEngine.Debug.LogError(ex.Message);
-                S2cSprotoType.peng.response responseObj = new S2cSprotoType.peng.response();
-                responseObj.errorcode = Errorcode.FAIL;
-                return responseObj;
-            }
-        }
-
-        public void PengCard(EventCmd e) {
-            if (_type == GameType.GAME) {
-                C2sSprotoType.step.request request = new C2sSprotoType.step.request();
-                request.idx = _service.MyIdx;
-                _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
-            }
-        }
-
-        public SprotoTypeBase OnGang(SprotoTypeBase requestObj) {
-            S2cSprotoType.gang.request obj = requestObj as S2cSprotoType.gang.request;
-            try {
-                if (OpCodes.OPCODE_ANGANG == obj.code) {
-                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_ANGANG, obj.card, obj.hor, _service.GetPlayer(obj.idx), _lastCard);
-                } else if (OpCodes.OPCODE_ZHIGANG == obj.code) {
-                    UnityEngine.Debug.Assert(_lastCard.Value == obj.card);
-                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_ZHIGANG, obj.card, obj.hor, _service.GetPlayer(_lastidx), _lastCard);
-                } else if (OpCodes.OPCODE_BUGANG == obj.code) {
-                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_BUGANG, obj.card, obj.hor, _service.GetPlayer(_lastidx), _lastCard);
-                }
-
-                S2cSprotoType.gang.response responseObj = new S2cSprotoType.gang.response();
-                responseObj.errorcode = Errorcode.SUCCESS;
-                return responseObj;
-            } catch (Exception ex) {
-                UnityEngine.Debug.LogException(ex);
-
-                S2cSprotoType.gang.response responseObj = new S2cSprotoType.gang.response();
-                responseObj.errorcode = Errorcode.SUCCESS;
-                return responseObj;
-            }
-        }
-
-        public void GangCard(EventCmd e) {
-            if (_type == GameType.GAME) {
-                C2sSprotoType.step.request request = new C2sSprotoType.step.request();
-                request.idx = _service.MyIdx;
-                _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
-            }
-        }
-
-        public SprotoTypeBase OnHu(SprotoTypeBase requestObj) {
-            S2cSprotoType.hu.request obj = requestObj as S2cSprotoType.hu.request;
-            try {
-                _oknum = 0;
-                _huscount = obj.hus.Count;
-                if (obj.hus.Count > 1) {
-                    // 一炮多响
-                }
-                for (int i = 0; i < obj.hus.Count; i++) {
-                    Player player = _service.GetPlayer(obj.hus[i].idx);
-                    player.Hu(obj.hus[i].code, obj.hus[i].card, _lastCard, obj.hus[i].jiao);
-                }
-
-                S2cSprotoType.hu.response responseObj = new S2cSprotoType.hu.response();
-                responseObj.errorcode = Errorcode.SUCCESS;
-                return responseObj;
-            } catch (Exception ex) {
-                UnityEngine.Debug.LogException(ex);
-
-                S2cSprotoType.hu.response responseObj = new S2cSprotoType.hu.response();
-                responseObj.errorcode = Errorcode.SUCCESS;
-                return responseObj;
-            }
-        }
-
-        public void HuCard(EventCmd e) {
-            _oknum++;
-            if (_oknum >= _huscount) {
-                if (_type == GameType.GAME) {
-                    C2sSprotoType.step.request request = new C2sSprotoType.step.request();
-                    request.idx = _service.MyIdx;
-                    _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
-                }
-            }
-        }
-
-        public SprotoTypeBase OnLead(SprotoTypeBase requestObj) {
-            S2cSprotoType.lead.request obj = requestObj as S2cSprotoType.lead.request;
-            try {
-                _service.GetPlayer(obj.idx).Lead(obj.card);
-
-                S2cSprotoType.lead.response responseObj = new S2cSprotoType.lead.response();
-                responseObj.errorcode = Errorcode.SUCCESS;
-                return responseObj;
-            } catch (Exception ex) {
-                UnityEngine.Debug.LogException(ex);
-                S2cSprotoType.lead.response responseObj = new S2cSprotoType.lead.response();
-                responseObj.errorcode = Errorcode.FAIL;
-                return responseObj;
-            }
-        }
-
-        private void OnLeadCard(EventCmd e) {
-            if (_type == GameType.GAME) {
-                C2sSprotoType.step.request request = new C2sSprotoType.step.request();
-                request.idx = _service.MyIdx;
-                _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
-            }
-        }
-
-        public SprotoTypeBase OnOver(SprotoTypeBase requestObj) {
-            S2cSprotoType.over.request obj = requestObj as S2cSprotoType.over.request;
-            try {
-                _service.Foreach((Player player) => {
-                    player.Over();
-                });
-
-                _ui.ShowOver();
-
-                S2cSprotoType.over.response responseObj = new S2cSprotoType.over.response();
-                responseObj.errorcode = Errorcode.SUCCESS;
-                return responseObj;
-            } catch (Exception ex) {
-                UnityEngine.Debug.LogException(ex);
-                S2cSprotoType.over.response responseObj = new S2cSprotoType.over.response();
-                responseObj.errorcode = Errorcode.FAIL;
-                return responseObj;
-            }
-        }
-
-        public SprotoTypeBase OnRestart(SprotoTypeBase requestObj) {
-            S2cSprotoType.restart.request obj = requestObj as S2cSprotoType.restart.request;
-            try {
-
-                _service.GetPlayer(obj.idx).Restart();
-
-                S2cSprotoType.restart.response responseObj = new S2cSprotoType.restart.response();
-                responseObj.errorcode = Errorcode.SUCCESS;
-                return responseObj;
-            } catch (Exception ex) {
-                UnityEngine.Debug.LogException(ex);
-                S2cSprotoType.restart.response responseObj = new S2cSprotoType.restart.response();
-                responseObj.errorcode = Errorcode.FAIL;
-                return responseObj;
-            }
-        }
-
-        public SprotoTypeBase OnTakeRestart(SprotoTypeBase requestObj) {
-            try {
-                _fistidx = 0;
-                _fisttake = 0;
-
-                _curidx = 0;
-                _curtake = 0;
-
-                _huscount = 0;
-                _oknum = 0;
-                _take1time = 0;
-                _takeround = 0;
-                _takepoint = 0;  // 最多是6 
-
-                _lastidx = 0;
-                _lastCard = null;
-
-                foreach (var item in _cards) {
-                    item.Value.Clear();
-                }
-
-                _service.Foreach((Player player) => {
-                    player.TakeRestart();
-                });
-
-                {
-                    C2sSprotoType.step.request request = new C2sSprotoType.step.request();
-                    request.idx = _service.MyIdx;
-                    _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
-                }
-
-                S2cSprotoType.take_restart.response responseObj = new S2cSprotoType.take_restart.response();
-                responseObj.errorcode = Errorcode.SUCCESS;
-                return responseObj;
-            } catch (Exception ex) {
-                UnityEngine.Debug.LogException(ex);
-                S2cSprotoType.take_restart.response responseObj = new S2cSprotoType.take_restart.response();
-                responseObj.errorcode = Errorcode.FAIL;
-                return responseObj;
-            }
-        }
-
         public SprotoTypeBase OnTakeXuanPao(SprotoTypeBase requestObj) {
             S2cSprotoType.take_xuanpao.request obj = requestObj as S2cSprotoType.take_xuanpao.request;
             try {
@@ -686,6 +441,530 @@ namespace Bacon {
             } catch (Exception ex) {
                 UnityEngine.Debug.LogException(ex);
                 S2cSprotoType.xuanque.response responseObj = new S2cSprotoType.xuanque.response();
+                responseObj.errorcode = Errorcode.FAIL;
+                return responseObj;
+            }
+        }
+
+        public void OnUpdateClock(int past, int left) {
+            _desk.UpdateClock(left);
+        }
+
+        public SprotoTypeBase OnTakeTurn(SprotoTypeBase requestObj) {
+            S2cSprotoType.take_turn.request obj = requestObj as S2cSprotoType.take_turn.request;
+            try {
+                _service.Foreach((Player player) => {
+                    player.ClearCall();
+                });
+
+                _curidx = obj.your_turn;
+                _ctx.Countdown(Timer.CLOCK, (int)obj.countdown, OnUpdateClock, null);
+                _service.GetPlayer(obj.your_turn).TakeTurn(obj.type, obj.card);
+
+                S2cSprotoType.take_turn.response responseObj = new S2cSprotoType.take_turn.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (KeyNotFoundException ex) {
+                UnityEngine.Debug.LogException(ex);
+                S2cSprotoType.take_turn.response responseObj = new S2cSprotoType.take_turn.response();
+                responseObj.errorcode = Errorcode.FAIL;
+                return responseObj;
+            }
+        }
+
+        public SprotoTypeBase OnCall(SprotoTypeBase requestObj) {
+            S2cSprotoType.call.request obj = requestObj as S2cSprotoType.call.request;
+            try {
+                _service.Foreach((Player player) => {
+                    player.ClearCall();
+                });
+
+                UnityEngine.Debug.Assert(obj.opcodes.Count > 0);
+                for (int i = 0; i < obj.opcodes.Count; i++) {
+                    CallInfo call = new CallInfo();
+                    call.Card = obj.opcodes[i].card;
+                    call.Dian = obj.opcodes[i].dian;
+                    call.Peng = obj.opcodes[i].peng;
+                    call.Gang = obj.opcodes[i].gang;
+
+                    call.Hu = new CallInfo.HuInfo();
+                    call.Hu.Card = obj.opcodes[i].hu.card;
+                    call.Hu.Code = obj.opcodes[i].hu.code;
+                    call.Hu.Jiao = obj.opcodes[i].hu.jiao;
+                    call.Hu.Gang = obj.opcodes[i].hu.gang;
+                    call.Hu.Dian = obj.opcodes[i].hu.dian;
+
+                    Player player = _service.GetPlayer(obj.opcodes[i].idx);
+                    player.Call = call;
+                    player.SetupCall(obj.opcodes[i].take, obj.opcodes[i].countdown);
+                }
+
+                _ctx.Countdown(Timer.CLOCK, (int)obj.opcodes[0].countdown, OnUpdateClock, null);
+
+                S2cSprotoType.call.response responseObj = new S2cSprotoType.call.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
+                S2cSprotoType.call.response responseObj = new S2cSprotoType.call.response();
+                responseObj.errorcode = Errorcode.FAIL;
+                return responseObj;
+            }
+        }
+
+        public SprotoTypeBase OnPeng(SprotoTypeBase requestObj) {
+            S2cSprotoType.peng.request obj = requestObj as S2cSprotoType.peng.request;
+            try {
+                // 
+                UnityEngine.Debug.Assert(obj.code == OpCodes.OPCODE_PENG);
+                UnityEngine.Debug.Assert(obj.card == _lastCard.Value);
+
+                _service.Foreach((Player player) => {
+                    player.ClearCall();
+                });
+
+                _service.GetPlayer(obj.idx).Peng(obj.code, obj.card, obj.hor, _service.GetPlayer(_lastidx), _lastCard);
+
+                S2cSprotoType.peng.response responseObj = new S2cSprotoType.peng.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (KeyNotFoundException ex) {
+                UnityEngine.Debug.LogError(ex.Message);
+                S2cSprotoType.peng.response responseObj = new S2cSprotoType.peng.response();
+                responseObj.errorcode = Errorcode.FAIL;
+                return responseObj;
+            }
+        }
+
+        public void PengCard(EventCmd e) {
+            if (_type == GameType.GAME) {
+                C2sSprotoType.step.request request = new C2sSprotoType.step.request();
+                request.idx = _service.MyIdx;
+                _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+            }
+        }
+
+        public SprotoTypeBase OnGang(SprotoTypeBase requestObj) {
+            S2cSprotoType.gang.request obj = requestObj as S2cSprotoType.gang.request;
+            try {
+                _service.Foreach((Player player) => {
+                    player.ClearCall();
+                    player.ClearSettle();
+                });
+
+                if (OpCodes.OPCODE_ANGANG == obj.code) {
+                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_ANGANG, obj.card, obj.hor, _service.GetPlayer(obj.idx), _lastCard);
+                } else if (OpCodes.OPCODE_ZHIGANG == obj.code) {
+                    UnityEngine.Debug.Assert(_lastCard.Value == obj.card);
+                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_ZHIGANG, obj.card, obj.hor, _service.GetPlayer(_lastidx), _lastCard);
+                } else if (OpCodes.OPCODE_BUGANG == obj.code) {
+                    _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_BUGANG, obj.card, obj.hor, _service.GetPlayer(_lastidx), _lastCard);
+                }
+
+                _service.Foreach((Player player) => {
+                    List<S2cSprotoType.settlementitem> settle = null;
+                    long idx = 0;
+                    if (player.Idx == 1) {
+                        idx = 1;
+                        if (obj.settles.p1 != null) {
+                            settle = obj.settles.p1;
+                        }
+                    } else if (player.Idx == 2) {
+                        idx = 2;
+                        if (obj.settles.p2 != null) {
+                            settle = obj.settles.p2;
+                        }
+                    } else if (player.Idx == 3) {
+                        idx = 3;
+                        if (obj.settles.p3 != null) {
+                            settle = obj.settles.p3;
+                        }
+                    } else if (player.Idx == 4) {
+                        idx = 4;
+                        if (obj.settles.p4 != null) {
+                            settle = obj.settles.p4;
+                        }
+                    }
+                    if (settle != null && settle.Count > 0) {
+                        for (int i = 0; i < settle.Count; i++) {
+                            SettlementItem item = new SettlementItem();
+                            item.Idx = settle[i].idx;
+                            item.Chip = settle[i].chip;  // 有正负
+                            item.Left = settle[i].left;  // 以次值为准
+
+                            item.Win = settle[i].win;
+                            item.Lose = settle[i].lose;
+
+                            item.Gang = settle[i].gang;
+                            item.HuCode = settle[i].hucode;
+                            item.HuJiao = settle[i].hujiao;
+                            item.HuGang = settle[i].hugang;
+                            item.HuaZhu = settle[i].huazhu;
+                            item.DaJiao = settle[i].dajiao;
+                            item.TuiSui = settle[i].tuisui;
+
+                            _service.GetPlayer(idx).AddSettle(item);
+                        }
+                        _service.GetPlayer(idx).GangSettle();
+                    }
+                });
+
+                S2cSprotoType.gang.response responseObj = new S2cSprotoType.gang.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
+
+                S2cSprotoType.gang.response responseObj = new S2cSprotoType.gang.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            }
+        }
+
+        public void GangCard(EventCmd e) {
+            if (_type == GameType.GAME) {
+                C2sSprotoType.step.request request = new C2sSprotoType.step.request();
+                request.idx = _service.MyIdx;
+                _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+            }
+        }
+
+        public SprotoTypeBase OnHu(SprotoTypeBase requestObj) {
+            S2cSprotoType.hu.request obj = requestObj as S2cSprotoType.hu.request;
+            try {
+                _service.Foreach((Player player) => {
+                    player.ClearCall();
+                    player.ClearSettle();
+                });
+
+                _oknum = 0;
+                _huscount = obj.hus.Count;
+                if (obj.hus.Count > 1) {
+                    // 一炮多响
+                }
+
+                long dian = 0;
+                for (int i = 0; i < obj.hus.Count; i++) {
+                    S2cSprotoType.huinfo huinfo = obj.hus[i];
+                    Card card = _lastCard;
+                    if (dian == 0) {
+                        dian = huinfo.dian;
+                    } else {
+                        UnityEngine.Debug.Assert(dian == huinfo.dian);
+                    }
+
+                    Player player = _service.GetPlayer(huinfo.idx);
+                    player.Hu(obj.hus[i].code, obj.hus[i].card, obj.hus[i].jiao, obj.hus[i].gang, obj.hus[i].dian, _service.GetPlayer(obj.hus[i].dian), card);
+                }
+
+                _service.Foreach((Player player) => {
+                    List<S2cSprotoType.settlementitem> settle = null;
+                    long idx = 0;
+                    if (player.Idx == 1) {
+                        idx = 1;
+                        if (obj.settles.p1 != null) {
+                            settle = obj.settles.p1;
+                        }
+                    } else if (player.Idx == 2) {
+                        idx = 2;
+                        if (obj.settles.p2 != null) {
+                            settle = obj.settles.p2;
+                        }
+                    } else if (player.Idx == 3) {
+                        idx = 3;
+                        if (obj.settles.p3 != null) {
+                            settle = obj.settles.p3;
+                        }
+                    } else if (player.Idx == 4) {
+                        idx = 4;
+                        if (obj.settles.p4 != null) {
+                            settle = obj.settles.p4;
+                        }
+                    }
+                    if (settle != null && settle.Count > 0) {
+                        for (int i = 0; i < settle.Count; i++) {
+                            SettlementItem item = new SettlementItem();
+                            item.Idx = settle[i].idx;
+                            item.Chip = settle[i].chip;  // 有正负
+                            item.Left = settle[i].left;  // 以次值为准
+
+                            item.Win = settle[i].win;
+                            item.Lose = settle[i].lose;
+
+                            item.Gang = settle[i].gang;
+                            item.HuCode = settle[i].hucode;
+                            item.HuJiao = settle[i].hujiao;
+                            item.HuGang = settle[i].hugang;
+                            item.HuaZhu = settle[i].huazhu;
+                            item.DaJiao = settle[i].dajiao;
+                            item.TuiSui = settle[i].tuisui;
+
+                            _service.GetPlayer(idx).AddSettle(item);
+                        }
+                        _service.GetPlayer(idx).HuSettle();
+                    }
+
+                });
+
+                S2cSprotoType.hu.response responseObj = new S2cSprotoType.hu.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
+
+                S2cSprotoType.hu.response responseObj = new S2cSprotoType.hu.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            }
+        }
+
+        public void HuCard(EventCmd e) {
+            _oknum++;
+            if (_oknum >= _huscount) {
+                if (_type == GameType.GAME) {
+                    C2sSprotoType.step.request request = new C2sSprotoType.step.request();
+                    request.idx = _service.MyIdx;
+                    _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+                }
+            }
+        }
+
+        public SprotoTypeBase OnLead(SprotoTypeBase requestObj) {
+            S2cSprotoType.lead.request obj = requestObj as S2cSprotoType.lead.request;
+            try {
+                _service.GetPlayer(obj.idx).Lead(obj.card);
+
+                S2cSprotoType.lead.response responseObj = new S2cSprotoType.lead.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
+                S2cSprotoType.lead.response responseObj = new S2cSprotoType.lead.response();
+                responseObj.errorcode = Errorcode.FAIL;
+                return responseObj;
+            }
+        }
+
+        private void OnLeadCard(EventCmd e) {
+            if (_type == GameType.GAME) {
+                C2sSprotoType.step.request request = new C2sSprotoType.step.request();
+                request.idx = _service.MyIdx;
+                _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+            }
+        }
+
+        public SprotoTypeBase OnOver(SprotoTypeBase requestObj) {
+            try {
+                _service.Foreach((Player player) => {
+                    player.Over();
+                });
+
+                C2sSprotoType.step.request request = new C2sSprotoType.step.request();
+                request.idx = _service.MyIdx;
+                _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+
+                S2cSprotoType.over.response responseObj = new S2cSprotoType.over.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
+                S2cSprotoType.over.response responseObj = new S2cSprotoType.over.response();
+                responseObj.errorcode = Errorcode.FAIL;
+                return responseObj;
+            }
+        }
+
+        public SprotoTypeBase OnSettle(SprotoTypeBase requestObj) {
+            try {
+                S2cSprotoType.settle.request obj = requestObj as S2cSprotoType.settle.request;
+                _service.Foreach((Player player) => {
+                    player.ClearSettle();
+                });
+
+                _service.Foreach((Player player) => {
+                    List<S2cSprotoType.settlementitem> settle = null;
+                    long idx = 0;
+                    if (player.Idx == 1) {
+                        idx = 1;
+                        if (obj.settles.p1 != null) {
+                            settle = obj.settles.p1;
+                        }
+                    } else if (player.Idx == 2) {
+                        idx = 2;
+                        if (obj.settles.p2 != null) {
+                            settle = obj.settles.p2;
+                        }
+                    } else if (player.Idx == 3) {
+                        idx = 3;
+                        if (obj.settles.p3 != null) {
+                            settle = obj.settles.p3;
+                        }
+                    } else if (player.Idx == 4) {
+                        idx = 4;
+                        if (obj.settles.p4 != null) {
+                            settle = obj.settles.p4;
+                        }
+                    }
+                    if (settle != null && settle.Count > 0) {
+                        for (int i = 0; i < settle.Count; i++) {
+                            SettlementItem item = new SettlementItem();
+                            item.Idx = settle[i].idx;
+                            item.Chip = settle[i].chip;  // 有正负
+                            item.Left = settle[i].left;  // 以次值为准
+
+                            item.Win = settle[i].win;
+                            item.Lose = settle[i].lose;
+
+                            item.Gang = settle[i].gang;
+                            item.HuCode = settle[i].hucode;
+                            item.HuJiao = settle[i].hujiao;
+                            item.HuGang = settle[i].hugang;
+                            item.HuaZhu = settle[i].huazhu;
+                            item.DaJiao = settle[i].dajiao;
+                            item.TuiSui = settle[i].tuisui;
+
+                            _service.GetPlayer(idx).AddSettle(item);
+                        }
+                        _service.GetPlayer(idx).Settle();
+                    }
+
+                });
+
+                S2cSprotoType.settle.response responseObj = new S2cSprotoType.settle.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (Exception ex) {
+                S2cSprotoType.settle.response responseObj = new S2cSprotoType.settle.response();
+                responseObj.errorcode = Errorcode.FAIL;
+                return responseObj;
+            }
+        }
+
+        public SprotoTypeBase OnFinalSettle(SprotoTypeBase requestObj) {
+            try {
+                S2cSprotoType.final_settle.request obj = requestObj as S2cSprotoType.final_settle.request;
+
+                _ui.ShowOver();
+
+                _service.Foreach((Player player) => {
+                    player.ClearSettle();
+                });
+
+                _service.Foreach((Player player) => {
+                    List<S2cSprotoType.settlementitem> settle = null;
+                    long idx = 0;
+                    if (player.Idx == 1) {
+                        idx = 1;
+                        if (obj.settles.p1 != null) {
+                            settle = obj.settles.p1;
+                        }
+                    } else if (player.Idx == 2) {
+                        idx = 2;
+                        if (obj.settles.p2 != null) {
+                            settle = obj.settles.p2;
+                        }
+                    } else if (player.Idx == 3) {
+                        idx = 3;
+                        if (obj.settles.p3 != null) {
+                            settle = obj.settles.p3;
+                        }
+                    } else if (player.Idx == 4) {
+                        idx = 4;
+                        if (obj.settles.p4 != null) {
+                            settle = obj.settles.p4;
+                        }
+                    }
+
+                    if (settle != null && settle.Count > 0) {
+                        for (int i = 0; i < settle.Count; i++) {
+                            SettlementItem item = new SettlementItem();
+                            item.Idx = settle[i].idx;
+                            item.Chip = settle[i].chip;  // 有正负
+                            item.Left = settle[i].left;  // 以次值为准
+
+                            item.Win = settle[i].win;
+                            item.Lose = settle[i].lose;
+
+                            item.Gang = settle[i].gang;
+                            item.HuCode = settle[i].hucode;
+                            item.HuJiao = settle[i].hujiao;
+                            item.HuGang = settle[i].hugang;
+                            item.HuaZhu = settle[i].huazhu;
+                            item.DaJiao = settle[i].dajiao;
+                            item.TuiSui = settle[i].tuisui;
+
+                            _service.GetPlayer(idx).AddSettle(item);
+                        }
+
+                        _service.GetPlayer(idx).FinalSettle();
+                    }
+
+                });
+
+                S2cSprotoType.final_settle.response responseObj = new S2cSprotoType.final_settle.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (Exception ex) {
+                S2cSprotoType.final_settle.response responseObj = new S2cSprotoType.final_settle.response();
+                responseObj.errorcode = Errorcode.FAIL;
+                return responseObj;
+            }
+        }
+
+        public SprotoTypeBase OnRestart(SprotoTypeBase requestObj) {
+            S2cSprotoType.restart.request obj = requestObj as S2cSprotoType.restart.request;
+            try {
+
+                _service.GetPlayer(obj.idx).Restart();
+
+                S2cSprotoType.restart.response responseObj = new S2cSprotoType.restart.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
+                S2cSprotoType.restart.response responseObj = new S2cSprotoType.restart.response();
+                responseObj.errorcode = Errorcode.FAIL;
+                return responseObj;
+            }
+        }
+
+        public SprotoTypeBase OnTakeRestart(SprotoTypeBase requestObj) {
+            try {
+                _fistidx = 0;
+                _fisttake = 0;
+
+                _curidx = 0;
+                _curtake = 0;
+
+                _huscount = 0;
+                _oknum = 0;
+                _take1time = 0;
+                _takeround = 0;
+                _takepoint = 0;  // 最多是6 
+
+                _lastidx = 0;
+                _lastCard = null;
+
+                foreach (var item in _cards) {
+                    item.Value.Clear();
+                }
+
+                _service.Foreach((Player player) => {
+                    player.TakeRestart();
+                });
+
+                {
+                    C2sSprotoType.step.request request = new C2sSprotoType.step.request();
+                    request.idx = _service.MyIdx;
+                    _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+                }
+
+                S2cSprotoType.take_restart.response responseObj = new S2cSprotoType.take_restart.response();
+                responseObj.errorcode = Errorcode.SUCCESS;
+                return responseObj;
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
+                S2cSprotoType.take_restart.response responseObj = new S2cSprotoType.take_restart.response();
                 responseObj.errorcode = Errorcode.FAIL;
                 return responseObj;
             }

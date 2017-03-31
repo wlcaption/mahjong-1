@@ -9,6 +9,9 @@ public class StartBehaviour : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
+        ABLoader.current.LoadABAsync<AudioClip>("sound/man.normal", "peng", (AudioClip clip) => {
+            UnityEngine.Debug.Log("ok");
+        });
     }
 
     // Update is called once per frame

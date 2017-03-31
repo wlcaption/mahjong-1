@@ -16,6 +16,14 @@ public class LeftPlayerHead : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        
+    }
+	
+	// Update is called once per frame
+	void Update () {	
+	}
+
+    public void Init() {
         SetGold(0);
         _Leave.SetActive(false);
         _Mark.SetActive(false);
@@ -24,10 +32,6 @@ public class LeftPlayerHead : MonoBehaviour {
         _WAL.SetActive(false);
         _Ready.SetActive(false);
     }
-	
-	// Update is called once per frame
-	void Update () {	
-	}
 
     public void Show() {
         if (!gameObject.activeSelf) {

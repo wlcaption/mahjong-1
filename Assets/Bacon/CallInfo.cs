@@ -8,11 +8,13 @@ namespace Bacon {
         public class HuInfo {
             public long Card { get; set; }
             public long Code { get; set; }
+            public long Gang { get; set; }
             public long Jiao { get; set; }
             public long Dian { get; set; }
         }
 
         public long Card { get; set; }
+        public long Dian { get; set; }
         public long Peng { get; set; }
         public long Gang { get; set; }
         public HuInfo Hu { get; set; }

@@ -7,6 +7,7 @@ public class LeftPlayer : MonoBehaviour {
     public RootBehaviour _Root;
 
     public LeftPlayerHead Head;
+    public OverWnd OverWnd;
 
     // Use this for initialization
     void Start() {
@@ -17,6 +18,10 @@ public class LeftPlayer : MonoBehaviour {
     // Update is called once per frame
     void Update() {
 
+    }
+
+    public void Init() {
+        Head.Init();
     }
 
     public void ShowUI() {

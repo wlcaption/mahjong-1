@@ -9,8 +9,12 @@ using DG.Tweening;
 namespace Bacon {
     class LeftPlayer : Player {
 
+        private global::LeftPlayer _com;
+
         public LeftPlayer(Context ctx, GameService service)
             : base(ctx, service) {
+            _ori = Orient.LEFT;
+
             _upv = Quaternion.AngleAxis(90.0f, Vector3.up);
             _uph = Quaternion.AngleAxis(0.0f, Vector3.up);
             _downv = Quaternion.AngleAxis(90.0f, Vector3.up) * Quaternion.AngleAxis(180.0f, Vector3.forward);
@@ -22,12 +26,13 @@ namespace Bacon {
 
         private void OnSetup(EventCmd e) {
             _go = e.Orgin;
-            ((GameController)_controller).SendStep();
             _ctx.EnqueueRenderQueue(RenderSetup);
         }
 
         private void RenderSetup() {
-            _go.GetComponent<global::LeftPlayer>().ShowUI();
+            _com = _go.GetComponent<global::LeftPlayer>();
+            _com.ShowUI();
+            _com.Head.SetGold(_chip);
         }
 
         protected override Vector3 CalcPos(int pos) {
@@ -280,6 +285,10 @@ namespace Bacon {
             }
         }
 
+        protected override void RenderClearCall() {
+            _com.Head.CloseWAL();
+        }
+
         protected override void RenderPeng() {
             base.RenderPeng();
 
@@ -435,16 +444,67 @@ namespace Bacon {
             }
         }
 
+        protected override void RenderGangSettle() {
+            long chip = 0;
+            long left = 0;
+            if (_settle.Count > 0) {
+                for (int i = 0; i < _settle.Count; i++) {
+                    chip += _settle[i].Chip;
+                    left = _settle[i].Left > left ? _settle[i].Left : left;
+                }
+                _chip = (int)left;
+                _com.Head.SetGold(_chip);
+                _com.Head.ShowWAL(string.Format("{0}", chip));
+            }
+        }
+
         protected override void RenderHu() {
             base.RenderHu();
 
-            _go.GetComponent<global::LeftPlayer>().Head.SetHu(true);
+            int idx = _hucards.Count - 1;
+            Card card = _hucards[idx];
+
+            float x = _putbottomoffset + Card.Length / 2.0f;
+            float y = Card.Height / 2.0f;
+            float z = _putrightoffset + Card.Width / 2.0f + (Card.Width * idx);
+            card.Go.transform.localPosition = new Vector3(x, y, z);
+            card.Go.transform.localRotation = _upv;
+            ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(x, y + _curorMH, z));
+            
+            _com.Head.SetHu(true);
+
             Command cmd = new Command(MyEventCmd.EVENT_HUCARD);
             _ctx.Enqueue(cmd);
         }
 
-        protected override void RenderWinAndLose() {
-            _go.GetComponent<global::LeftPlayer>().Head.ShowWAL(string.Format("{0}", _wal));
+        protected override void RenderHuSettle() {
+            long chip = 0;
+            long left = 0;
+            if (_settle.Count > 0) {
+                for (int i = 0; i < _settle.Count; i++) {
+                    chip = _settle[i].Chip;
+                    left = _settle[i].Left > left ? _settle[i].Left : left;
+                }
+                _com.Head.SetGold((int)left);
+                _com.Head.ShowWAL(string.Format("{0}", chip));
+            }
+        }
+
+        protected override void RenderSettle() {
+            long chip = 0;
+            long left = 0;
+            if (_settle.Count > 0) {
+                for (int i = 0; i < _settle.Count; i++) {
+                    chip = _settle[i].Chip;
+                    left = _settle[i].Left > left ? _settle[i].Left : left;
+                }
+                _com.Head.SetGold((int)left);
+                _com.Head.ShowWAL(string.Format("{0}", chip));
+            }
+        }
+
+        protected override void RenderFinalSettle() {
+            _com.OverWnd.SettleLeft(_settle);
         }
 
         protected override void RenderOver() {
@@ -459,17 +519,17 @@ namespace Bacon {
         }
 
         protected override void RenderRestart() {
-            _go.GetComponent<global::LeftPlayer>().Head.CloseWAL();
-            _go.GetComponent<global::LeftPlayer>().Head.SetHu(false);
-            _go.GetComponent<global::LeftPlayer>().Head.SetReady(true);
+            _com.Head.CloseWAL();
+            _com.Head.SetHu(false);
+            _com.Head.SetReady(true);
         }
 
         protected override void RenderTakeRestart() {
-            _go.GetComponent<global::LeftPlayer>().Head.SetReady(false);
+            _com.Head.SetReady(false);
         }
 
         protected override void RenderSay() {
-            _go.GetComponent<global::LeftPlayer>().Say(_say);
+            _com.Say(_say);
         }
     }
 }

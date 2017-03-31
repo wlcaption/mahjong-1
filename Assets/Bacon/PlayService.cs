@@ -66,7 +66,35 @@ namespace Bacon {
                             request.code = args["code"].i;
                             request.hor = args["hor"].i;
                             request.dian = args["dian"].i;
-                            request.chip = args["chip"].i;
+                            JSONObject settles = args["settles"];
+                            request.settles = new S2cSprotoType.settles();
+
+                            JSONObject p1 = settles["p1"];
+                            request.settles.p1 = new List<S2cSprotoType.settlementitem>();
+
+                            //= new List<S2cSprotoType.settlementitem>();
+
+                            
+                            //for (int j = 0; j < settle.list.Count; j++) {
+                            //    S2cSprotoType.settlementitem item = new S2cSprotoType.settlementitem();
+                            //    item.idx = settle.list[i]["idx"].i;
+                            //    item.chip = settle.list[i]["chip"].i;
+                            //    item.left = settle.list[i]["left"].i;
+
+                            //    item.win = settle.list[i]["win"].i;
+                            //    item.lose = new List<long>();
+                            //    for (int k = 0; k < settle.list[i]["lose"].list.Count; k++) {
+                            //        item.lose[k] = settle.list[i]["lose"].list[k].i;
+                            //    }
+                            //    item.gang = settle.list[i]["gang"].i;
+                            //    item.hucode = settle.list[i]["hucode"].i;
+                            //    item.hujiao = settle.list[i]["hujiao"].i;
+                            //    item.hugang = settle.list[i]["hugang"].i;
+                            //    item.huazhu = settle.list[i]["huazhu"].i;
+                            //    item.dajiao = settle.list[i]["dajiao"].i;
+                            //    item.tuisui = settle.list[i]["tuisui"].i;
+                            //    request.settle.Add(item);
+                            //}
                             _controller.OnGang(request);
                         });
                     } else if (protocol == "hu") {
@@ -82,10 +110,35 @@ namespace Bacon {
                                 item.code = huinfo["code"].i;
                                 item.jiao = huinfo["jiao"].i;
                                 item.dian = huinfo["dian"].i;
-                                item.chip = huinfo["chip"].i;
+
+                                //item.settle = new List<S2cSprotoType.settlementitem>();
+                                //JSONObject settle = huinfo.GetField("settle");
+                                //for (int k = 0; k < settle.list.Count; k++) {
+
+                                //    S2cSprotoType.settlementitem sitem = new S2cSprotoType.settlementitem();
+                                //    sitem.idx = settle.list[i]["idx"].i;
+                                //    sitem.chip = settle.list[i]["chip"].i;
+                                //    sitem.left = settle.list[i]["left"].i;
+
+                                //    sitem.win = settle.list[i]["win"].i;
+                                //    sitem.lose = new List<long>();
+                                //    for (int m = 0; m < settle.list[k]["lose"].list.Count; m++) {
+                                //        sitem.lose[m] = settle.list[k]["lose"].list[m].i;
+                                //    }
+                                //    sitem.gang = settle.list[i]["gang"].i;
+                                //    sitem.hucode = settle.list[i]["hucode"].i;
+                                //    sitem.hujiao = settle.list[i]["hujiao"].i;
+                                //    sitem.hugang = settle.list[i]["hugang"].i;
+                                //    sitem.huazhu = settle.list[i]["huazhu"].i;
+                                //    sitem.dajiao = settle.list[i]["dajiao"].i;
+                                //    sitem.tuisui = settle.list[i]["tuisui"].i;
+
+                                //    item.settle.Add(sitem);
+                                //}
 
                                 request.hus.Add(item);
                             }
+
                             _controller.OnHu(request);
                         });
                     } else if (protocol == "shuffle") {
@@ -169,6 +222,16 @@ namespace Bacon {
                             _controller.OnDeal(request);
 
                         });
+                    } else if (protocol == "over") {
+
+                    } else if (protocol == "xuanpao") {
+
+                    } else if (protocol == "xuanque") {
+
+                    } else if (protocol == "settle") {
+
+                    } else if (protocol == "final_settle") {
+
                     }
                 }
 

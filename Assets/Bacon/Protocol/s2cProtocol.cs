@@ -18,6 +18,10 @@ public class S2cProtocol : ProtocolBase {
 		Protocol.SetRequest<S2cSprotoType.dice.request> (dice.Tag);
 		Protocol.SetResponse<S2cSprotoType.dice.response> (dice.Tag);
 
+		Protocol.SetProtocol<final_settle> (final_settle.Tag);
+		Protocol.SetRequest<S2cSprotoType.final_settle.request> (final_settle.Tag);
+		Protocol.SetResponse<S2cSprotoType.final_settle.response> (final_settle.Tag);
+
 		Protocol.SetProtocol<gang> (gang.Tag);
 		Protocol.SetRequest<S2cSprotoType.gang.request> (gang.Tag);
 		Protocol.SetResponse<S2cSprotoType.gang.response> (gang.Tag);
@@ -46,7 +50,6 @@ public class S2cProtocol : ProtocolBase {
 		Protocol.SetResponse<S2cSprotoType.match.response> (match.Tag);
 
 		Protocol.SetProtocol<over> (over.Tag);
-		Protocol.SetRequest<S2cSprotoType.over.request> (over.Tag);
 		Protocol.SetResponse<S2cSprotoType.over.response> (over.Tag);
 
 		Protocol.SetProtocol<peng> (peng.Tag);
@@ -74,6 +77,10 @@ public class S2cProtocol : ProtocolBase {
 
 		Protocol.SetProtocol<roomover> (roomover.Tag);
 		Protocol.SetResponse<S2cSprotoType.roomover.response> (roomover.Tag);
+
+		Protocol.SetProtocol<settle> (settle.Tag);
+		Protocol.SetRequest<S2cSprotoType.settle.request> (settle.Tag);
+		Protocol.SetResponse<S2cSprotoType.settle.response> (settle.Tag);
 
 		Protocol.SetProtocol<shuffle> (shuffle.Tag);
 		Protocol.SetRequest<S2cSprotoType.shuffle.request> (shuffle.Tag);
@@ -114,6 +121,10 @@ public class S2cProtocol : ProtocolBase {
 
 	public class dice {
 		public const int Tag = 11;
+	}
+
+	public class final_settle {
+		public const int Tag = 24;
 	}
 
 	public class gang {
@@ -173,6 +184,10 @@ public class S2cProtocol : ProtocolBase {
 	}
 
 	public class roomover {
+		public const int Tag = 25;
+	}
+
+	public class settle {
 		public const int Tag = 23;
 	}
 

@@ -15,7 +15,16 @@ public class TopPlayerHead : MonoBehaviour {
     public GameObject _Ready;
 
     // Use this for initialization
-    void Start () {
+    void Start() {
+
+    }
+
+    // Update is called once per frame
+    void Update() {
+
+    }
+
+    public void Init() {
         SetGold(0);
         _Leave.SetActive(false);
         _Mark.SetActive(false);
@@ -24,11 +33,6 @@ public class TopPlayerHead : MonoBehaviour {
         _WAL.SetActive(false);
         _Ready.SetActive(false);
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
     public void Show() {
         if (!gameObject.activeSelf) {

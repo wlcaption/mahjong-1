@@ -6,6 +6,7 @@ public class TopPlayer : MonoBehaviour {
 
     public RootBehaviour _Root;
     public TopPlayerHead Head;
+    public OverWnd OverWnd;
 
     // Use this for initialization
     void Start() {
@@ -16,6 +17,10 @@ public class TopPlayer : MonoBehaviour {
     // Update is called once per frame
     void Update() {
 
+    }
+
+    public void Init() {
+        Head.Init();
     }
 
     public void ShowUI() {

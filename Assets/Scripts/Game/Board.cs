@@ -14,8 +14,9 @@ public class Board : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		
-	}
+        Command cmd = new Command(MyEventCmd.EVENT_SETUP_BOARD, gameObject);
+        GetComponent<FindApp>().App.Enqueue(cmd);
+    }
 	
 	// Update is called once per frame
 	void Update () {

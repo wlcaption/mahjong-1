@@ -12,8 +12,11 @@ namespace Bacon {
         private Card _leadcard1 = null;
         private GameObject _xuanpao = null;
         private GameObject _xuanque = null;
+        private global::BottomPlayer _com;
 
         public BottomPlayer(Context ctx, GameService service) : base(ctx, service) {
+
+            _ori = Orient.BOTTOM;
 
             _upv = Quaternion.AngleAxis(0.0f, Vector3.up);
             _uph = Quaternion.AngleAxis(-90.0f, Vector3.up);
@@ -48,12 +51,15 @@ namespace Bacon {
 
         private void OnSetup(EventCmd e) {
             _go = e.Orgin;
-            ((GameController)_controller).SendStep();
             _ctx.EnqueueRenderQueue(RenderSetup);
         }
 
         private void RenderSetup() {
-            _go.GetComponent<global::BottomPlayer>().ShowUI();
+            _com = _go.GetComponent<global::BottomPlayer>();
+            _com.ShowUI();
+            _com.Head.SetGold(_chip);
+            UnityEngine.Debug.Log("2");
+            // 设置头像
         }
 
         protected override Vector3 CalcPos(int pos) {
@@ -83,10 +89,13 @@ namespace Bacon {
             C2sSprotoType.call.request request = new C2sSprotoType.call.request();
             request.op = new C2sSprotoType.opinfo();
             request.op.idx = _idx;
+
             request.op.card = Call.Card;
+            request.op.dian = Call.Dian;
             request.op.guo = OpCodes.OPCODE_NONE;
             request.op.peng = Call.Peng;
             request.op.gang = OpCodes.OPCODE_NONE;
+
             request.op.hu = new C2sSprotoType.huinfo();
             request.op.hu.idx = _idx;
             request.op.hu.code = HuType.NONE;
@@ -99,8 +108,12 @@ namespace Bacon {
             request.op = new C2sSprotoType.opinfo();
             request.op.idx = _idx;
             request.op.card = Call.Card;
+            request.op.dian = Call.Dian;
+
+            request.op.guo = OpCodes.OPCODE_NONE;
             request.op.peng = OpCodes.OPCODE_NONE;
             request.op.gang = Call.Gang;
+
             request.op.hu = new C2sSprotoType.huinfo();
             request.op.hu.idx = _idx;
             request.op.hu.code = HuType.NONE;
@@ -112,9 +125,13 @@ namespace Bacon {
             C2sSprotoType.call.request request = new C2sSprotoType.call.request();
             request.op = new C2sSprotoType.opinfo();
             request.op.idx = _idx;
+            request.op.card = Call.Card;
+            request.op.dian = Call.Dian;
+
             request.op.guo = OpCodes.OPCODE_GUO;
             request.op.peng = OpCodes.OPCODE_NONE;
             request.op.gang = OpCodes.OPCODE_NONE;
+
             request.op.hu = new C2sSprotoType.huinfo();
             request.op.hu.idx = _idx;
             request.op.hu.code = OpCodes.OPCODE_NONE;
@@ -126,15 +143,19 @@ namespace Bacon {
             C2sSprotoType.call.request request = new C2sSprotoType.call.request();
             request.op = new C2sSprotoType.opinfo();
             request.op.idx = _idx;
+            request.op.card = Call.Card;
+            request.op.dian = Call.Dian;
+
             request.op.guo = OpCodes.OPCODE_NONE;
             request.op.peng = OpCodes.OPCODE_NONE;
             request.op.gang = OpCodes.OPCODE_NONE;
 
             request.op.hu = new C2sSprotoType.huinfo();
             request.op.hu.idx = _idx;
-            request.op.hu.code = Call.Hu.Code;
             request.op.hu.card = Call.Hu.Card;
+            request.op.hu.code = Call.Hu.Code;
             request.op.hu.jiao = Call.Hu.Jiao;
+            request.op.hu.gang = Call.Hu.Gang;
             request.op.hu.dian = Call.Hu.Dian;
 
             _ctx.SendReq<C2sProtocol.call>(C2sProtocol.call.Tag, request);
@@ -297,12 +318,10 @@ namespace Bacon {
                 _go.GetComponent<global::BottomPlayer>().Head.SetMark("同");
             }
             RenderSortCardsToDo(() => {
-
             });
         }
 
         protected override void RenderTakeTurn() {
-            _go.GetComponent<global::BottomPlayer>().CloseAll();
             if (_turntype == 1) {
                 Vector3 dst = CalcPos(_cards.Count + 1);
                 dst.y = dst.y + Card.Length;
@@ -329,9 +348,12 @@ namespace Bacon {
                 if (_xuanque) {
                     _xuanque.GetComponent<XuanQue>().Close();
                 }
-                _go.GetComponent<global::BottomPlayer>().Head.ShowTips("你是庄家，请先出牌");
-                _go.GetComponent<global::BottomPlayer>().HoldCard = _holdcard.Go;
-                _go.GetComponent<global::BottomPlayer>().SwitchOnTouch();
+                _com.Head.ShowTips("你是庄家，请先出牌");
+                _com.HoldCard = _holdcard.Go;
+                _com.SwitchOnTouch();
+            } else if (_turntype == 3) {
+                _com.HoldCard = _holdcard.Go;
+                _com.SwitchOnTouch();
             }
         }
 
@@ -395,9 +417,9 @@ namespace Bacon {
             Vector3 dst = CalcLeadPos(_leadcards.Count - 1);
             _leadcard.Go.transform.localPosition = dst;
             _leadcard.Go.transform.localRotation = _upv;
-            dst.y = dst.y + 0.1f;
+            dst.y = dst.y + _curorMH;
             ((GameController)_controller).Desk.RenderChangeCursor(dst);
-            
+
             if (_leadcard.Value != _holdcard.Value) {
                 _go.GetComponent<global::BottomPlayer>().Remove(_leadcard);
                 _go.GetComponent<global::BottomPlayer>().Add(_holdcard);
@@ -429,7 +451,9 @@ namespace Bacon {
         protected override void RenderCall() {
             if (Call.Gang == OpCodes.OPCODE_ANGANG ||
                 Call.Gang == OpCodes.OPCODE_BUGANG ||
-                (Call.Hu.Code != HuType.NONE && Call.Hu.Jiao == JiaoType.ZIMO)) {
+                (Call.Hu.Code != HuType.NONE && Call.Hu.Jiao == JiaoType.ZIMO) ||
+                (Call.Hu.Code != HuType.NONE && Call.Hu.Jiao == JiaoType.DIANGANGHUA) ||
+                (Call.Hu.Code != HuType.NONE && Call.Hu.Jiao == JiaoType.ZIGANGHUA)) {
                 Vector3 dst = CalcPos(_cards.Count + 1);
                 dst.y = dst.y + Card.Length;
                 _holdcard.Go.transform.localPosition = dst;
@@ -462,6 +486,12 @@ namespace Bacon {
                 }
                 _go.GetComponent<global::BottomPlayer>().ShowGuo();
             }
+        }
+
+        protected override void RenderClearCall() {
+            _com.CloseAll();
+            _com.Head.CloseTips();
+            _com.Head.CloseWAL();
         }
 
         protected override void RenderPeng() {
@@ -624,16 +654,50 @@ namespace Bacon {
             }
         }
 
+        protected override void RenderGangSettle() {
+            long chip = 0;
+            long left = 0;
+            if (_settle.Count > 0) {
+                for (int i = 0; i < _settle.Count; i++) {
+                    chip += _settle[i].Chip;
+                    left = _settle[i].Left > left ? _settle[i].Left : left;
+                }
+                _chip = (int)left;
+                _com.Head.SetGold(_chip);
+                _com.Head.ShowWAL(string.Format("{0}", chip));
+            }
+        }
+
         protected override void RenderHu() {
             base.RenderHu();
+            int idx = _hucards.Count - 1;
+            Card card = _hucards[idx];
+            Desk desk = ((GameController)_controller).Desk;
 
-            _go.GetComponent<global::BottomPlayer>().Head.SetHu(true);
+            float x = desk.Width - (_hurightoffset + (Card.Width / 2.0f) + (Card.Width * idx));
+            float y = Card.Height / 2.0f;
+            float z = _hubottomoffset + Card.Length / 2.0f;
+            card.Go.transform.localPosition = new Vector3(x, y, z);
+            card.Go.transform.localRotation = _upv;
+            ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(x, y + _curorMH, z));
+
+            _com.Head.SetHu(true);
+
             Command cmd = new Command(MyEventCmd.EVENT_HUCARD);
             _ctx.Enqueue(cmd);
         }
 
-        protected override void RenderWinAndLose() {
-            _go.GetComponent<global::BottomPlayer>().Head.ShowTips(string.Format("{0}", _wal));
+        protected override void RenderHuSettle() {
+            long chip = 0;
+            long left = 0;
+            if (_settle.Count > 0) {
+                for (int i = 0; i < _settle.Count; i++) {
+                    chip = _settle[i].Chip;
+                    left = _settle[i].Left > left ? _settle[i].Left : left;
+                }
+                _com.Head.SetGold((int)left);
+                _com.Head.ShowWAL(string.Format("{0}", chip));
+            }
         }
 
         protected override void RenderOver() {
@@ -648,19 +712,35 @@ namespace Bacon {
             }
         }
 
+        protected override void RenderSettle() {
+            long chip = 0;
+            long left = 0;
+            if (_settle.Count > 0) {
+                for (int i = 0; i < _settle.Count; i++) {
+                    chip = _settle[i].Chip;
+                    left = _settle[i].Left > left ? _settle[i].Left : left;
+                }
+                _com.Head.SetGold((int)left);
+                _com.Head.ShowWAL(string.Format("{0}", chip));
+            }
+        }
+
+        protected override void RenderFinalSettle() {
+            _com.OverWnd.SettleBottom(_settle);
+        }
+
         protected override void RenderRestart() {
-            _go.GetComponent<global::BottomPlayer>().Head.CloseTips();
-            _go.GetComponent<global::BottomPlayer>().Head.CloseWAL();
-            _go.GetComponent<global::BottomPlayer>().Head.SetHu(false);
-            _go.GetComponent<global::BottomPlayer>().Head.SetReady(true);
+            _com.Head.CloseWAL();
+            _com.Head.SetHu(false);
+            _com.Head.SetReady(true);
         }
 
         protected override void RenderTakeRestart() {
-            _go.GetComponent<global::BottomPlayer>().Head.SetReady(false);
+            _com.Head.SetReady(false);
         }
 
         protected override void RenderSay() {
-            _go.GetComponent<global::BottomPlayer>().Say(_say);
+            _com.Say(_say);
         }
     }
 }

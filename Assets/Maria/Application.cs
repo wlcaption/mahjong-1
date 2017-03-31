@@ -27,14 +27,13 @@ namespace Maria {
         protected EventDispatcher _dispatcher = null;
         protected CoType _cotype = CoType.THREAD;
         protected XLua.LuaEnv _luaenv = new XLua.LuaEnv();
-        protected int _count = 0;
 
         public Application(global::App app) {
             _app = app;
             _tiSync = new TimeSync();
             _tiSync.LocalTime();
             _lastTi = _tiSync.LocalTime();
-            _cotype = CoType.CO;
+            _cotype = CoType.THREAD;
             if (_cotype == CoType.THREAD) {
                 _semaphore = new Semaphore(1, 1);
                 _worker = new Thread(new ThreadStart(Worker));
@@ -50,6 +49,9 @@ namespace Maria {
                     return null;
                 }
             });
+            _luaenv.DoString(@"
+-- require 'main'
+");
         }
 
         protected override void Dispose(bool disposing) {
@@ -142,29 +144,21 @@ namespace Maria {
             }
         }
 
-        public void XluaTest() {
-            UnityEngine.Debug.Log("hello world");
-        }
-
         // Update is called once per frame
         public void Update() {
+            _luaenv.Tick();
+
             if (_cotype == CoType.CO) {
                 CoWorker();
             }
+
+            // 此段代码可以用协程
             while (_renderQueue.Count > 0) {
                 Actor.RenderHandler handler = null;
                 lock (_renderQueue) {
                     handler = _renderQueue.Dequeue();
                 }
                 handler();
-            }
-            _luaenv.Tick();
-            XluaTest();
-            _count++;
-            if (_count == 2) {
-                _luaenv.DoString(@"
--- require 'main'
-");
             }
         }
 

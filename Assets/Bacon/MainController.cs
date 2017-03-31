@@ -153,8 +153,6 @@ namespace Bacon {
         public void OnSendJoin(EventCmd e) {
             int roomid = (int)e.Msg["roomid"];
             GameService service = _ctx.QueryService<GameService>(GameService.Name);
-            service.RoomId = roomid;
-
 
             C2sSprotoType.join.request request = new C2sSprotoType.join.request();
             request.roomid = roomid;

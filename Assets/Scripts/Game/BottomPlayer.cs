@@ -14,6 +14,7 @@ public class BottomPlayer : MonoBehaviour {
     public GameObject _Guo;
 
     public BottomPlayerHead Head;
+    public OverWnd OverWnd;
 
     private Dictionary<GameObject, Card> _cards = new Dictionary<GameObject, Card>();
     private bool _touch = false;
@@ -74,6 +75,10 @@ public class BottomPlayer : MonoBehaviour {
             }
 #endif
         }
+    }
+
+    public void Init() {
+        Head.Init();
     }
 
     public GameObject HoldCard { get; set; }

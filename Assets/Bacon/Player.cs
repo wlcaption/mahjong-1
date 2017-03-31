@@ -8,14 +8,25 @@ using DG.Tweening;
 namespace Bacon {
     public class Player : Actor {
 
+        public enum Orient {
+            BOTTOM,
+            LEFT,
+            RIGHT,
+            TOP,
+        }
+
         protected Quaternion _upv = Quaternion.identity;
         protected Quaternion _uph = Quaternion.identity;
         protected Quaternion _downv = Quaternion.identity;
         protected Quaternion _backv = Quaternion.identity;
+        protected const float _curorMH = 0.1f;
 
+        protected Orient _ori;
         protected int _idx;
-        protected int _sex; // 1, 男； 2， 女
+        protected int _sex; // 1, 男； 0， 女
         protected int _chip;
+        protected int _sid;
+        protected string _name;
 
         protected long _d1;
         protected long _d2;
@@ -49,6 +60,8 @@ namespace Bacon {
         protected int _putidx = 0;
         protected List<PGCards> _putcards = new List<PGCards>();
 
+        protected const float _hurightoffset = 0.2f;
+        protected const float _hubottomoffset = 0.4f;
         protected List<Card> _hucards = new List<Card>();
 
         protected const float _holddelta = 0.1f;
@@ -59,9 +72,10 @@ namespace Bacon {
         protected long _turntype;
         protected long _fen;
         protected Card.CardType _que;
+
+        protected List<SettlementItem> _settle = new List<SettlementItem>();
         protected long _wal;         // 赢的钱或者输的钱
         protected long _say;
-
 
         public Player(Context ctx, GameController controller)
             : base(ctx, controller) {
@@ -71,9 +85,14 @@ namespace Bacon {
             : base(ctx, service) {
         }
 
+        public Orient Ori { get { return _ori; } }
         public int Idx { get { return _idx; } set { _idx = value; } }
-        public int Takecardsidx { get { return _takecardsidx; } set { _takecardsidx = value; } }
+        public int Sex { get { return _sex; } set { _sex = value; } }
+        public int Chip { get { return _chip; } set { _chip = value; } }
+        public int Sid { get { return _sid; } set { _sid = value; } }
+        public string Name { get { return _name; } set { _name = value; } }
 
+        public int Takecardsidx { get { return _takecardsidx; } set { _takecardsidx = value; } }
         public List<long> CS { get; set; }
         public CallInfo Call { get; set; }
 
@@ -293,6 +312,9 @@ namespace Bacon {
                     UnityEngine.Debug.Assert(_holdcard != null);
                 }
                 _ctx.EnqueueRenderQueue(RenderTakeTurn);
+            } else if (type == 3) {
+                UnityEngine.Debug.Assert(_holdcard.Value == c);
+                _ctx.EnqueueRenderQueue(RenderTakeTurn);
             }
         }
 
@@ -342,6 +364,7 @@ namespace Bacon {
             UnityEngine.Debug.Assert(_holdcard != null);
             if (_holdcard.Value == c) {
                 _leadcard = _holdcard;
+                _leadcard.Clear();
                 _leadcards.Add(_leadcard);
             } else {
                 for (int i = 0; i < _cards.Count; i++) {
@@ -352,6 +375,7 @@ namespace Bacon {
                 }
                 UnityEngine.Debug.Assert(_leadcard.Value == c);
                 Remove(_leadcard);
+                _leadcard.Clear();
                 _leadcards.Add(_leadcard);
                 Insert(_holdcard);
                 //_holdcard = null;
@@ -372,6 +396,7 @@ namespace Bacon {
             } else {
                 path += "Woman";
             }
+            path += ".normal";
 
             if (_leadcard.Type == Card.CardType.Bam) {
                 name = "bam";
@@ -408,7 +433,9 @@ namespace Bacon {
         public void SetupCall(long c, long countdown) {
             if (Call.Gang == OpCodes.OPCODE_ANGANG ||
                 Call.Gang == OpCodes.OPCODE_BUGANG ||
-                (Call.Hu.Code != HuType.NONE && Call.Hu.Jiao == JiaoType.ZIMO)) {
+                (Call.Hu.Code != HuType.NONE && Call.Hu.Jiao == JiaoType.ZIMO) ||
+                (Call.Hu.Code != HuType.NONE && Call.Hu.Jiao == JiaoType.DIANGANGHUA) ||
+                (Call.Hu.Code != HuType.NONE && Call.Hu.Jiao == JiaoType.ZIGANGHUA)) {
                 Card card;
                 if (((GameController)_controller).TakeCard(out card)) {
                     _holdcard = card;
@@ -422,6 +449,11 @@ namespace Bacon {
         }
 
         protected virtual void RenderCall() { }
+
+        public void ClearCall() {
+            _ctx.EnqueueRenderQueue(RenderClearCall);
+        }
+        protected virtual void RenderClearCall() { }
 
         public void Peng(long code, long c, long hor, Player player, Card card) {
             List<Card> cards = new List<Card>();
@@ -462,11 +494,12 @@ namespace Bacon {
             } else {
                 path += "Woman";
             }
+            path += ".normal";
 
             name = "peng";
 
             ABLoader.current.LoadABAsync<AudioClip>(path.ToLower(), name, (AudioClip clip) => {
-                SoundMgr.current.PlaySound(_leadcard.Go, clip);
+                SoundMgr.current.PlaySound(_go, clip);
             });
         }
 
@@ -505,7 +538,7 @@ namespace Bacon {
                 List<Card> cards = new List<Card>();
                 if (_holdcard.Value == c) {
                     for (int i = 0; i < _cards.Count; i++) {
-                        if (card == _cards[i]) {
+                        if (_holdcard == _cards[i]) {
                             cards.Add(_cards[i]);
                         }
                         if (cards.Count == 3) {
@@ -518,8 +551,17 @@ namespace Bacon {
                     }
                     cards.Add(_holdcard);
                 } else {
+                    Card xx = null;
                     for (int i = 0; i < _cards.Count; i++) {
-                        if (card == _cards[i]) {
+                        if (_cards[i].Value == c) {
+                            xx = _cards[i];
+                            break;
+                        }
+                    }
+                    UnityEngine.Debug.Assert(xx != null);
+
+                    for (int i = 0; i < _cards.Count; i++) {
+                        if (xx == _cards[i]) {
                             cards.Add(_cards[i]);
                         }
                         if (cards.Count == 4) {
@@ -578,6 +620,18 @@ namespace Bacon {
             }
         }
 
+        public Card QiangGang(long c) {
+            Card res;
+            PGCards pg = _putcards[_putidx];
+            UnityEngine.Debug.Assert(pg.Opcode == OpCodes.OPCODE_BUGANG);
+            UnityEngine.Debug.Assert(pg.Cards.Count == 4);
+            res = pg.Cards[3];
+            pg.Cards.RemoveAt(3);
+            pg.Opcode = OpCodes.OPCODE_PENG;
+            UnityEngine.Debug.Assert(res.Value == c);
+            return res;
+        }
+
         protected virtual void RenderGang() {
             string prefix = "Sound/";
             string path = prefix;
@@ -587,15 +641,48 @@ namespace Bacon {
             } else {
                 path += "Woman";
             }
+            path += ".normal";
 
             name = "gang";
 
             ABLoader.current.LoadABAsync<AudioClip>(path.ToLower(), name, (AudioClip clip) => {
-                SoundMgr.current.PlaySound(_leadcard.Go, clip);
+                SoundMgr.current.PlaySound(_go, clip);
             });
         }
 
-        public void Hu(long code, long c, Card card, long jiao) {
+        public void GangSettle() {
+            _ctx.EnqueueRenderQueue(RenderGangSettle);
+        }
+
+        protected virtual void RenderGangSettle() { }
+
+
+        public void Hu(long code, long c, long jiao, long gang, long dian, Player player, Card card) {
+            if (jiao == JiaoType.PINGFANG) {
+                UnityEngine.Debug.Assert(c == card.Value);
+                player.RemoveLead(card);
+                _hucards.Add(card);
+            } else if (jiao == JiaoType.GANGSHANGPAO) {
+                UnityEngine.Debug.Assert(c == card.Value);
+                _hucards.Add(card);
+            } else if (jiao == JiaoType.QIANGGANGHU) {
+                Card qiang = ((GameService)_service).GetPlayer(dian).QiangGang(c);
+                UnityEngine.Debug.Assert(c == qiang.Value);
+                _hucards.Add(qiang);
+            } else if (jiao == JiaoType.DIANGANGHUA) {
+                UnityEngine.Debug.Assert(c == _holdcard.Value);
+                _hucards.Add(_holdcard);
+                _holdcard = null;
+            } else if (jiao == JiaoType.ZIGANGHUA) {
+                UnityEngine.Debug.Assert(c == _holdcard.Value);
+                _hucards.Add(_holdcard);
+                _holdcard = null;
+            } else if (jiao == JiaoType.ZIMO) {
+                UnityEngine.Debug.Assert(c == _holdcard.Value);
+                _hucards.Add(_holdcard);
+                _holdcard = null;
+            }
+
             ((GameController)_controller).CurIdx = _idx;
             _ctx.EnqueueRenderQueue(RenderHu);
         }
@@ -609,36 +696,43 @@ namespace Bacon {
             } else {
                 path += "Woman";
             }
+            path += ".normal";
 
             name = "hu";
 
             ABLoader.current.LoadABAsync<AudioClip>(path.ToLower(), name, (AudioClip clip) => {
-                SoundMgr.current.PlaySound(_leadcard.Go, clip);
+                SoundMgr.current.PlaySound(_go, clip);
             });
         }
 
-        public void WinAndLose(long chip) {
-            _wal = chip;
-            _ctx.EnqueueRenderQueue(RenderWinAndLose);
+        public void HuSettle() {
+            UnityEngine.Debug.Assert(_settle.Count >= 1);
+            _ctx.EnqueueRenderQueue(RenderHuSettle);
         }
 
-        protected virtual void RenderWinAndLose() {
+        protected virtual void RenderHuSettle() {
+
         }
 
         public void Over() {
             _ctx.EnqueueRenderQueue(RenderOver);
         }
 
-        protected virtual void RenderOver() {
+        protected virtual void RenderOver() { }
 
-        }
+        public void Settle() { }
+
+        protected virtual void RenderSettle() { }
+
+        public void FinalSettle() { }
+
+        protected virtual void RenderFinalSettle() { }
 
         public void Restart() {
             _ctx.EnqueueRenderQueue(RenderRestart);
         }
 
-        protected virtual void RenderRestart() {
-        }
+        protected virtual void RenderRestart() { }
 
         public void TakeRestart() {
             UnityEngine.Debug.LogFormat("player {0} take restart", _idx);
@@ -656,7 +750,6 @@ namespace Bacon {
 
             _putidx = 0;
             _putcards = new List<PGCards>();
-
             _hucards = new List<Card>();
 
             _holdcard = null;
@@ -676,5 +769,13 @@ namespace Bacon {
         }
 
         protected virtual void RenderSay() { }
+
+        public void ClearSettle() {
+            _settle.Clear();
+        }
+
+        public void AddSettle(SettlementItem item) {
+            _settle.Add(item);
+        }
     }
 }
