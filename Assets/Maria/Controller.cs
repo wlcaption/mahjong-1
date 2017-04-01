@@ -18,6 +18,8 @@ namespace Maria {
             _ctx = ctx;
         }
 
+        public string Name { get { return _name; } }
+
         // Update is called once per frame
         public virtual void Update(float delta) {
             foreach (var item in _actors) {

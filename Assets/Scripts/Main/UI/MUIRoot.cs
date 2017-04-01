@@ -20,10 +20,8 @@ public class MUIRoot : MonoBehaviour {
     public GameObject _Board;
     public GameObject _Adver;
 
-    public GameObject _Name;
-    public GameObject _NameId;
-    public GameObject _RCard;
     public GameObject _Tips;
+    public GameObject _Title;
 
     // Use this for initialization
     void Start() {
@@ -50,35 +48,20 @@ public class MUIRoot : MonoBehaviour {
     }
 
     public void OnCreate() {
-        if (_CreatePanel != null) {
-            _CreatePanel.SetActive(true);
-            string txt = string.Format("已有房卡x{0}", 0);
-            _CreatePanel.transform.FindChild("RCard").GetComponent<Text>().text = txt;
-        }
+        Command cmd = new Command(MyEventCmd.EVENT_MUI_SHOWCREATE);
+        _Root.App.Enqueue(cmd);
     }
 
-    public void OnCreateClose() {
+    public void ShowCreate(int num) {
         if (_CreatePanel != null) {
-            _CreatePanel.SetActive(false);
+            _CreatePanel.GetComponent<CreateRoom>().Show(num);
         }
     }
 
     public void OnJoin() {
-        if (_JoinPanel != null) {
-            _JoinPanel.SetActive(true);
-        } else {
-            UnityEngine.Debug.Assert(false);
-        }
+        _JoinPanel.GetComponent<JoinRoom>().Show();
     }
-
-    public void OnJoinClose() {
-        if (_JoinPanel != null) {
-            _JoinPanel.SetActive(false);
-        } else {
-            UnityEngine.Debug.Assert(false);
-        }
-    }
-
+    
     public void OnShare() {
         if (_SharePanel != null) {
             _SharePanel.GetComponent<ShareWnd>().Show();
@@ -88,12 +71,6 @@ public class MUIRoot : MonoBehaviour {
     public void OnRecored() {
         if (_RecorePanel != null) {
             _RecorePanel.SetActive(true);
-        }
-    }
-
-    public void OnRecoredClose() {
-        if (_RecorePanel != null) {
-            _RecorePanel.SetActive(false);
         }
     }
 
@@ -122,12 +99,6 @@ public class MUIRoot : MonoBehaviour {
             _Tips.SetActive(true);
         }
     }
-
-    public void OnTipsClose() {
-        if (_Tips != null) {
-            _Tips.SetActive(false);
-        }
-    }
     #endregion
 
     public void SetBoard(string board) {
@@ -138,18 +109,6 @@ public class MUIRoot : MonoBehaviour {
     public void SetAdver(string adver) {
         Text content = _Adver.transform.FindChild("Mask").FindChild("Text").GetComponent<Text>();
         content.text = adver;
-    }
-
-    public void SetName(string name) {
-        _Name.GetComponent<Text>().text = name;
-    }
-
-    public void SetNameId(string nameid) {
-        _NameId.GetComponent<Text>().text = nameid;
-    }
-
-    public void SetRCard(string rcard) {
-        _RCard.GetComponent<Text>().text = rcard;
     }
 
 }

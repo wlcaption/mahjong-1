@@ -6,15 +6,12 @@ using System.IO;
 using System.Reflection;
 using UnityEngine;
 
-public static class TableParser
-{
-    private static void ParsePropertyValue<T>(T obj, FieldInfo fieldInfo, string valueStr)
-    {
+public static class TableParser {
+    private static void ParsePropertyValue<T>(T obj, FieldInfo fieldInfo, string valueStr) {
         System.Object value = valueStr;
         if (fieldInfo.FieldType.IsEnum)
             value = Enum.Parse(fieldInfo.FieldType, valueStr);
-        else
-        {
+        else {
             if (fieldInfo.FieldType == typeof(int))
                 value = int.Parse(valueStr);
             else if (fieldInfo.FieldType == typeof(byte))
@@ -25,15 +22,14 @@ public static class TableParser
                 value = float.Parse(valueStr);
             else if (fieldInfo.FieldType == typeof(double))
                 value = double.Parse(valueStr);
-            else
-            {
+            else {
                 if (valueStr.Contains("\"\""))
                     valueStr = valueStr.Replace("\"\"", "\"");
 
                 // process the excel string.
                 if (valueStr.Length > 2 && valueStr[0] == '\"' && valueStr[valueStr.Length - 1] == '\"')
                     valueStr = valueStr.Substring(1, valueStr.Length - 2);
-                
+
                 value = valueStr;
             }
         }
@@ -44,13 +40,11 @@ public static class TableParser
         fieldInfo.SetValue(obj, value);
     }
 
-    private static T ParseObject<T>(string[] lines, int idx, Dictionary<int, FieldInfo> propertyInfos)
-    {
+    private static T ParseObject<T>(string[] lines, int idx, Dictionary<int, FieldInfo> propertyInfos) {
         T obj = Activator.CreateInstance<T>();
         string line = lines[idx];
         string[] values = line.Split('\t');
-        foreach (KeyValuePair<int, FieldInfo> pair in propertyInfos)
-        {
+        foreach (KeyValuePair<int, FieldInfo> pair in propertyInfos) {
             if (pair.Key >= values.Length)
                 continue;
 
@@ -58,12 +52,9 @@ public static class TableParser
             if (string.IsNullOrEmpty(value))
                 continue;
 
-            try
-            {
+            try {
                 ParsePropertyValue(obj, pair.Value, value);
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 UnityEngine.Debug.LogError(string.Format("ParseError: Row={0} Column={1} Name={2} Want={3} Get={4}",
                     idx + 1,
                     pair.Key + 1,
@@ -76,14 +67,12 @@ public static class TableParser
         return obj;
     }
 
-    private static Dictionary<int, FieldInfo> GetPropertyInfos<T>(string memberLine)
-    {
+    private static Dictionary<int, FieldInfo> GetPropertyInfos<T>(string memberLine) {
         Type objType = typeof(T);
 
         string[] members = memberLine.Split("\t".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
         Dictionary<int, FieldInfo> propertyInfos = new Dictionary<int, FieldInfo>();
-        for (int i = 0; i < members.Length; i++)
-        {
+        for (int i = 0; i < members.Length; i++) {
             FieldInfo fieldInfo = objType.GetField(members[i]);
             if (fieldInfo == null)
                 continue;
@@ -92,23 +81,20 @@ public static class TableParser
 
         return propertyInfos;
     }
-    
-    public static T[] Parse<T>(string name)
-    {
+
+    public static T[] Parse<T>(string name) {
         // here we load the text asset.
         //TextAsset textAsset = (TextAsset)Resources.Load("Table/" + name);
         //TextAsset textAsset = ResourceManager.Instance.LoadAsset<TextAsset>("Excels/" + name, name);
-        TextAsset textAsset = ABLoader.current.LoadRes<TextAsset>("Excels/" + name);
-        if (textAsset == null)
-        {
+        TextAsset textAsset = ABLoader.current.LoadAsset<TextAsset>("Excels", name);
+        if (textAsset == null) {
             UnityEngine.Debug.LogError("无法加载表格文件：" + name);
             return null;
         }
 
         // try parse the table lines.
         string[] lines = textAsset.text.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-        if (lines.Length < 3)
-        {
+        if (lines.Length < 3) {
             UnityEngine.Debug.LogError("表格文件行数错误，【1】属性名称【2】变量名称【3-...】值：" + name);
             return null;
         }

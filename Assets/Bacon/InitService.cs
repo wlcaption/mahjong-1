@@ -18,12 +18,14 @@ namespace Bacon {
 
         private User _user;
         private SysInbox _sysinbox = null;
+        private RecordMgr _recordmgr = null;
 
         public InitService(Context ctx) : base(ctx) {
             _ts = ctx.TiSync;
             _smactor = new SMActor(ctx, this);
             _user = new User();
             _sysinbox = new SysInbox();
+            _recordmgr = new RecordMgr();
 
             _ctx.EventDispatcher.AddCustomEventListener(EventCustom.OnDisconnected, OnDiconnected, null);
             _ctx.EventDispatcher.AddCustomEventListener(EventCustom.OnAuthed, OnAuthed, null);
@@ -43,8 +45,8 @@ namespace Bacon {
         public User User { get { return _user; } }
         public string Board { get; set; }
         public string Adver { get; set; }
-
         public SysInbox SysInBox { get { return _sysinbox; } }
+        public RecordMgr RecordMgr { get { return _recordmgr; } }
 
         public void SendHandshake(float delta) {
             if (!_authed) {

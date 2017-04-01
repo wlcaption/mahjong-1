@@ -9,9 +9,6 @@ public class StartBehaviour : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
-        ABLoader.current.LoadABAsync<AudioClip>("sound/man.normal", "peng", (AudioClip clip) => {
-            UnityEngine.Debug.Log("ok");
-        });
     }
 
     // Update is called once per frame
@@ -25,7 +22,17 @@ public class StartBehaviour : MonoBehaviour {
     }
 
     public void UpdateRes() {
+        ABLoader.current.LoadPath();
         ABLoader.current.FetchVersion(() => {
+            Command cmd = new Command(MyEventCmd.EVENT_UPdATERES);
+            _root.App.Enqueue(cmd);
+        });
+    }
+
+    public void TestRes() {
+        ABLoader.current.LoadPath();
+        ABLoader.current.LoadAssetAsync<AudioClip>("sound/man", "peng", (AudioClip clip) => {
+            UnityEngine.Debug.Log("ok");
             Command cmd = new Command(MyEventCmd.EVENT_UPdATERES);
             _root.App.Enqueue(cmd);
         });

@@ -19,7 +19,7 @@ public class ChatWnd : MonoBehaviour {
             //    inst.GetComponent<ChatItem>().Init(item.code, item.text);
             //    inst.transform.SetParent(pa);
             //});
-            ABLoader.current.LoadResAsync<GameObject>("Prefabs/UI/ChatItem", (GameObject go) => {
+            ABLoader.current.LoadAssetAsync<GameObject>("Prefabs/UI", "ChatItem", (GameObject go) => {
                 GameObject inst = Instantiate<GameObject>(go);
                 inst.GetComponent<ChatItem>().Init(item.code, item.text);
                 inst.transform.SetParent(pa);

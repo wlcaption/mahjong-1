@@ -42,7 +42,7 @@ namespace Maria {
             }
             _luaenv.AddLoader((ref string filepath) => {
                 filepath = filepath.Replace('.', '/') + ".lua";
-                TextAsset file = ABLoader.current.LoadAB<TextAsset>("xlua/src.normal", filepath);
+                TextAsset file = ABLoader.current.LoadAsset<TextAsset>("xlua/src", filepath);
                 if (file != null) {
                     return file.bytes;
                 } else {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MUIRule : MonoBehaviour {
+public class RecordItem : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {

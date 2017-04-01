@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Maria;
+using Bacon;
 
 public class JoinRoom : MonoBehaviour {
 
-    public RootBehaviour _Root;
     public Text _RoomNum;
     private int _count = 0;
     private const int _max = 6;
@@ -28,6 +29,18 @@ public class JoinRoom : MonoBehaviour {
 
     void OnDisable() {
 
+    }
+
+    public void Show() {
+        if (!gameObject.activeSelf) {
+            gameObject.SetActive(true);
+        }
+    }
+
+    public void OnClose() {
+        if (gameObject.activeSelf) {
+            gameObject.SetActive(false);
+        }
     }
 
     public void OnBtn1() {
@@ -151,7 +164,7 @@ public class JoinRoom : MonoBehaviour {
             msg["roomid"] = res;
 
             Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_MUI_JOIN, gameObject, msg);
-            _Root.App.Enqueue(cmd);
+            GetComponent<FindApp>().App.Enqueue(cmd);
             _sended = true;
         }
     }

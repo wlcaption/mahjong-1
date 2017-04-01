@@ -28,10 +28,6 @@ public class C2sProtocol : ProtocolBase {
 		Protocol.SetRequest<C2sSprotoType.fetchsysmail.request> (fetchsysmail.Tag);
 		Protocol.SetResponse<C2sSprotoType.fetchsysmail.response> (fetchsysmail.Tag);
 
-		Protocol.SetProtocol<fetchsysmail1> (fetchsysmail1.Tag);
-		Protocol.SetRequest<C2sSprotoType.fetchsysmail1.request> (fetchsysmail1.Tag);
-		Protocol.SetResponse<C2sSprotoType.fetchsysmail1.response> (fetchsysmail1.Tag);
-
 		Protocol.SetProtocol<first> (first.Tag);
 		Protocol.SetResponse<C2sSprotoType.first.response> (first.Tag);
 
@@ -76,11 +72,19 @@ public class C2sProtocol : ProtocolBase {
 		Protocol.SetRequest<C2sSprotoType.step.request> (step.Tag);
 		Protocol.SetResponse<C2sSprotoType.step.response> (step.Tag);
 
+		Protocol.SetProtocol<syncsysmail> (syncsysmail.Tag);
+		Protocol.SetRequest<C2sSprotoType.syncsysmail.request> (syncsysmail.Tag);
+		Protocol.SetResponse<C2sSprotoType.syncsysmail.response> (syncsysmail.Tag);
+
 		Protocol.SetProtocol<toast1> (toast1.Tag);
 		Protocol.SetResponse<C2sSprotoType.toast1.response> (toast1.Tag);
 
 		Protocol.SetProtocol<toast2> (toast2.Tag);
 		Protocol.SetResponse<C2sSprotoType.toast2.response> (toast2.Tag);
+
+		Protocol.SetProtocol<viewedsysmail> (viewedsysmail.Tag);
+		Protocol.SetRequest<C2sSprotoType.viewedsysmail.request> (viewedsysmail.Tag);
+		Protocol.SetResponse<C2sSprotoType.viewedsysmail.response> (viewedsysmail.Tag);
 
 		Protocol.SetProtocol<xuanpao> (xuanpao.Tag);
 		Protocol.SetRequest<C2sSprotoType.xuanpao.request> (xuanpao.Tag);
@@ -116,10 +120,6 @@ public class C2sProtocol : ProtocolBase {
 		public const int Tag = 34;
 	}
 
-	public class fetchsysmail1 {
-		public const int Tag = 35;
-	}
-
 	public class first {
 		public const int Tag = 30;
 	}
@@ -149,11 +149,11 @@ public class C2sProtocol : ProtocolBase {
 	}
 
 	public class record {
-		public const int Tag = 37;
+		public const int Tag = 38;
 	}
 
 	public class records {
-		public const int Tag = 36;
+		public const int Tag = 37;
 	}
 
 	public class restart {
@@ -168,12 +168,20 @@ public class C2sProtocol : ProtocolBase {
 		public const int Tag = 11;
 	}
 
+	public class syncsysmail {
+		public const int Tag = 35;
+	}
+
 	public class toast1 {
 		public const int Tag = 32;
 	}
 
 	public class toast2 {
 		public const int Tag = 33;
+	}
+
+	public class viewedsysmail {
+		public const int Tag = 36;
 	}
 
 	public class xuanpao {

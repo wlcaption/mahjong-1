@@ -32,15 +32,21 @@ public class TopPlayer : MonoBehaviour {
     }
 
     public void Say(long code) {
-        SayItem i = SayConfig.Instance.GetItem((int)code);
-        Head.SetSay(i.text);
-        string path = i.sound;
+        SayItem item = SayConfig.Instance.GetItem((int)code);
+        Head.SetSay(item.text);
+        string path = item.sound;
         int idx = path.IndexOf('.');
         if (idx != -1) {
             path = path.Remove(idx);
         }
-
-        AudioClip clip = ABLoader.current.LoadRes<AudioClip>(path);
+        idx = path.LastIndexOf('/');
+        string name = string.Empty;
+        for (int i = idx + 1; i < path.Length; i++) {
+            name += path[i];
+        }
+        path.Remove(idx);
+        
+        AudioClip clip = ABLoader.current.LoadAsset<AudioClip>(path, name);
         SoundMgr.current.PlaySound(gameObject, clip);
     }
 }

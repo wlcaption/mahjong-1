@@ -295,13 +295,15 @@ namespace Bacon {
             Desk desk = ((GameController)_controller).Desk;
             PGCards pg = _putcards[_putidx];
             UnityEngine.Debug.Assert(pg.Cards.Count == 3);
+
             float offset = _putrightoffset;
-            float move = 0.1f;
             for (int i = 0; i < _putidx; i++) {
+                UnityEngine.Debug.Assert(_putcards[i].Width > 0.0f);
                 offset += _putcards[i].Width + _putmargin;
             }
+
             int count = 0;
-            pg.Width = 0.0f;
+            float move = 0.1f;
             for (int i = 0; i < pg.Cards.Count; i++) {
                 float x = _putbottomoffset;
                 float y = Card.Height / 2.0f;
@@ -340,14 +342,16 @@ namespace Bacon {
 
             Desk desk = ((GameController)_controller).Desk;
             PGCards pg = _putcards[_putidx];
-            float offset = _putrightoffset;
-            float move = 0.1f;
+            UnityEngine.Debug.Assert(pg.Cards.Count == 4);
+
+            float offset = _putrightoffset;            
             for (int i = 0; i < _putidx; i++) {
+                UnityEngine.Debug.Assert(_putcards[i].Width > 0.0f);
                 offset += _putcards[i].Width + _putmargin;
             }
-            int count = 0;
-            pg.Width = 0.0f;
 
+            int count = 0;
+            float move = 0.1f;
             if (pg.Opcode == OpCodes.OPCODE_ZHIGANG) {
                 for (int i = 0; i < pg.Cards.Count; i++) {
                     float x = _putbottomoffset;
@@ -504,6 +508,8 @@ namespace Bacon {
         }
 
         protected override void RenderFinalSettle() {
+            _com.Head.SetHu(false);
+            _com.Head.CloseWAL();
             _com.OverWnd.SettleLeft(_settle);
         }
 
@@ -519,8 +525,8 @@ namespace Bacon {
         }
 
         protected override void RenderRestart() {
-            _com.Head.CloseWAL();
             _com.Head.SetHu(false);
+            _com.Head.CloseWAL();
             _com.Head.SetReady(true);
         }
 

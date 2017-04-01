@@ -9,6 +9,7 @@ namespace Bacon {
 
         public static uint EVENT_SETUP_STARTROOT = 51;
         public static uint EVENT_UPdATERES = 52;
+        public static uint EVENT_TSETRES = 53;
 
         public static uint EVENT_ONBORN = 109;
         public static uint EVENT_ONJOIN = 110;
@@ -21,6 +22,10 @@ namespace Bacon {
         public static uint EVENT_MUI_JOIN = 123;
         public static uint EVENT_MUI_MSG = 124;
         public static uint EVENT_MUI_VIEWMAIL = 125;
+        public static uint EVENT_MUI_VIEWEDMAIL = 126;
+        public static uint EVENT_MUI_MSGCLOSED = 127;
+        public static uint EVENT_MUI_SHOWCREATE = 128;
+
 
         // 游戏界面
 

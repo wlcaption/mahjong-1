@@ -20,7 +20,7 @@ namespace Bacon {
             if (_queue.Count > 0) {
                 string name = _queue.Dequeue();
                 UnityEngine.Debug.Assert(name.Length > 0);
-                SceneManager.LoadSceneAsync(name);
+                SceneManager.LoadScene(name);
 
                 //SceneManager.activeSceneChanged += ActiveSceneChanged;
                 //SceneManager.sceneLoaded += SceneLoaded;

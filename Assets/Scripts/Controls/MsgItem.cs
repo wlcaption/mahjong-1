@@ -7,10 +7,18 @@ using Bacon;
 
 public class MsgItem : MonoBehaviour {
 
+    public enum Type {
+        Sys,
+        Ver,
+    }
+
     public Image _Head;
     public Text _Title;
     public Text _Content;
     public Text _Date;
+
+    private long _id;
+    private Type _type;
 
 	// Use this for initialization
 	void Start () {
@@ -20,11 +28,31 @@ public class MsgItem : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
 	}
 
+    public void SetType(Type t) {
+        _type = t;
+    }
+
+    public void SetId(long id) {
+        _id = id;  
+    }
+
+    public void SetTitle(string title) {
+        _Title.text = title;
+    }
+
+    public void SetContent(string content) {
+        _Content.text = content;
+    }
+
+    public void SetDateTime(long dt) { }
+
     public void OnView() {
-        Command cmd = new Command(Bacon.MyEventCmd.EVENT_MUI_VIEWMAIL);
+        Message msg = new Message();
+        msg["id"] = _id;
+        msg["type"] = _type;
+        Command cmd = new Command(Bacon.MyEventCmd.EVENT_MUI_VIEWMAIL, gameObject, msg);
         GetComponent<FindApp>().App.Enqueue(cmd);
     }
 }

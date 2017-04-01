@@ -122,35 +122,35 @@ namespace Bacon {
 
         private void RenderLoadCard() {
             _cardsgo = _scene.Go.transform.FindChild("cards").gameObject;
-            string prefix = "Prefabs/Mahjongs/";
-            string folder = string.Empty;
+            string path = "Prefabs/Mahjongs";
             for (int i = 1; i < 4; i++) {
+                string prefix = string.Empty;
                 if (i == (int)Card.CardType.Crak) {
-                    folder = prefix + "Crak_";
+                    prefix = "Crak_";
                 } else if (i == (int)Card.CardType.Bam) {
-                    folder = prefix + "Bam_";
+                    prefix = "Bam_";
                 } else if (i == (int)Card.CardType.Dot) {
-                    folder = prefix + "Dot_";
+                    prefix = "Dot_";
                 }
                 for (int j = 1; j < 10; j++) {
-                    string path = folder + string.Format("{0}", j);
-                    UnityEngine.Object model = ABLoader.current.LoadRes<GameObject>(path);
-                    if (model == null) {
+                    string name = prefix + string.Format("{0}", j);
+                    GameObject ori = ABLoader.current.LoadAsset<GameObject>(path, name);
+                    if (ori == null) {
                         UnityEngine.Debug.LogErrorFormat("Type:{0}, Num:{1} load failed.", i, j);
                         continue;
-                    }
-                    for (int k = 1; k < 5; k++) {
+                    } else {
+                        for (int k = 1; k < 5; k++) {
+                            GameObject go = GameObject.Instantiate<GameObject>(ori);
+                            go.transform.SetParent(_cardsgo.transform);
 
-                        GameObject go = GameObject.Instantiate(model) as GameObject;
-                        go.transform.SetParent(_cardsgo.transform);
-
-                        lock (_cards) {
-                            long value = ((i & 0xff) << 8) | ((j & 0x0f) << 4) | (k & 0x0f);
-                            _cards[value] = new Card(_ctx, this, go);
-                            _cards[value].Type = (Card.CardType)i;
-                            _cards[value].Num = j;
-                            _cards[value].Idx = k;
-                            _cards[value].Value = value;
+                            lock (_cards) {
+                                long value = ((i & 0xff) << 8) | ((j & 0x0f) << 4) | (k & 0x0f);
+                                _cards[value] = new Card(_ctx, this, go);
+                                _cards[value].Type = (Card.CardType)i;
+                                _cards[value].Num = j;
+                                _cards[value].Idx = k;
+                                _cards[value].Value = value;
+                            }
                         }
                     }
                 }

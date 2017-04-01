@@ -9,11 +9,12 @@ using UnityEngine;
 namespace Bacon {
     class MainController : Controller {
         private InitService _service = null;
-        private MUIActor _mui = null;
+        private GameObject _uiroot = null;
+        private long _curmsgid;
+        private MsgItem.Type _curtype;
 
         public MainController(Context ctx) : base(ctx) {
             _name = "main";
-            _mui = new MUIActor(_ctx, this);
 
             EventListenerCmd listener1 = new EventListenerCmd(MyEventCmd.EVENT_MUI_CREATE, OnSendCreate);
             _ctx.EventDispatcher.AddCmdEventListener(listener1);
@@ -26,10 +27,19 @@ namespace Bacon {
 
             EventListenerCmd listener4 = new EventListenerCmd(MyEventCmd.EVENT_MUI_VIEWMAIL, OnSendViewMail);
             _ctx.EventDispatcher.AddCmdEventListener(listener4);
-        }
 
-        public override void Update(float delta) {
-            base.Update(delta);
+            EventListenerCmd listener5 = new EventListenerCmd(MyEventCmd.EVENT_MUI_VIEWEDMAIL, OnViewedMail);
+            _ctx.EventDispatcher.AddCmdEventListener(listener5);
+
+            EventListenerCmd listener6 = new EventListenerCmd(MyEventCmd.EVENT_MUI_MSGCLOSED, OnMsgClosed);
+            _ctx.EventDispatcher.AddCmdEventListener(listener6);
+
+            EventListenerCmd listener7 = new EventListenerCmd(MyEventCmd.EVENT_SETUP_MUI, SetupUI);
+            _ctx.EventDispatcher.AddCmdEventListener(listener7);
+
+            EventListenerCmd listener8 = new EventListenerCmd(MyEventCmd.EVENT_MUI_SHOWCREATE, OnShowCreate);
+            _ctx.EventDispatcher.AddCmdEventListener(listener8);
+
         }
 
         public override void Enter() {
@@ -40,15 +50,8 @@ namespace Bacon {
             SMActor actor = _service.SMActor;
             actor.LoadScene(_name);
 
-            _ctx.SendReq<C2sProtocol.first>(C2sProtocol.first.Tag, null);
-            _ctx.SendReq<C2sProtocol.fetchsysmail>(C2sProtocol.fetchsysmail.Tag, null);
-            _ctx.EnqueueRenderQueue(RenderEnter);
-        }
 
-        protected void RenderEnter() {
-            ABLoader.current.LoadResAsync<AudioClip>("Sound/MusicEx/MusicEx_Welcome", (AudioClip clip) => {
-                SoundMgr.current.PlayMusic(clip);
-            });
+            //_ctx.EnqueueRenderQueue(RenderEnter);
         }
 
         public override void Exit() {
@@ -56,8 +59,22 @@ namespace Bacon {
             _ctx.EnqueueRenderQueue(RenderExit);
         }
 
-        protected void RenderExit() {
+        private void RenderExit() {
             SoundMgr.current.StopMusic();
+        }
+
+        public void SetupUI(EventCmd e) {
+            _uiroot = e.Orgin;
+            _ctx.SendReq<C2sProtocol.first>(C2sProtocol.first.Tag, null);
+            _ctx.SendReq<C2sProtocol.fetchsysmail>(C2sProtocol.fetchsysmail.Tag, null);
+            _ctx.SendReq<C2sProtocol.records>(C2sProtocol.records.Tag, null);
+            _ctx.EnqueueRenderQueue(RenderSetupUI);
+        }
+
+        public void RenderSetupUI() {
+            ABLoader.current.LoadAssetAsync<AudioClip>("Sound/MusicEx", "MusicEx_Welcome", (AudioClip clip) => {
+                SoundMgr.current.PlayMusic(clip);
+            });
         }
 
         public void First(SprotoTypeBase responseObj) {
@@ -73,7 +90,7 @@ namespace Bacon {
             _service.Board = obj.board;
             _service.Adver = obj.adver;
 
-            _mui.SetupFirst();
+            _ctx.EnqueueRenderQueue(RenderFirst);
         }
 
         public void FetchSysmail(SprotoTypeBase responseObj) {
@@ -91,6 +108,51 @@ namespace Bacon {
                 mail.Content = obj.inbox[i].content;
                 sib.Add(mail);
             }
+            // 更新红点
+            _ctx.EnqueueRenderQueue(RenderFetchSysmail);
+        }
+
+        public void FetchRecords(SprotoTypeBase responseObj) {
+            C2sSprotoType.records.response obj = responseObj as C2sSprotoType.records.response;
+            for (int i = 0; i < obj.records.Count; i++) {
+                Record record = new Bacon.Record();
+                record.Id = obj.records[i].id;
+                record.DateTime = obj.records[i].datetime;
+                record.Player1 = obj.records[i].player1;
+                record.Player2 = obj.records[i].player2;
+                record.Player3 = obj.records[i].player3;
+                record.Player4 = obj.records[i].player4;
+                _service.RecordMgr.Add(record);
+            }
+            // 更新红点
+            _ctx.EnqueueRenderQueue(RenderFetchSysmail);
+        }
+
+        public void RenderFirst() {
+            MUIRoot com = _uiroot.GetComponent<global::MUIRoot>();
+            com.SetBoard(_service.Board);
+            com.SetAdver(_service.Adver);
+            var title = com._Title.GetComponent<Title>();
+            title.SetName(_service.User.Name);
+            string nameid = string.Format("ID:{0}", _service.User.NameId);
+            title.SetNameId(nameid);
+
+            string rcard = string.Format("{0}", _service.User.RCard);
+            title.SetRCard(rcard);
+        }
+
+        public void RenderFetchSysmail() {
+            var com = _uiroot.GetComponent<MUIRoot>();
+            var title = com._Title.GetComponent<Title>();
+            title.SetMsgRed(_service.SysInBox.Count);
+        }
+
+        private void OnShowCreate(EventCmd e) {
+            _ctx.EnqueueRenderQueue(RenderShowCreate);
+        }
+
+        public void RenderShowCreate() {
+            _uiroot.GetComponent<MUIRoot>().ShowCreate((int)_service.User.RCard);
         }
 
         public void OnSendMatch(EventCmd e) {
@@ -121,6 +183,90 @@ namespace Bacon {
             S2cSprotoType.match.response responseObj = new S2cSprotoType.match.response();
             responseObj.errorcode = Errorcode.SUCCESS;
             return responseObj;
+        }
+
+        public void OnSendMsg(EventCmd e) {
+            List<long> mailids = new List<long>();
+            if (_service.SysInBox.Count > 0) {
+                foreach (var item in _service.SysInBox) {
+                    mailids.Add(item.Id);
+                }
+            }
+            C2sSprotoType.syncsysmail.request request = new C2sSprotoType.syncsysmail.request();
+            request.all = mailids;
+            _ctx.SendReq<C2sProtocol.syncsysmail>(C2sProtocol.syncsysmail.Tag, request);
+        }
+
+        public void SyncSysmail(SprotoTypeBase responseObj) {
+            C2sSprotoType.syncsysmail.response obj = responseObj as C2sSprotoType.syncsysmail.response;
+            if (obj.inbox.Count > 0) {
+                for (int i = 0; i < obj.inbox.Count; i++) {
+                    var mail = _service.SysInBox.CreateMail();
+                    mail.Id = obj.inbox[i].id;
+                    mail.Title = obj.inbox[i].title;
+                    mail.DateTime = obj.inbox[i].datetime;
+                    mail.Content = obj.inbox[i].content;
+                    _service.SysInBox.Add(mail);
+                }
+            }
+            // 显示邮件
+            _ctx.EnqueueRenderQueue(RenderSyncSysMail);
+        }
+
+        public void RenderSyncSysMail() {
+            var com = _uiroot.GetComponent<MUIRoot>();
+            var msgwnd = com._MailWnd.GetComponent<MailWnd>();
+            msgwnd.ShowSysMsg(_service.SysInBox);
+        }
+
+        public void OnSendViewMail(EventCmd e) {
+            MsgItem.Type type = e.Msg.GetField<MsgItem.Type>("type");
+            long id = e.Msg.GetField<long>("id");
+            _curmsgid = id;
+            _curtype = type;
+
+            _ctx.EnqueueRenderQueue(RenderViewMail);
+            //var mailwnd = com._MailWnd.GetComponent<MailWnd>();
+            //if ((MsgItem.Type)e.Msg["type"] == MsgItem.Type.Sys) {
+            //    Sysmail mail = _service.SysInBox.GetMail((long)e.Msg["id"]);
+            //    mailwnd.ShowMailInfo()
+            //}
+
+            //_service.SysInBox
+            //mailwnd.ShowMailInfo()
+            //C2sSprotoType.syncsysmail.request request = new C2sSprotoType.syncsysmail.request();
+            //request.all = mailids;
+            //_ctx.SendReq<C2sProtocol.syncsysmail>(C2sProtocol.syncsysmail.Tag, request);
+        }
+
+        private void RenderViewMail() {
+            if (_curtype == MsgItem.Type.Sys) {
+                Sysmail mail = _service.SysInBox.GetMail(_curmsgid);
+                var com = _uiroot.GetComponent<MUIRoot>();
+                var mailwnd = com._MailWnd.GetComponent<MailWnd>();
+                mailwnd._InfoPage.GetComponent<MsgItemInfo>().Show(_curtype, _curmsgid, mail.Title, mail.Content);
+            }
+        }
+
+        public void OnViewedMail(EventCmd e) {
+            MsgItem.Type type = e.Msg.GetField<MsgItem.Type>("type");
+            long id = e.Msg.GetField<long>("id");
+            _curmsgid = id;
+            _curtype = type;
+            Sysmail mail = _service.SysInBox.GetMail(id);
+            _service.SysInBox.Remove(mail);
+
+            C2sSprotoType.viewedsysmail.request request = new C2sSprotoType.viewedsysmail.request();
+            request.mailid = id;
+            _ctx.SendReq<C2sProtocol.viewedsysmail>(C2sProtocol.viewedsysmail.Tag, request);
+
+            _ctx.EnqueueRenderQueue(RenderSyncSysMail);
+        }
+
+        public void RenderViewedMail() { }
+
+        public void OnMsgClosed(EventCmd e) {
+            _ctx.EnqueueRenderQueue(RenderFetchSysmail);
         }
 
         public void OnSendCreate(EventCmd e) {
@@ -160,30 +306,8 @@ namespace Bacon {
             _ctx.SendReq<C2sProtocol.join>(C2sProtocol.join.Tag, request);
         }
 
-        public void OnSendMsg(EventCmd e) {
-            _ctx.SendReq<C2sProtocol.fetchsysmail1>(C2sProtocol.fetchsysmail1.Tag, null);
-        }
+        public void OnSendRecords(EventCmd e) {
 
-        public void OnSendViewMail(EventCmd e) {
-
-        }
-
-        public void FetchSysmail1(SprotoTypeBase responseObj) {
-            C2sSprotoType.fetchsysmail1.response obj = responseObj as C2sSprotoType.fetchsysmail1.response;
-            if (_service == null) {
-                _service = _ctx.QueryService<InitService>(InitService.Name);
-            }
-
-            //SysInbox sib = _service.SysInBox;
-            //for (int i = 0; i < obj.inbox.Count; i++) {
-            //    var mail = sib.CreateMail();
-            //    mail.Id = obj.inbox[i].id;
-            //    mail.DateTime = obj.inbox[i].datetime;
-            //    mail.Title = obj.inbox[i].title;
-            //    mail.Content = obj.inbox[i].content;
-            //    sib.Add(mail);
-            //}
-            _mui.SetupMsg();
         }
 
         public void Records(SprotoTypeBase responseObj) {

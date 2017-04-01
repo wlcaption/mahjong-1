@@ -407,7 +407,7 @@ namespace Bacon {
             }
             name += string.Format("{0}", _leadcard.Num);
 
-            ABLoader.current.LoadABAsync<AudioClip>(path.ToLower(), name, (AudioClip clip) => {
+            ABLoader.current.LoadAssetAsync<AudioClip>(path, name, (AudioClip clip) => {
                 SoundMgr.current.PlaySound(_leadcard.Go, clip);
             });
         }
@@ -498,7 +498,7 @@ namespace Bacon {
 
             name = "peng";
 
-            ABLoader.current.LoadABAsync<AudioClip>(path.ToLower(), name, (AudioClip clip) => {
+            ABLoader.current.LoadAssetAsync<AudioClip>(path, name, (AudioClip clip) => {
                 SoundMgr.current.PlaySound(_go, clip);
             });
         }
@@ -531,8 +531,6 @@ namespace Bacon {
                 _putcards.Add(pg);
                 _putidx = _putcards.Count - 1;
 
-                ((GameController)_controller).CurIdx = _idx;
-                _ctx.EnqueueRenderQueue(RenderGang);
             } else if (code == OpCodes.OPCODE_ANGANG) {
                 UnityEngine.Debug.Assert(_holdcard != null);
                 List<Card> cards = new List<Card>();
@@ -583,8 +581,6 @@ namespace Bacon {
                 pg.Width = 0.0f;
                 _putcards.Add(pg);
                 _putidx = _putcards.Count - 1;
-                ((GameController)_controller).CurIdx = _idx;
-                _ctx.EnqueueRenderQueue(RenderGang);
 
             } else if (code == OpCodes.OPCODE_BUGANG) {
                 // 找出那个card
@@ -613,11 +609,12 @@ namespace Bacon {
                         break;
                     }
                 }
-                ((GameController)_controller).CurIdx = _idx;
-                _ctx.EnqueueRenderQueue(RenderGang);
             } else {
                 UnityEngine.Debug.Assert(false);
             }
+
+             ((GameController)_controller).CurIdx = _idx;
+            _ctx.EnqueueRenderQueue(RenderGang);
         }
 
         public Card QiangGang(long c) {
@@ -645,7 +642,7 @@ namespace Bacon {
 
             name = "gang";
 
-            ABLoader.current.LoadABAsync<AudioClip>(path.ToLower(), name, (AudioClip clip) => {
+            ABLoader.current.LoadAssetAsync<AudioClip>(path, name, (AudioClip clip) => {
                 SoundMgr.current.PlaySound(_go, clip);
             });
         }
@@ -700,7 +697,7 @@ namespace Bacon {
 
             name = "hu";
 
-            ABLoader.current.LoadABAsync<AudioClip>(path.ToLower(), name, (AudioClip clip) => {
+            ABLoader.current.LoadAssetAsync<AudioClip>(path, name, (AudioClip clip) => {
                 SoundMgr.current.PlaySound(_go, clip);
             });
         }

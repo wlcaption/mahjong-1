@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Maria;
+using Bacon;
 
 public class MailWnd : MonoBehaviour {
 
@@ -29,6 +31,8 @@ public class MailWnd : MonoBehaviour {
         if (gameObject.activeSelf) {
             gameObject.SetActive(false);
         }
+        Command cmd = new Command(MyEventCmd.EVENT_MUI_MSGCLOSED);
+        GetComponent<FindApp>().App.Enqueue(cmd);
     }
 
     public void OnOfficalChanged(bool value) {
@@ -47,24 +51,30 @@ public class MailWnd : MonoBehaviour {
         }
     }
 
-    public void ShowMsg(SysInbox inbox) {
-        //for (int i = 0; i < length; i++) {
+    public void ShowSysMsg(SysInbox inbox) {
+        if (!gameObject.activeSelf) {
+            gameObject.SetActive(true);
+        }
 
-        //}
         Transform content = _OfficialPage.transform.FindChild("Viewport").FindChild("Content");
-        GameObject go = Instantiate(Resources.Load<GameObject>("Prefabs/UI/MsgItem"));
-        go.transform.SetParent(content);
-    }
-
-    public void ShowMailInfo(string title, string content) {
-        if (!_InfoPage.activeSelf) {
-            _InfoPage.SetActive(true);
+        if (content.childCount > 0) {
+            content.DetachChildren();
+        }
+        if (content.childCount == 0) {
+            foreach (var item in inbox) {
+                GameObject ori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Controls", "MailItem");
+                GameObject go = GameObject.Instantiate<GameObject>(ori);
+                go.GetComponent<MsgItem>().SetType(MsgItem.Type.Sys);
+                go.GetComponent<MsgItem>().SetId(item.Id);
+                go.GetComponent<MsgItem>().SetTitle(item.Title);
+                go.GetComponent<MsgItem>().SetContent(item.Content);
+                go.GetComponent<MsgItem>().SetDateTime(item.DateTime);
+                go.transform.SetParent(content);
+            }
         }
     }
 
-    public void OnCloseMailInfo() {
-        if (_InfoPage.activeSelf) {
-            _InfoPage.SetActive(false);
-        }
+    public void ShowVerMsg(VerInbox inbox) {
+
     }
 }

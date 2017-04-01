@@ -41,7 +41,7 @@ public class OverWnd : MonoBehaviour {
     }
 
     public void SettleBottom(List<SettlementItem> li) {
-        GameObject label = ABLoader.current.LoadRes<GameObject>("Prefabs/UI/OverLable");
+        GameObject label = ABLoader.current.LoadAsset<GameObject>("Prefabs/UI", "OverLable");
         Transform content = _Bottom.transform.FindChild("Content");
         long chip = 0;
         for (int i = 0; i < li.Count; i++) {
@@ -72,7 +72,7 @@ public class OverWnd : MonoBehaviour {
     }
 
     public void SettleLeft(List<SettlementItem> li) {
-        GameObject label = ABLoader.current.LoadRes<GameObject>("Prefabs/UI/OverLable");
+        GameObject label = ABLoader.current.LoadAsset<GameObject>("Prefabs/UI", "OverLable");
         long chip = 0;
         for (int i = 0; i < li.Count; i++) {
             chip += li[i].Chip;
@@ -83,7 +83,7 @@ public class OverWnd : MonoBehaviour {
     }
 
     public void SettleTop(List<SettlementItem> li) {
-        GameObject label = ABLoader.current.LoadRes<GameObject>("Prefabs/UI/OverLable");
+        GameObject label = ABLoader.current.LoadAsset<GameObject>("Prefabs/UI", "OverLable");
         long chip = 0;
         for (int i = 0; i < li.Count; i++) {
             chip += li[i].Chip;
@@ -94,7 +94,7 @@ public class OverWnd : MonoBehaviour {
     }
 
     public void SettleRight(List<SettlementItem> li) {
-        GameObject label = ABLoader.current.LoadRes<GameObject>("Prefabs/UI/OverLable");
+        GameObject label = ABLoader.current.LoadAsset<GameObject>("Prefabs/UI", "OverLable");
         long chip = 0;
         for (int i = 0; i < li.Count; i++) {
             chip += li[i].Chip;

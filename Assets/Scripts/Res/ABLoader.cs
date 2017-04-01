@@ -20,6 +20,7 @@ public class ABLoader : MonoBehaviour {
     private Dictionary<string, AssetBundle> _dic = new Dictionary<string, AssetBundle>();
     private Dictionary<string, UnityEngine.Object> _res = new Dictionary<string, UnityEngine.Object>();
     private Dictionary<string, PathType> _path = new Dictionary<string, PathType>();
+    private string _abversion = ".normal";
     private int _version;
     private int _resversion;
     private int _step;
@@ -31,7 +32,8 @@ public class ABLoader : MonoBehaviour {
         }
     }
 
-    void Start() { }
+    void Start() {
+    }
 
     void Update() {
         //_request.progress;
@@ -39,7 +41,17 @@ public class ABLoader : MonoBehaviour {
 
     public void FetchVersion(Action cb) {
         _step = 0;
-        StartCoroutine(FetchVersionFile(cb));
+        LoadPath();
+        //StartCoroutine(FetchVersionFile(cb));
+    }
+
+    public void LoadPath() {
+        TextAsset asset = LoadRes<TextAsset>("version");
+        JSONObject json = new JSONObject(asset.text);
+        JSONObject abs = json.GetField("abs");
+        for (int i = 0; i < abs.keys.Count; i++) {
+            _path[abs.keys[i]] = PathType.STR;
+        }
     }
 
     IEnumerator FetchVersionFile(Action cb) {
@@ -118,7 +130,27 @@ public class ABLoader : MonoBehaviour {
         }
     }
 
-    public T LoadAB<T>(string path, string name) where T : UnityEngine.Object {
+    public T LoadAsset<T>(string path, string name) where T : UnityEngine.Object {
+        T res = LoadAB<T>(path.ToLower(), name);
+        if (res == null) {
+            string xpath = path + "/" + name;
+            res = LoadRes<T>(xpath);
+        }
+        return res;
+    }
+
+    public void LoadAssetAsync<T>(string path, string name, Action<T> cb) where T : UnityEngine.Object {
+        LoadABAsync<T>(path.ToLower(), name, (T asset) => {
+            if (asset == null) {
+                LoadResAsync<T>(Path.Combine(path, name), cb);
+            } else {
+                cb(asset);
+            }
+        });
+    }
+
+    private T LoadAB<T>(string xpath, string name) where T : UnityEngine.Object {
+        string path = xpath + _abversion;
         if (_dic.ContainsKey(path)) {
             AssetBundle ab = _dic[path];
             return ab.LoadAsset<T>(name);
@@ -138,28 +170,33 @@ public class ABLoader : MonoBehaviour {
                     LoadAB<UnityEngine.Object>(path, depends[i]);
                 }
             }
-            if (_path.ContainsKey(path) && _path[path] == PathType.PER) {
-                AssetBundle ab = AssetBundle.LoadFromFile(Application.persistentDataPath + "/" + path);
-                if (ab.Contains(name)) {
-                    return ab.LoadAsset<T>(name);
+            if (_path.ContainsKey(path)) {
+                if (_path[path] == PathType.PER) {
+                    AssetBundle ab = AssetBundle.LoadFromFile(Application.persistentDataPath + "/" + path);
+                    if (ab.Contains(name)) {
+                        return ab.LoadAsset<T>(name);
+                    } else {
+                        Debug.LogError("no exits");
+                        return null;
+                    }
                 } else {
-                    Debug.LogError("no exits");
-                    return null;
+                    AssetBundle ab = AssetBundle.LoadFromFile(Application.streamingAssetsPath + "/" + path);
+                    if (ab != null && ab.Contains(name)) {
+                        return ab.LoadAsset<T>(name);
+                    } else {
+                        Debug.LogError("no exits");
+                        return null;
+                    }
                 }
             } else {
-                AssetBundle ab = AssetBundle.LoadFromFile(Application.streamingAssetsPath + "/" + path);
-                if (ab != null && ab.Contains(name)) {
-                    return ab.LoadAsset<T>(name);
-                } else {
-                    Debug.LogError("no exits");
-                    return null;
-                }
+                return null;
             }
         }
         return null;
     }
 
-    public void LoadABAsync<T>(string path, string name, Action<T> cb) where T : UnityEngine.Object {
+    private void LoadABAsync<T>(string xpath, string name, Action<T> cb) where T : UnityEngine.Object {
+        string path = xpath + _abversion;
         if (_dic.ContainsKey(path)) {
             AssetBundle ab = _dic[path];
             if (ab.Contains(name)) {
@@ -196,25 +233,29 @@ public class ABLoader : MonoBehaviour {
                     _dic[depends[i]] = depend_request.assetBundle;
                 }
             }
-            if (_path.ContainsKey(path) && _path[path] == PathType.PER) {
-                AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(Application.persistentDataPath + "/" + path);
-                yield return request;
-                _dic[path] = request.assetBundle;
-                AssetBundle ab = request.assetBundle;
-                T asset = ab.LoadAsset<T>(name);
-                cb(asset);
+            if (_path.ContainsKey(path)) {
+                if (_path[path] == PathType.PER) {
+                    AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(Application.persistentDataPath + "/" + path);
+                    yield return request;
+                    _dic[path] = request.assetBundle;
+                    AssetBundle ab = request.assetBundle;
+                    T asset = ab.LoadAsset<T>(name);
+                    cb(asset);
+                } else {
+                    AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(Application.streamingAssetsPath + "/" + path);
+                    yield return request;
+                    _dic[path] = request.assetBundle;
+                    AssetBundle ab = request.assetBundle;
+                    T asset = ab.LoadAsset<T>(name);
+                    cb(asset);
+                }
             } else {
-                AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(Application.streamingAssetsPath + "/" + path);
-                yield return request;
-                _dic[path] = request.assetBundle;
-                AssetBundle ab = request.assetBundle;
-                T asset = ab.LoadAsset<T>(name);
-                cb(asset);
+                cb(null);
             }
         }
     }
 
-    public void LoadResAsync<T>(string path, Action<T> cb) where T : UnityEngine.Object {
+    private void LoadResAsync<T>(string path, Action<T> cb) where T : UnityEngine.Object {
         if (_res.ContainsKey(path)) {
             cb(_res.ContainsKey(path) as T);
         } else {
@@ -235,7 +276,7 @@ public class ABLoader : MonoBehaviour {
         }
     }
 
-    public T LoadRes<T>(string path) where T : UnityEngine.Object {
+    private T LoadRes<T>(string path) where T : UnityEngine.Object {
         if (_res.ContainsKey(path)) {
             return _res[path] as T;
         } else {

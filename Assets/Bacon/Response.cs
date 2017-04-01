@@ -26,7 +26,7 @@ namespace Maria.Network {
 
             _cs.RegisterResponse(C2sProtocol.first.Tag, first);
             _cs.RegisterResponse(C2sProtocol.fetchsysmail.Tag, fetchsysmail);
-            _cs.RegisterResponse(C2sProtocol.fetchsysmail1.Tag, fetchsysmail1);
+            _cs.RegisterResponse(C2sProtocol.syncsysmail.Tag, syncsysmail);
             _cs.RegisterResponse(C2sProtocol.rchat.Tag, rchat);
             _cs.RegisterResponse(C2sProtocol.xuanpao.Tag, xuanpao);
             _cs.RegisterResponse(C2sProtocol.xuanque.Tag, xuanque);
@@ -91,9 +91,9 @@ namespace Maria.Network {
             ctr.FetchSysmail(responseObj);
         }
 
-        public void fetchsysmail1(uint session, SprotoTypeBase responseObj) {
+        public void syncsysmail(uint session, SprotoTypeBase responseObj) {
             MainController ctr = _ctx.Top() as MainController;
-            ctr.FetchSysmail1(responseObj);
+            ctr.SyncSysmail(responseObj);
         }
 
         public void rchat(uint session, SprotoTypeBase responseObj) { }

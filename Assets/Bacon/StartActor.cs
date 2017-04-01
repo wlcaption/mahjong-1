@@ -18,12 +18,16 @@ namespace Bacon {
             if (((AppConfig)_ctx.Config).UpdateRes) {
                 _ctx.EnqueueRenderQueue(RenderUpdateRes);
             } else {
-                _ctx.Push(typeof(LoginController));
+                _ctx.EnqueueRenderQueue(RenderTestRes);
             }
         }
 
         public void RenderUpdateRes() {
             _go.GetComponent<StartBehaviour>().UpdateRes();
+        }
+
+        public void RenderTestRes() {
+            _go.GetComponent<StartBehaviour>().TestRes();
         }
 
         private void CountdownCb(EventCmd e) {
