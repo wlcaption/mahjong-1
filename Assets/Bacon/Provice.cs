@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Bacon {
     class Provice {
-        public static uint Sichuan = 1;
-        public static uint Shaanxi = 2;
+        public static int Sichuan = 1;
+        public static int Shaanxi = 2;
     }
 }

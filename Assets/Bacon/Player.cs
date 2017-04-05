@@ -31,8 +31,9 @@ namespace Bacon {
         protected long _d1;
         protected long _d2;
 
-        protected const float _takeleftoffset = 0.44f;
-        protected const float _takebottomoffset = 0.20f;
+        // 每个player可能不一样
+        protected float _takeleftoffset = 0.5f;
+        protected float _takebottomoffset = 0.35f;
 
         protected int _takecardsidx = 0;
         protected int _takecardscnt = 0;
@@ -43,20 +44,25 @@ namespace Bacon {
         protected const float _abdicateholddelta = 0.6f;
         protected const float _holdflydelta = 1.2f;
         protected const float _sortcardsdelta = 0.8f;
-        protected const float _leftoffset = 0.56f;
-        protected const float _bottomoffset = 0.1f;
+
+        // 重写
+        protected float _leftoffset = 0.56f;
+        protected float _bottomoffset = 0.1f;
 
         protected bool _takefirst = false;                 // 庄家
         protected List<Card> _cards = new List<Card>();
 
-        protected const float _leadleftoffset = 0.7f;
-        protected const float _leadbottomoffset = 0.7f;  // 偏移起始值
+        // 重写
+        protected float _leadleftoffset = 0.7f;
+        protected float _leadbottomoffset = 0.7f;  // 偏移起始值
         protected List<Card> _leadcards = new List<Card>();
 
         protected const float _putmovedelta = 0.1f;
         protected const float _putmargin = 0.02f;
-        protected const float _putrightoffset = 0.1f;
-        protected const float _putbottomoffset = 0.1f;
+
+        // 重写
+        protected float _putrightoffset = 0.1f;
+        protected float _putbottomoffset = 0.1f;
         protected int _putidx = 0;
         protected List<PGCards> _putcards = new List<PGCards>();
 
@@ -72,6 +78,7 @@ namespace Bacon {
         protected long _turntype;
         protected long _fen;
         protected Card.CardType _que;
+        protected bool _hashu = false;
 
         protected List<SettlementItem> _settle = new List<SettlementItem>();
         protected long _wal;         // 赢的钱或者输的钱
@@ -131,6 +138,12 @@ namespace Bacon {
         protected virtual Vector3 CalcLeadPos(int pos) {
             return Vector3.zero;
         }
+
+        public void FixDirMark() {
+            _ctx.EnqueueRenderQueue(RenderFixDirMark);
+        }
+
+        protected virtual void RenderFixDirMark() { }
 
         public virtual void Boxing(List<long> cs, Dictionary<long, Card> cards) {
             for (int i = 0; i < cs.Count; i++) {
@@ -396,7 +409,6 @@ namespace Bacon {
             } else {
                 path += "Woman";
             }
-            path += ".normal";
 
             if (_leadcard.Type == Card.CardType.Bam) {
                 name = "bam";
@@ -494,7 +506,6 @@ namespace Bacon {
             } else {
                 path += "Woman";
             }
-            path += ".normal";
 
             name = "peng";
 
@@ -638,7 +649,6 @@ namespace Bacon {
             } else {
                 path += "Woman";
             }
-            path += ".normal";
 
             name = "gang";
 
@@ -680,6 +690,10 @@ namespace Bacon {
                 _holdcard = null;
             }
 
+            if (!_hashu) {
+                _hashu = true;
+            }
+
             ((GameController)_controller).CurIdx = _idx;
             _ctx.EnqueueRenderQueue(RenderHu);
         }
@@ -693,7 +707,6 @@ namespace Bacon {
             } else {
                 path += "Woman";
             }
-            path += ".normal";
 
             name = "hu";
 
@@ -707,9 +720,7 @@ namespace Bacon {
             _ctx.EnqueueRenderQueue(RenderHuSettle);
         }
 
-        protected virtual void RenderHuSettle() {
-
-        }
+        protected virtual void RenderHuSettle() { }
 
         public void Over() {
             _ctx.EnqueueRenderQueue(RenderOver);
@@ -755,6 +766,8 @@ namespace Bacon {
             _turntype = 0;
             _fen = 0;
             _que = 0;
+            _hashu = false;
+
             _wal = 0;         // 赢的钱或者输的钱
             _say = 0;
         }

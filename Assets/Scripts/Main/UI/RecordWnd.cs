@@ -7,15 +7,19 @@ public class RecordWnd : MonoBehaviour {
 
     public GameObject _Content;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    // Use this for initialization
+    void Start() {
+    }
+
+    // Update is called once per frame
+    void Update() {
+    }
+
+    public void Show() {
+        if (!gameObject.activeSelf) {
+            gameObject.SetActive(true);
+        }
+    }
 
     public void Show(RecordMgr mgr) {
         if (!gameObject.activeSelf) {

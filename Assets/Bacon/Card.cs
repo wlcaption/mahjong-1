@@ -73,5 +73,19 @@ namespace Bacon {
         public static bool operator !=(Card lhs, Card rhs) {
             return !(lhs == rhs);
         }
+
+        public override string ToString() {
+            string res = string.Empty;
+            res += "type:";
+            if (_type == CardType.Bam) {
+                res += "条";
+            } else if (_type == CardType.Crak) {
+                res += "万";
+            } else if (_type == CardType.Dot) {
+                res += "筒";
+            }
+            res += string.Format("num:{0}", _num);
+            return res;
+        }
     }
 }

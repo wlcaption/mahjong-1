@@ -211,13 +211,11 @@ public class ABLoader : MonoBehaviour {
     IEnumerator LoadABAsyncImp<T>(string path, string name, Action<T> cb) where T : UnityEngine.Object {
         if (_manifest == null) {
             if (_path.ContainsKey(ABConfig.ABMANIFEST) && _path[ABConfig.ABMANIFEST] == PathType.PER) {
-                AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(Application.persistentDataPath + "/" + ABConfig.ABMANIFEST);
-                yield return request;
-                _manifest = request.assetBundle.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+                AssetBundle ab = AssetBundle.LoadFromFile(Application.persistentDataPath + "/" + ABConfig.ABMANIFEST);
+                _manifest = ab.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
             } else {
-                AssetBundleCreateRequest request = AssetBundle.LoadFromFileAsync(Path.Combine(Application.streamingAssetsPath, ABConfig.ABMANIFEST));
-                yield return request;
-                _manifest = request.assetBundle.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+                AssetBundle ab = AssetBundle.LoadFromFile(Application.streamingAssetsPath + "/" + ABConfig.ABMANIFEST);
+                _manifest = ab.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
             }
         }
         if (_manifest != null) {

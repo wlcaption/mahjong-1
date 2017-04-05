@@ -204,7 +204,7 @@ namespace C2sSprotoType {
 	public class create {
 	
 		public class request : SprotoTypeBase {
-			private static int max_field_count = 4;
+			private static int max_field_count = 5;
 			
 			
 			private Int64 _provice; // tag 0
@@ -225,22 +225,31 @@ namespace C2sSprotoType {
 				get { return base.has_field.has_field (1); }
 			}
 
-			private crsc _sc; // tag 2
-			public crsc sc {
-				get { return _sc; }
-				set { base.has_field.set_field (2, true); _sc = value; }
+			private Int64 _overtype; // tag 2
+			public Int64 overtype {
+				get { return _overtype; }
+				set { base.has_field.set_field (2, true); _overtype = value; }
 			}
-			public bool HasSc {
+			public bool HasOvertype {
 				get { return base.has_field.has_field (2); }
 			}
 
-			private crsx _sx; // tag 3
+			private crsc _sc; // tag 3
+			public crsc sc {
+				get { return _sc; }
+				set { base.has_field.set_field (3, true); _sc = value; }
+			}
+			public bool HasSc {
+				get { return base.has_field.has_field (3); }
+			}
+
+			private crsx _sx; // tag 4
 			public crsx sx {
 				get { return _sx; }
-				set { base.has_field.set_field (3, true); _sx = value; }
+				set { base.has_field.set_field (4, true); _sx = value; }
 			}
 			public bool HasSx {
-				get { return base.has_field.has_field (3); }
+				get { return base.has_field.has_field (4); }
 			}
 
 			public request () : base(max_field_count) {}
@@ -260,9 +269,12 @@ namespace C2sSprotoType {
 						this.ju = base.deserialize.read_integer ();
 						break;
 					case 2:
-						this.sc = base.deserialize.read_obj<crsc> ();
+						this.overtype = base.deserialize.read_integer ();
 						break;
 					case 3:
+						this.sc = base.deserialize.read_obj<crsc> ();
+						break;
+					case 4:
 						this.sx = base.deserialize.read_obj<crsx> ();
 						break;
 					default:
@@ -284,11 +296,15 @@ namespace C2sSprotoType {
 				}
 
 				if (base.has_field.has_field (2)) {
-					base.serialize.write_obj (this.sc, 2);
+					base.serialize.write_integer (this.overtype, 2);
 				}
 
 				if (base.has_field.has_field (3)) {
-					base.serialize.write_obj (this.sx, 3);
+					base.serialize.write_obj (this.sc, 3);
+				}
+
+				if (base.has_field.has_field (4)) {
+					base.serialize.write_obj (this.sx, 4);
 				}
 
 				return base.serialize.close ();

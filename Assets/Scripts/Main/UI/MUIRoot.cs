@@ -70,7 +70,7 @@ public class MUIRoot : MonoBehaviour {
 
     public void OnRecored() {
         if (_RecorePanel != null) {
-            _RecorePanel.SetActive(true);
+            _RecorePanel.GetComponent<RecordWnd>().Show();
         }
     }
 

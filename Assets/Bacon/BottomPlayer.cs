@@ -15,7 +15,6 @@ namespace Bacon {
         private global::BottomPlayer _com;
 
         public BottomPlayer(Context ctx, GameService service) : base(ctx, service) {
-
             _ori = Orient.BOTTOM;
 
             _upv = Quaternion.AngleAxis(0.0f, Vector3.up);
@@ -23,6 +22,14 @@ namespace Bacon {
             _downv = Quaternion.AngleAxis(180.0f, Vector3.forward);
             _backv = Quaternion.AngleAxis(0.0f, Vector3.up) * Quaternion.AngleAxis(180.0f, Vector3.forward);
 
+            _takeleftoffset = 0.5f;
+            _takebottomoffset = 0.35f;
+
+            _leftoffset = 0.5f;
+            _bottomoffset = 0.2f;
+
+            _leadleftoffset = 0.8f;
+            _leadbottomoffset = 0.8f;
 
             EventListenerCmd listener1 = new EventListenerCmd(MyEventCmd.EVENT_SETUP_BOTTOMPLAYER, OnSetup);
             _ctx.EventDispatcher.AddCmdEventListener(listener1);
@@ -195,25 +202,52 @@ namespace Bacon {
             _ctx.SendReq<C2sProtocol.xuanpao>(C2sProtocol.xuanpao.Tag, request);
         }
 
-        protected override void RenderBoxing() {
-            Desk desk = ((GameController)_controller).Desk;
-            for (int i = 0; i < _takecards.Count; i++) {
-                int idx = i / 2;
-                float x = desk.Width - (_takeleftoffset + idx * Card.Width + Card.Width / 2.0f);
-                float y = Card.Height / 2.0f;
-                float z = _takebottomoffset + Card.Length / 2.0f;
-                if (i % 2 == 0) {
-                    y = Card.Height / 2.0f + Card.Height;
-                } else if (i % 2 == 1) {
-                    y = Card.Height / 2.0f;
-                }
-                Card card = _takecards[i];
-                card.Go.transform.localPosition = new UnityEngine.Vector3(x, y, z);
-                card.Go.transform.localRotation = Quaternion.AngleAxis(180.0f, Vector3.forward);
+        protected override void RenderFixDirMark() {
+            if (_idx == 1) {
+                ((GameController)_controller).Desk.RenderSetDongAtBottom();
+            } else if (_idx == 2) {
+                ((GameController)_controller).Desk.RenderSetNanAtBottom();
+            } else if (_idx == 3) {
+                ((GameController)_controller).Desk.RenderSetXiAtBottom();
+            } else if (_idx == 4) {
+                ((GameController)_controller).Desk.RenderSetBeiAtBottom();
             }
+        }
 
-            Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_BOXINGCARDS);
-            _ctx.Enqueue(cmd);
+        protected override void RenderBoxing() {
+            int count = 0;
+            Desk desk = ((GameController)_controller).Desk;
+            desk.RenderShowBottomSlot(() => {
+                for (int i = 0; i < _takecards.Count; i++) {
+                    int idx = i / 2;
+                    float x = desk.Width - (_takeleftoffset + idx * Card.Width + Card.Width / 2.0f);
+                    float y = Card.Height / 2.0f;
+                    float z = _takebottomoffset + Card.Length / 2.0f;
+                    if (i % 2 == 0) {
+                        y = Card.Height / 2.0f + Card.Height;
+                    } else if (i % 2 == 1) {
+                        y = Card.Height / 2.0f;
+                    }
+                    Card card = _takecards[i];
+                    card.Go.transform.localRotation = Quaternion.AngleAxis(180.0f, Vector3.forward);
+
+                    float movey = 1.0f;
+                    card.Go.transform.localPosition = new UnityEngine.Vector3(x, y - movey, z);
+                    Tween t = card.Go.transform.DOLocalMoveY(y + movey, 0.1f);
+
+                    Sequence mySequence = DOTween.Sequence();
+                    mySequence.Append(t)
+                    .AppendCallback(() => {
+                        count++;
+                        if (count == _takecards.Count) {
+                            desk.RenderCloseBottomSlot(() => {
+                                Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_BOXINGCARDS);
+                                _ctx.Enqueue(cmd);
+                            });
+                        }
+                    });
+                }
+            });
         }
 
         protected override void RenderThrowDice() {
@@ -297,7 +331,7 @@ namespace Bacon {
 
         protected override void RenderTakeXuanQue() {
             if (_xuanque == null) {
-                ABLoader.current.LoadAssetAsync<GameObject>("Prefabs/UI", "ScXuanQue", (GameObject go) => {
+                ABLoader.current.LoadAssetAsync<GameObject>("Prefabs/Controls", "ScXuanQue", (GameObject go) => {
                     GameObject inst = GameObject.Instantiate<GameObject>(go);
                     if (inst) {
                         _xuanque = inst;
@@ -327,33 +361,50 @@ namespace Bacon {
                 dst.y = dst.y + Card.Length;
                 _holdcard.Go.transform.localPosition = dst;
                 _holdcard.Go.transform.localRotation = Quaternion.AngleAxis(-60, Vector3.right);
+                // 摸了一个
+                _com.HoldCard = _holdcard.Go;
 
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(_holdcard.Go.transform.DOMoveY(Card.Length / 2.0f, _holddelta))
                     .AppendCallback(() => {
-                        _go.GetComponent<global::BottomPlayer>().HoldCard = _holdcard.Go;
-                        _go.GetComponent<global::BottomPlayer>().SwitchOnTouch();
+                        if (_hashu) {
+                            Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_LEAD, _holdcard.Go);
+                            _ctx.Enqueue(cmd);
+                        } else {
+                            _com.SwitchOnTouch();
+                        }
                     });
             } else if (_turntype == 0) {
                 Vector3 dst = CalcPos(_cards.Count + 1);
                 _holdcard.Go.transform.localRotation = Quaternion.AngleAxis(-60, Vector3.right);
+                // 从cards分出来的
+                _com.Remove(_holdcard);
+                _com.HoldCard = _holdcard.Go;
 
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(_holdcard.Go.transform.DOMove(dst, _holddelta))
                     .AppendCallback(() => {
-                        _go.GetComponent<global::BottomPlayer>().HoldCard = _holdcard.Go;
+                        UnityEngine.Debug.Assert(_hashu == false);
                         _go.GetComponent<global::BottomPlayer>().SwitchOnTouch();
                     });
             } else if (_turntype == 2) {
                 if (_xuanque) {
                     _xuanque.GetComponent<XuanQue>().Close();
                 }
+
+                UnityEngine.Debug.Assert(_hashu == false);
                 _com.Head.ShowTips("你是庄家，请先出牌");
-                _com.HoldCard = _holdcard.Go;
+                //_com.HoldCard = _holdcard.Go;
                 _com.SwitchOnTouch();
             } else if (_turntype == 3) {
-                _com.HoldCard = _holdcard.Go;
-                _com.SwitchOnTouch();
+                UnityEngine.Debug.Assert(_hashu == false);
+                //_com.HoldCard = _holdcard.Go;
+                if (_hashu) {
+                    Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_LEAD, _holdcard.Go);
+                    _ctx.Enqueue(cmd);
+                } else {
+                    _com.SwitchOnTouch();
+                }
             }
         }
 
@@ -417,12 +468,14 @@ namespace Bacon {
             Vector3 dst = CalcLeadPos(_leadcards.Count - 1);
             _leadcard.Go.transform.localPosition = dst;
             _leadcard.Go.transform.localRotation = _upv;
+
             dst.y = dst.y + _curorMH;
             ((GameController)_controller).Desk.RenderChangeCursor(dst);
 
             if (_leadcard.Value != _holdcard.Value) {
-                _go.GetComponent<global::BottomPlayer>().Remove(_leadcard);
-                _go.GetComponent<global::BottomPlayer>().Add(_holdcard);
+                _com.Remove(_leadcard);
+                _com.Add(_holdcard);
+                _com.HoldCard = null;
 
                 if (_holdcard.Pos == (_cards.Count - 1)) {
                     RenderSortCardsToDo(() => {
@@ -439,7 +492,7 @@ namespace Bacon {
                 }
             } else {
                 // 播放出牌动画，手上拿的是刚摸起来的牌
-                _go.GetComponent<global::BottomPlayer>().HoldCard = null;
+                _com.HoldCard = null;
                 _holdcard = null;
                 _leadcard = null;
                 UnityEngine.Debug.LogFormat("bottom player send event lead card");
@@ -459,32 +512,54 @@ namespace Bacon {
                 _holdcard.Go.transform.localPosition = dst;
                 _holdcard.Go.transform.localRotation = Quaternion.AngleAxis(-60, Vector3.right);
 
+                _com.HoldCard = _holdcard.Go;
+
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(_holdcard.Go.transform.DOMoveY(Card.Length / 2.0f, _holddelta))
                     .AppendCallback(() => {
-                        if (Call.Peng == OpCodes.OPCODE_PENG) {
-                            _go.GetComponent<global::BottomPlayer>().ShowPeng();
+                        if (_hashu) {
+                            if (Call.Hu.Code != HuType.NONE) {
+                                Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_HU);
+                                _ctx.Enqueue(cmd);
+                            } else {
+                                Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_GUO);
+                                _ctx.Enqueue(cmd);
+                            }
+                        } else {
+                            if (Call.Peng == OpCodes.OPCODE_PENG) {
+                                _go.GetComponent<global::BottomPlayer>().ShowPeng();
+                            }
+                            if (Call.Gang == OpCodes.OPCODE_ANGANG || Call.Gang == OpCodes.OPCODE_BUGANG || Call.Gang == OpCodes.OPCODE_ZHIGANG) {
+                                _go.GetComponent<global::BottomPlayer>().ShowGang();
+                            }
+                            if (Call.Hu.Code != HuType.NONE) {
+                                _go.GetComponent<global::BottomPlayer>().ShowHu();
+                            }
+                            _go.GetComponent<global::BottomPlayer>().ShowGuo();
                         }
-                        if (Call.Gang == OpCodes.OPCODE_ANGANG || Call.Gang == OpCodes.OPCODE_BUGANG || Call.Gang == OpCodes.OPCODE_ZHIGANG) {
-                            _go.GetComponent<global::BottomPlayer>().ShowGang();
-                        }
-                        if (Call.Hu.Code != HuType.NONE) {
-                            _go.GetComponent<global::BottomPlayer>().ShowHu();
-                        }
-                        _go.GetComponent<global::BottomPlayer>().ShowGuo();
                     });
 
             } else {
-                if (Call.Peng == OpCodes.OPCODE_PENG) {
-                    _go.GetComponent<global::BottomPlayer>().ShowPeng();
+                if (_hashu) {
+                    if (Call.Hu.Code != HuType.NONE) {
+                        Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_HU);
+                        _ctx.Enqueue(cmd);
+                    } else {
+                        Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_GUO);
+                        _ctx.Enqueue(cmd);
+                    }
+                } else {
+                    if (Call.Peng == OpCodes.OPCODE_PENG) {
+                        _go.GetComponent<global::BottomPlayer>().ShowPeng();
+                    }
+                    if (Call.Gang == OpCodes.OPCODE_ANGANG || Call.Gang == OpCodes.OPCODE_BUGANG || Call.Gang == OpCodes.OPCODE_ZHIGANG) {
+                        _go.GetComponent<global::BottomPlayer>().ShowGang();
+                    }
+                    if (Call.Hu.Code != HuType.NONE) {
+                        _go.GetComponent<global::BottomPlayer>().ShowHu();
+                    }
+                    _go.GetComponent<global::BottomPlayer>().ShowGuo();
                 }
-                if (Call.Gang == OpCodes.OPCODE_ANGANG || Call.Gang == OpCodes.OPCODE_BUGANG || Call.Gang == OpCodes.OPCODE_ZHIGANG) {
-                    _go.GetComponent<global::BottomPlayer>().ShowGang();
-                }
-                if (Call.Hu.Code != HuType.NONE) {
-                    _go.GetComponent<global::BottomPlayer>().ShowHu();
-                }
-                _go.GetComponent<global::BottomPlayer>().ShowGuo();
             }
         }
 
@@ -500,6 +575,9 @@ namespace Bacon {
             Desk desk = ((GameController)_controller).Desk;
             PGCards pg = _putcards[_putidx];
             UnityEngine.Debug.Assert(pg.Cards.Count == 3);
+            for (int i = 0; i < pg.Cards.Count - 1; i++) {
+                _com.Remove(pg.Cards[i]);
+            }
 
             float offset = _putrightoffset;
             for (int i = 0; i < _putidx; i++) {
@@ -533,6 +611,10 @@ namespace Bacon {
                     .AppendCallback(() => {
                         count++;
                         if (count >= _putcards[_putidx].Cards.Count) {
+                            Vector3 dst = _putcards[_putidx].Cards[2].Go.transform.localPosition;
+                            dst.y = dst.y + _curorMH;
+                            ((GameController)_controller).Desk.RenderChangeCursor(dst);
+
                             RenderSortCardsToDo(() => {
                                 Command cmd = new Command(MyEventCmd.EVENT_PENGCARD);
                                 _ctx.Enqueue(cmd);
@@ -558,6 +640,9 @@ namespace Bacon {
             int count = 0;
             float move = 0.1f;
             if (pg.Opcode == OpCodes.OPCODE_ZHIGANG) {
+                for (int i = 0; i < _cards.Count - 1; i++) {
+                    _com.Remove(_cards[i]);
+                }
 
                 for (int i = 0; i < pg.Cards.Count; i++) {
                     float x = 0.0f;
@@ -580,9 +665,14 @@ namespace Bacon {
 
                     Sequence mySequence = DOTween.Sequence();
                     mySequence.Append(pg.Cards[i].Go.transform.DOMoveX(x + move, _putmovedelta))
+                        .AppendInterval(1f)
                         .AppendCallback(() => {
                             count++;
                             if (count >= _putcards[_putidx].Cards.Count) {
+                                Vector3 dst = _putcards[_putidx].Cards[3].Go.transform.localPosition;
+                                dst.y = dst.y + _curorMH;
+                                ((GameController)_controller).Desk.RenderChangeCursor(dst);
+
                                 RenderSortCardsToDo(() => {
                                     Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
                                     _ctx.Enqueue(cmd);
@@ -607,15 +697,32 @@ namespace Bacon {
 
                     Sequence mySequence = DOTween.Sequence();
                     mySequence.Append(pg.Cards[i].Go.transform.DOMoveX(x + move, _putmovedelta))
+                        .AppendInterval(1f)
                         .AppendCallback(() => {
                             count++;
                             if (count >= _putcards[_putidx].Cards.Count) {
+                                Vector3 dst = _putcards[_putidx].Cards[3].Go.transform.localPosition;
+                                dst.y = dst.y + _curorMH;
+                                ((GameController)_controller).Desk.RenderChangeCursor(dst);
+
                                 if (pg.Cards[3].Value == _holdcard.Value) {
+                                    // 清除go
+                                    for (int j = 0; j < pg.Cards.Count - 1; j++) {
+                                        _com.Remove(pg.Cards[j]);
+                                    }
+                                    _com.HoldCard = null;
+
                                     RenderSortCardsToDo(() => {
                                         Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
                                         _ctx.Enqueue(cmd);
                                     });
                                 } else {
+                                    // 清除go,加入holdcard
+                                    for (int j = 0; j < pg.Cards.Count; j++) {
+                                        _com.Remove(pg.Cards[j]);
+                                    }
+                                    _com.Add(_holdcard);
+
                                     if (_holdcard.Pos == (_cards.Count - 1)) {
                                         RenderSortCardsToDo(() => {
                                             Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
@@ -641,16 +748,32 @@ namespace Bacon {
 
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(pg.Cards[3].Go.transform.DOMoveX(x + move, _putmovedelta))
+                    .AppendInterval(1f)
                     .AppendCallback(() => {
+                        Vector3 dst = _putcards[_putidx].Cards[3].Go.transform.localPosition;
+                        dst.y = dst.y + _curorMH;
+                        ((GameController)_controller).Desk.RenderChangeCursor(dst);
+
                         if (_holdcard.Value == pg.Cards[3].Value) {
+                            _com.HoldCard = null;
                             _holdcard = null;
                             Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
                             _ctx.Enqueue(cmd);
                         } else {
-                            RenderFly(() => {
-                                Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
-                                _ctx.Enqueue(cmd);
-                            });
+                            _com.Remove(pg.Cards[3]);
+                            _com.Add(_holdcard);
+
+                            if (_holdcard.Pos == (_cards.Count - 1)) {
+                                RenderSortCardsToDo(() => {
+                                    Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
+                                    _ctx.Enqueue(cmd);
+                                });
+                            } else {
+                                RenderFly(() => {
+                                    Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
+                                    _ctx.Enqueue(cmd);
+                                });
+                            }
                         }
                     });
 
@@ -675,6 +798,7 @@ namespace Bacon {
 
         protected override void RenderHu() {
             base.RenderHu();
+
             int idx = _hucards.Count - 1;
             Card card = _hucards[idx];
             Desk desk = ((GameController)_controller).Desk;
@@ -688,8 +812,13 @@ namespace Bacon {
 
             _com.Head.SetHu(true);
 
-            Command cmd = new Command(MyEventCmd.EVENT_HUCARD);
-            _ctx.Enqueue(cmd);
+            Sequence mySequence = DOTween.Sequence();
+            mySequence.AppendInterval(1.0f)
+                .AppendCallback(() => {
+                    Command cmd = new Command(MyEventCmd.EVENT_HUCARD);
+                    _ctx.Enqueue(cmd);
+                });
+
         }
 
         protected override void RenderHuSettle() {
@@ -721,12 +850,29 @@ namespace Bacon {
             long chip = 0;
             long left = 0;
             if (_settle.Count > 0) {
-                for (int i = 0; i < _settle.Count; i++) {
-                    chip = _settle[i].Chip;
-                    left = _settle[i].Left > left ? _settle[i].Left : left;
+                SettlementItem item = _settle[0];
+                if (item.TuiSui == 1) {
+                    _com.Head.SetGold((int)left);
+                    _com.Head.ShowWAL("退税");
+
+                    Sequence mySequence = DOTween.Sequence();
+                    mySequence.AppendInterval(1.0f)
+                        .AppendCallback(() => {
+                            _com.Head.ShowWAL(string.Format("{0}", chip));
+                        })
+                    .AppendInterval(1.0f)
+                    .AppendCallback(() => {
+                        Command cmd = new Command(MyEventCmd.EVENT_SETTLE_NEXT);
+                        _ctx.Enqueue(cmd);
+                    });
+                } else {
+                    Sequence mySequence = DOTween.Sequence();
+                    mySequence.AppendInterval(1.0f)
+                        .AppendCallback(() => {
+                            Command cmd = new Command(MyEventCmd.EVENT_SETTLE_NEXT);
+                            _ctx.Enqueue(cmd);
+                        });
                 }
-                _com.Head.SetGold((int)left);
-                _com.Head.ShowWAL(string.Format("{0}", chip));
             }
         }
 

@@ -203,10 +203,33 @@ namespace Maria {
             return controller;
         }
 
+        public T Push<T>() where T : Controller {
+            T controller = Activator.CreateInstance(typeof(T), this) as T;
+            if (_stack.Count > 0) {
+                _stack.Peek().Exit();
+            }
+            _stack.Push(controller);
+            controller.Enter();
+            return controller;
+        }
+
         public Controller Pop() {
             Controller controller = null;
             if (_stack.Count > 0) {
                 controller = _stack.Peek();
+                controller.Exit();
+                _stack.Pop();
+            }
+            if (_stack.Count > 0) {
+                _stack.Peek().Enter();
+            }
+            return controller;
+        }
+
+        public T Pop<T>() where T : Controller {
+            T controller = null;
+            if (_stack.Count > 0) {
+                controller = _stack.Peek() as T;
                 controller.Exit();
                 _stack.Pop();
             }

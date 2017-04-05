@@ -75,9 +75,6 @@ public class S2cProtocol : ProtocolBase {
 		Protocol.SetRequest<S2cSprotoType.restart.request> (restart.Tag);
 		Protocol.SetResponse<S2cSprotoType.restart.response> (restart.Tag);
 
-		Protocol.SetProtocol<roomover> (roomover.Tag);
-		Protocol.SetResponse<S2cSprotoType.roomover.response> (roomover.Tag);
-
 		Protocol.SetProtocol<settle> (settle.Tag);
 		Protocol.SetRequest<S2cSprotoType.settle.request> (settle.Tag);
 		Protocol.SetResponse<S2cSprotoType.settle.response> (settle.Tag);
@@ -181,10 +178,6 @@ public class S2cProtocol : ProtocolBase {
 
 	public class restart {
 		public const int Tag = 16;
-	}
-
-	public class roomover {
-		public const int Tag = 25;
 	}
 
 	public class settle {

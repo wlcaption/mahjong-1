@@ -272,10 +272,11 @@ namespace Bacon {
         public void OnSendCreate(EventCmd e) {
             C2sSprotoType.create.request request = new C2sSprotoType.create.request();
 
-            uint provice = (uint)e.Msg[CrCode.provice];
+            int provice = (int)e.Msg[CrCode.provice];
             if (provice == Provice.Sichuan) {
                 request.provice = Provice.Sichuan;
                 request.ju = (int)e.Msg[CrCode.ju];
+                request.overtype = e.Msg.GetField<int>(CrCode.overtype);
                 request.sc = new C2sSprotoType.crsc();
                 request.sc.hujiaozhuanyi = (int)e.Msg[CrCode.hujiaozhuanyi];
                 request.sc.zimo = (int)e.Msg[CrCode.zimo];
@@ -288,6 +289,7 @@ namespace Bacon {
             } else if (provice == Provice.Shaanxi) {
                 request.provice = Provice.Shaanxi;
                 request.ju = (int)e.Msg[CrCode.ju];
+                request.overtype = e.Msg.GetField<int>(CrCode.overtype);
                 request.sx = new C2sSprotoType.crsx();
                 request.sx.huqidui = (int)e.Msg[CrCode.sxqidui];
                 request.sx.qingyise = (int)e.Msg[CrCode.sxqingyise];

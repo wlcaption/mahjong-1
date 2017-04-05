@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class BottomPlayerHead : MonoBehaviour {
 
@@ -100,8 +101,10 @@ public class BottomPlayerHead : MonoBehaviour {
     public void ShowWAL(string value) {
         if (!_WAL.activeSelf) {
             _WAL.SetActive(true);
-            _WAL.GetComponent<Text>().text = value;
         }
+        _WAL.GetComponent<Text>().text = value;
+        _WAL.GetComponent<RectTransform>().localPosition = new Vector3(600, 110, 0);
+        _WAL.transform.DOLocalMoveY(120.0f, 1.0f);
     }
 
     public void CloseWAL() {

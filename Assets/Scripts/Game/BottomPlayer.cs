@@ -16,7 +16,8 @@ public class BottomPlayer : MonoBehaviour {
     public BottomPlayerHead Head;
     public OverWnd OverWnd;
 
-    private Dictionary<GameObject, Card> _cards = new Dictionary<GameObject, Card>();
+    private List<GameObject> _cards = new List<GameObject>();
+
     private bool _touch = false;
     private GameObject _hitGo = null;
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
@@ -46,15 +47,20 @@ public class BottomPlayer : MonoBehaviour {
                 }
             } else if (Input.GetMouseButtonUp(0)) {
                 if (_hitGo != null) {
-                    if (_cards.ContainsKey(_hitGo)) {
-                        _touch = false;
-
-                        Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_LEAD, _hitGo);
-                        _Root.App.Enqueue(cmd);
+                    bool flag = false;
+                    for (int i = 0; i < _cards.Count; i++) {
+                        if (_cards[i] == _hitGo) {
+                            flag = true;
+                            break;
+                        }
                     }
-                    if (HoldCard == _hitGo) {
+                    if (!flag) {
+                        if (HoldCard == _hitGo) {
+                            flag = true;
+                        }
+                    }
+                    if (flag) {
                         _touch = false;
-
                         Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_LEAD, _hitGo);
                         _Root.App.Enqueue(cmd);
                     }
@@ -139,7 +145,7 @@ public class BottomPlayer : MonoBehaviour {
     }
 
     public void Add(Card card) {
-        _cards[card.Go] = card;
+        _cards.Add(card.Go);
     }
 
     public void Remove(Card card) {

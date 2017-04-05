@@ -7,6 +7,7 @@ namespace Bacon {
     class CrCode {
         public static readonly string ju = "ju";                        // 局数，玩的轮数
         public static readonly string provice = "provice";              // 省份
+        public static readonly string overtype = "overtype";
 
         public static readonly string hujiaozhuanyi = "hujiaozhuanyi"; // 四川麻将是否支持呼叫转移，默认支持
         public static readonly string zimo = "zimo";                   // 自摸是否加番

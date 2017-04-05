@@ -422,16 +422,52 @@ namespace S2cSprotoType {
 	public class final_settle {
 	
 		public class request : SprotoTypeBase {
-			private static int max_field_count = 1;
+			private static int max_field_count = 5;
 			
 			
-			private settles _settles; // tag 0
-			public settles settles {
-				get { return _settles; }
-				set { base.has_field.set_field (0, true); _settles = value; }
+			private List<settlementitem> _p1; // tag 0
+			public List<settlementitem> p1 {
+				get { return _p1; }
+				set { base.has_field.set_field (0, true); _p1 = value; }
 			}
-			public bool HasSettles {
+			public bool HasP1 {
 				get { return base.has_field.has_field (0); }
+			}
+
+			private List<settlementitem> _p2; // tag 1
+			public List<settlementitem> p2 {
+				get { return _p2; }
+				set { base.has_field.set_field (1, true); _p2 = value; }
+			}
+			public bool HasP2 {
+				get { return base.has_field.has_field (1); }
+			}
+
+			private List<settlementitem> _p3; // tag 2
+			public List<settlementitem> p3 {
+				get { return _p3; }
+				set { base.has_field.set_field (2, true); _p3 = value; }
+			}
+			public bool HasP3 {
+				get { return base.has_field.has_field (2); }
+			}
+
+			private List<settlementitem> _p4; // tag 3
+			public List<settlementitem> p4 {
+				get { return _p4; }
+				set { base.has_field.set_field (3, true); _p4 = value; }
+			}
+			public bool HasP4 {
+				get { return base.has_field.has_field (3); }
+			}
+
+			private bool _over; // tag 4
+			public bool over {
+				get { return _over; }
+				set { base.has_field.set_field (4, true); _over = value; }
+			}
+			public bool HasOver {
+				get { return base.has_field.has_field (4); }
 			}
 
 			public request () : base(max_field_count) {}
@@ -445,7 +481,19 @@ namespace S2cSprotoType {
 				while (-1 != (tag = base.deserialize.read_tag ())) {
 					switch (tag) {
 					case 0:
-						this.settles = base.deserialize.read_obj<settles> ();
+						this.p1 = base.deserialize.read_obj_list<settlementitem> ();
+						break;
+					case 1:
+						this.p2 = base.deserialize.read_obj_list<settlementitem> ();
+						break;
+					case 2:
+						this.p3 = base.deserialize.read_obj_list<settlementitem> ();
+						break;
+					case 3:
+						this.p4 = base.deserialize.read_obj_list<settlementitem> ();
+						break;
+					case 4:
+						this.over = base.deserialize.read_boolean ();
 						break;
 					default:
 						base.deserialize.read_unknow_data ();
@@ -458,7 +506,23 @@ namespace S2cSprotoType {
 				base.serialize.open (stream);
 
 				if (base.has_field.has_field (0)) {
-					base.serialize.write_obj (this.settles, 0);
+					base.serialize.write_obj (this.p1, 0);
+				}
+
+				if (base.has_field.has_field (1)) {
+					base.serialize.write_obj (this.p2, 1);
+				}
+
+				if (base.has_field.has_field (2)) {
+					base.serialize.write_obj (this.p3, 2);
+				}
+
+				if (base.has_field.has_field (3)) {
+					base.serialize.write_obj (this.p4, 3);
+				}
+
+				if (base.has_field.has_field (4)) {
+					base.serialize.write_boolean (this.over, 4);
 				}
 
 				return base.serialize.close ();
@@ -565,8 +629,8 @@ namespace S2cSprotoType {
 				get { return base.has_field.has_field (4); }
 			}
 
-			private settles _settles; // tag 5
-			public settles settles {
+			private List<settle> _settles; // tag 5
+			public List<settle> settles {
 				get { return _settles; }
 				set { base.has_field.set_field (5, true); _settles = value; }
 			}
@@ -600,7 +664,7 @@ namespace S2cSprotoType {
 						this.dian = base.deserialize.read_integer ();
 						break;
 					case 5:
-						this.settles = base.deserialize.read_obj<settles> ();
+						this.settles = base.deserialize.read_obj_list<settle> ();
 						break;
 					default:
 						base.deserialize.read_unknow_data ();
@@ -754,8 +818,8 @@ namespace S2cSprotoType {
 				get { return base.has_field.has_field (0); }
 			}
 
-			private settles _settles; // tag 1
-			public settles settles {
+			private List<settle> _settles; // tag 1
+			public List<settle> settles {
 				get { return _settles; }
 				set { base.has_field.set_field (1, true); _settles = value; }
 			}
@@ -777,7 +841,7 @@ namespace S2cSprotoType {
 						this.hus = base.deserialize.read_obj_list<huinfo> ();
 						break;
 					case 1:
-						this.settles = base.deserialize.read_obj<settles> ();
+						this.settles = base.deserialize.read_obj_list<settle> ();
 						break;
 					default:
 						base.deserialize.read_unknow_data ();
@@ -2433,64 +2497,15 @@ namespace S2cSprotoType {
 	}
 
 
-	public class roomover {
-	
-		public class response : SprotoTypeBase {
-			private static int max_field_count = 1;
-			
-			
-			private Int64 _errorcode; // tag 0
-			public Int64 errorcode {
-				get { return _errorcode; }
-				set { base.has_field.set_field (0, true); _errorcode = value; }
-			}
-			public bool HasErrorcode {
-				get { return base.has_field.has_field (0); }
-			}
-
-			public response () : base(max_field_count) {}
-
-			public response (byte[] buffer) : base(max_field_count, buffer) {
-				this.decode ();
-			}
-
-			protected override void decode () {
-				int tag = -1;
-				while (-1 != (tag = base.deserialize.read_tag ())) {
-					switch (tag) {
-					case 0:
-						this.errorcode = base.deserialize.read_integer ();
-						break;
-					default:
-						base.deserialize.read_unknow_data ();
-						break;
-					}
-				}
-			}
-
-			public override int encode (SprotoStream stream) {
-				base.serialize.open (stream);
-
-				if (base.has_field.has_field (0)) {
-					base.serialize.write_integer (this.errorcode, 0);
-				}
-
-				return base.serialize.close ();
-			}
-		}
-
-
-	}
-
-
-	public class settle {
-	
+	public class settle : SprotoTypeBase {
+		private static int max_field_count = 4;
+		
 		public class request : SprotoTypeBase {
 			private static int max_field_count = 1;
 			
 			
-			private settles _settles; // tag 0
-			public settles settles {
+			private List<settle> _settles; // tag 0
+			public List<settle> settles {
 				get { return _settles; }
 				set { base.has_field.set_field (0, true); _settles = value; }
 			}
@@ -2509,7 +2524,7 @@ namespace S2cSprotoType {
 				while (-1 != (tag = base.deserialize.read_tag ())) {
 					switch (tag) {
 					case 0:
-						this.settles = base.deserialize.read_obj<settles> ();
+						this.settles = base.deserialize.read_obj_list<settle> ();
 						break;
 					default:
 						base.deserialize.read_unknow_data ();
@@ -2575,6 +2590,93 @@ namespace S2cSprotoType {
 		}
 
 
+		
+		private settlementitem _p1; // tag 0
+		public settlementitem p1 {
+			get { return _p1; }
+			set { base.has_field.set_field (0, true); _p1 = value; }
+		}
+		public bool HasP1 {
+			get { return base.has_field.has_field (0); }
+		}
+
+		private settlementitem _p2; // tag 1
+		public settlementitem p2 {
+			get { return _p2; }
+			set { base.has_field.set_field (1, true); _p2 = value; }
+		}
+		public bool HasP2 {
+			get { return base.has_field.has_field (1); }
+		}
+
+		private settlementitem _p3; // tag 2
+		public settlementitem p3 {
+			get { return _p3; }
+			set { base.has_field.set_field (2, true); _p3 = value; }
+		}
+		public bool HasP3 {
+			get { return base.has_field.has_field (2); }
+		}
+
+		private settlementitem _p4; // tag 3
+		public settlementitem p4 {
+			get { return _p4; }
+			set { base.has_field.set_field (3, true); _p4 = value; }
+		}
+		public bool HasP4 {
+			get { return base.has_field.has_field (3); }
+		}
+
+		public settle () : base(max_field_count) {}
+
+		public settle (byte[] buffer) : base(max_field_count, buffer) {
+			this.decode ();
+		}
+
+		protected override void decode () {
+			int tag = -1;
+			while (-1 != (tag = base.deserialize.read_tag ())) {
+				switch (tag) {
+				case 0:
+					this.p1 = base.deserialize.read_obj<settlementitem> ();
+					break;
+				case 1:
+					this.p2 = base.deserialize.read_obj<settlementitem> ();
+					break;
+				case 2:
+					this.p3 = base.deserialize.read_obj<settlementitem> ();
+					break;
+				case 3:
+					this.p4 = base.deserialize.read_obj<settlementitem> ();
+					break;
+				default:
+					base.deserialize.read_unknow_data ();
+					break;
+				}
+			}
+		}
+
+		public override int encode (SprotoStream stream) {
+			base.serialize.open (stream);
+
+			if (base.has_field.has_field (0)) {
+				base.serialize.write_obj (this.p1, 0);
+			}
+
+			if (base.has_field.has_field (1)) {
+				base.serialize.write_obj (this.p2, 1);
+			}
+
+			if (base.has_field.has_field (2)) {
+				base.serialize.write_obj (this.p3, 2);
+			}
+
+			if (base.has_field.has_field (3)) {
+				base.serialize.write_obj (this.p4, 3);
+			}
+
+			return base.serialize.close ();
+		}
 	}
 
 
@@ -2792,99 +2894,6 @@ namespace S2cSprotoType {
 
 			if (base.has_field.has_field (11)) {
 				base.serialize.write_integer (this.tuisui, 11);
-			}
-
-			return base.serialize.close ();
-		}
-	}
-
-
-	public class settles : SprotoTypeBase {
-		private static int max_field_count = 4;
-		
-		
-		private List<settlementitem> _p1; // tag 0
-		public List<settlementitem> p1 {
-			get { return _p1; }
-			set { base.has_field.set_field (0, true); _p1 = value; }
-		}
-		public bool HasP1 {
-			get { return base.has_field.has_field (0); }
-		}
-
-		private List<settlementitem> _p2; // tag 1
-		public List<settlementitem> p2 {
-			get { return _p2; }
-			set { base.has_field.set_field (1, true); _p2 = value; }
-		}
-		public bool HasP2 {
-			get { return base.has_field.has_field (1); }
-		}
-
-		private List<settlementitem> _p3; // tag 2
-		public List<settlementitem> p3 {
-			get { return _p3; }
-			set { base.has_field.set_field (2, true); _p3 = value; }
-		}
-		public bool HasP3 {
-			get { return base.has_field.has_field (2); }
-		}
-
-		private List<settlementitem> _p4; // tag 3
-		public List<settlementitem> p4 {
-			get { return _p4; }
-			set { base.has_field.set_field (3, true); _p4 = value; }
-		}
-		public bool HasP4 {
-			get { return base.has_field.has_field (3); }
-		}
-
-		public settles () : base(max_field_count) {}
-
-		public settles (byte[] buffer) : base(max_field_count, buffer) {
-			this.decode ();
-		}
-
-		protected override void decode () {
-			int tag = -1;
-			while (-1 != (tag = base.deserialize.read_tag ())) {
-				switch (tag) {
-				case 0:
-					this.p1 = base.deserialize.read_obj_list<settlementitem> ();
-					break;
-				case 1:
-					this.p2 = base.deserialize.read_obj_list<settlementitem> ();
-					break;
-				case 2:
-					this.p3 = base.deserialize.read_obj_list<settlementitem> ();
-					break;
-				case 3:
-					this.p4 = base.deserialize.read_obj_list<settlementitem> ();
-					break;
-				default:
-					base.deserialize.read_unknow_data ();
-					break;
-				}
-			}
-		}
-
-		public override int encode (SprotoStream stream) {
-			base.serialize.open (stream);
-
-			if (base.has_field.has_field (0)) {
-				base.serialize.write_obj (this.p1, 0);
-			}
-
-			if (base.has_field.has_field (1)) {
-				base.serialize.write_obj (this.p2, 1);
-			}
-
-			if (base.has_field.has_field (2)) {
-				base.serialize.write_obj (this.p3, 2);
-			}
-
-			if (base.has_field.has_field (3)) {
-				base.serialize.write_obj (this.p4, 3);
 			}
 
 			return base.serialize.close ();

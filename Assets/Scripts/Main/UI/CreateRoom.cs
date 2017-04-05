@@ -10,7 +10,8 @@ public class CreateRoom : MonoBehaviour {
     public GameObject _SXPanel;
     public GameObject _RCard;
 
-    private uint _provice = Provice.Sichuan;            // 0:四川 1:陕西
+    private int _provice = Provice.Sichuan;            // 0:四川 1:陕西
+    private int _overtype = OverType.XUELIU;
 
 
     // Use this for initialization
@@ -34,14 +35,25 @@ public class CreateRoom : MonoBehaviour {
         }
     }
 
-    public void OnSc(bool value) {
+    public void OnScXL(bool value) {
         if (value) {
             _provice = Provice.Sichuan;
+            _overtype = OverType.XUELIU;
             _SCPanel.SetActive(true);
         } else {
             _SCPanel.SetActive(false);
         }
 
+    }
+
+    public void OnScXZ(bool value) {
+        if (value) {
+            _provice = Provice.Sichuan;
+            _overtype = OverType.XUELIU;
+            _SCPanel.SetActive(true);
+        } else {
+            _SCPanel.SetActive(false);
+        }
     }
 
     public void OnSx(bool value) {
@@ -67,12 +79,14 @@ public class CreateRoom : MonoBehaviour {
             msg[CrCode.tiandihu] = com.TianDiHU;
             msg[CrCode.top] = com.Top;
             msg[CrCode.ju] = com.Ju;
+            msg[CrCode.overtype] = _overtype;
         } else if (_provice == Provice.Shaanxi) {
             var com = _SXPanel.GetComponent<CRSxMahjong>();
             msg[CrCode.provice] = Provice.Shaanxi;
             msg[CrCode.sxqidui] = com.SxHuQiDui;
             msg[CrCode.sxqingyise] = com.SxQingYiSe;
             msg[CrCode.ju] = com.Ju;
+            msg[CrCode.overtype] = _overtype;
         }
         Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_MUI_CREATE, gameObject, msg);
         GetComponent<FindApp>().App.Enqueue(cmd);

@@ -37,6 +37,9 @@ namespace Bacon {
         private long _lastidx = 0;
         private Card _lastCard = null;
 
+        private List<S2cSprotoType.settle> _settles = null;
+        private int _settlesidx = 0;
+
         public GameController(Context ctx) : base(ctx) {
 
             _service = _ctx.QueryService<GameService>(GameService.Name);
@@ -78,6 +81,9 @@ namespace Bacon {
 
             EventListenerCmd listener14 = new EventListenerCmd(MyEventCmd.EVENT_TAKEFIRSTCARD, OnTakeFirstCard);
             _ctx.EventDispatcher.AddCmdEventListener(listener14);
+
+            EventListenerCmd listener15 = new EventListenerCmd(MyEventCmd.EVENT_SETTLE_NEXT, OnSettleNext);
+            _ctx.EventDispatcher.AddCmdEventListener(listener15);
         }
 
         public override void Update(float delta) {
@@ -142,6 +148,7 @@ namespace Bacon {
                         for (int k = 1; k < 5; k++) {
                             GameObject go = GameObject.Instantiate<GameObject>(ori);
                             go.transform.SetParent(_cardsgo.transform);
+                            go.transform.localPosition = new Vector3(-1.0f, 0.0f, -1.0f);
 
                             lock (_cards) {
                                 long value = ((i & 0xff) << 8) | ((j & 0x0f) << 4) | (k & 0x0f);
@@ -177,8 +184,10 @@ namespace Bacon {
                     // over
                     return false;
                 } else {
-                    _curtake++;
-                    _curtake = _curtake > 4 ? 1 : _curtake;
+                    _curtake--;
+                    if (_curtake <= 0) {
+                        _curtake = _service.Max;
+                    }
                     return true;
                 }
             }
@@ -219,6 +228,10 @@ namespace Bacon {
         public SprotoTypeBase OnReady(SprotoTypeBase requestObj) {
             try {
                 _oknum = 0;
+
+                _service.Foreach((Player player) => {
+                    player.FixDirMark();
+                });
 
                 C2sSprotoType.step.request request = new C2sSprotoType.step.request();
                 request.idx = _service.MyIdx;
@@ -561,50 +574,52 @@ namespace Bacon {
                     _service.GetPlayer(obj.idx).Gang(OpCodes.OPCODE_BUGANG, obj.card, obj.hor, _service.GetPlayer(_lastidx), _lastCard);
                 }
 
+                _settles = obj.settles;
+                _settlesidx = 0;
+
                 _service.Foreach((Player player) => {
-                    List<S2cSprotoType.settlementitem> settle = null;
+                    S2cSprotoType.settlementitem si = null;
+                    S2cSprotoType.settle settle = _settles[_settlesidx];
                     long idx = 0;
                     if (player.Idx == 1) {
                         idx = 1;
-                        if (obj.settles.p1 != null) {
-                            settle = obj.settles.p1;
+                        if (settle.p1 != null) {
+                            si = settle.p1;
                         }
                     } else if (player.Idx == 2) {
                         idx = 2;
-                        if (obj.settles.p2 != null) {
-                            settle = obj.settles.p2;
+                        if (settle.p2 != null) {
+                            si = settle.p2;
                         }
                     } else if (player.Idx == 3) {
                         idx = 3;
-                        if (obj.settles.p3 != null) {
-                            settle = obj.settles.p3;
+                        if (settle.p3 != null) {
+                            si = settle.p3;
                         }
                     } else if (player.Idx == 4) {
                         idx = 4;
-                        if (obj.settles.p4 != null) {
-                            settle = obj.settles.p4;
+                        if (settle.p4 != null) {
+                            si = settle.p4;
                         }
                     }
-                    if (settle != null && settle.Count > 0) {
-                        for (int i = 0; i < settle.Count; i++) {
-                            SettlementItem item = new SettlementItem();
-                            item.Idx = settle[i].idx;
-                            item.Chip = settle[i].chip;  // 有正负
-                            item.Left = settle[i].left;  // 以次值为准
+                    if (si != null) {
+                        SettlementItem item = new SettlementItem();
+                        item.Idx = si.idx;
+                        item.Chip = si.chip;  // 有正负
+                        item.Left = si.left;  // 以次值为准
 
-                            item.Win = settle[i].win;
-                            item.Lose = settle[i].lose;
+                        item.Win = si.win;
+                        item.Lose = si.lose;
 
-                            item.Gang = settle[i].gang;
-                            item.HuCode = settle[i].hucode;
-                            item.HuJiao = settle[i].hujiao;
-                            item.HuGang = settle[i].hugang;
-                            item.HuaZhu = settle[i].huazhu;
-                            item.DaJiao = settle[i].dajiao;
-                            item.TuiSui = settle[i].tuisui;
+                        item.Gang = si.gang;
+                        item.HuCode = si.hucode;
+                        item.HuJiao = si.hujiao;
+                        item.HuGang = si.hugang;
+                        item.HuaZhu = si.huazhu;
+                        item.DaJiao = si.dajiao;
+                        item.TuiSui = si.tuisui;
 
-                            _service.GetPlayer(idx).AddSettle(item);
-                        }
+                        _service.GetPlayer(idx).AddSettle(item);
                         _service.GetPlayer(idx).GangSettle();
                     }
                 });
@@ -657,53 +672,56 @@ namespace Bacon {
                     player.Hu(obj.hus[i].code, obj.hus[i].card, obj.hus[i].jiao, obj.hus[i].gang, obj.hus[i].dian, _service.GetPlayer(obj.hus[i].dian), card);
                 }
 
+                _settles = obj.settles;
+                _settlesidx = 0;
+
                 _service.Foreach((Player player) => {
-                    List<S2cSprotoType.settlementitem> settle = null;
-                    long idx = 0;
-                    if (player.Idx == 1) {
-                        idx = 1;
-                        if (obj.settles.p1 != null) {
-                            settle = obj.settles.p1;
+                    for (int i = 0; i < _settles.Count; i++) {
+                        S2cSprotoType.settlementitem si = null;
+                        S2cSprotoType.settle settle = _settles[i];
+                        long idx = 0;
+                        if (player.Idx == 1) {
+                            idx = 1;
+                            if (settle.p1 != null) {
+                                si = settle.p1;
+                            }
+                        } else if (player.Idx == 2) {
+                            idx = 2;
+                            if (settle.p2 != null) {
+                                si = settle.p2;
+                            }
+                        } else if (player.Idx == 3) {
+                            idx = 3;
+                            if (settle.p3 != null) {
+                                si = settle.p3;
+                            }
+                        } else if (player.Idx == 4) {
+                            idx = 4;
+                            if (settle.p4 != null) {
+                                si = settle.p4;
+                            }
                         }
-                    } else if (player.Idx == 2) {
-                        idx = 2;
-                        if (obj.settles.p2 != null) {
-                            settle = obj.settles.p2;
-                        }
-                    } else if (player.Idx == 3) {
-                        idx = 3;
-                        if (obj.settles.p3 != null) {
-                            settle = obj.settles.p3;
-                        }
-                    } else if (player.Idx == 4) {
-                        idx = 4;
-                        if (obj.settles.p4 != null) {
-                            settle = obj.settles.p4;
-                        }
-                    }
-                    if (settle != null && settle.Count > 0) {
-                        for (int i = 0; i < settle.Count; i++) {
+                        if (si != null) {
                             SettlementItem item = new SettlementItem();
-                            item.Idx = settle[i].idx;
-                            item.Chip = settle[i].chip;  // 有正负
-                            item.Left = settle[i].left;  // 以次值为准
+                            item.Idx = si.idx;
+                            item.Chip = si.chip;  // 有正负
+                            item.Left = si.left;  // 以次值为准
 
-                            item.Win = settle[i].win;
-                            item.Lose = settle[i].lose;
+                            item.Win = si.win;
+                            item.Lose = si.lose;
 
-                            item.Gang = settle[i].gang;
-                            item.HuCode = settle[i].hucode;
-                            item.HuJiao = settle[i].hujiao;
-                            item.HuGang = settle[i].hugang;
-                            item.HuaZhu = settle[i].huazhu;
-                            item.DaJiao = settle[i].dajiao;
-                            item.TuiSui = settle[i].tuisui;
+                            item.Gang = si.gang;
+                            item.HuCode = si.hucode;
+                            item.HuJiao = si.hujiao;
+                            item.HuGang = si.hugang;
+                            item.HuaZhu = si.huazhu;
+                            item.DaJiao = si.dajiao;
+                            item.TuiSui = si.tuisui;
 
                             _service.GetPlayer(idx).AddSettle(item);
+                            _service.GetPlayer(idx).HuSettle();
                         }
-                        _service.GetPlayer(idx).HuSettle();
                     }
-
                 });
 
                 S2cSprotoType.hu.response responseObj = new S2cSprotoType.hu.response();
@@ -775,59 +793,14 @@ namespace Bacon {
         }
 
         public SprotoTypeBase OnSettle(SprotoTypeBase requestObj) {
+            S2cSprotoType.settle.request obj = requestObj as S2cSprotoType.settle.request;
             try {
-                S2cSprotoType.settle.request obj = requestObj as S2cSprotoType.settle.request;
+                _settles = obj.settles;
+                _settlesidx = 0;
+
                 _service.Foreach((Player player) => {
                     player.ClearSettle();
-                });
-
-                _service.Foreach((Player player) => {
-                    List<S2cSprotoType.settlementitem> settle = null;
-                    long idx = 0;
-                    if (player.Idx == 1) {
-                        idx = 1;
-                        if (obj.settles.p1 != null) {
-                            settle = obj.settles.p1;
-                        }
-                    } else if (player.Idx == 2) {
-                        idx = 2;
-                        if (obj.settles.p2 != null) {
-                            settle = obj.settles.p2;
-                        }
-                    } else if (player.Idx == 3) {
-                        idx = 3;
-                        if (obj.settles.p3 != null) {
-                            settle = obj.settles.p3;
-                        }
-                    } else if (player.Idx == 4) {
-                        idx = 4;
-                        if (obj.settles.p4 != null) {
-                            settle = obj.settles.p4;
-                        }
-                    }
-                    if (settle != null && settle.Count > 0) {
-                        for (int i = 0; i < settle.Count; i++) {
-                            SettlementItem item = new SettlementItem();
-                            item.Idx = settle[i].idx;
-                            item.Chip = settle[i].chip;  // 有正负
-                            item.Left = settle[i].left;  // 以次值为准
-
-                            item.Win = settle[i].win;
-                            item.Lose = settle[i].lose;
-
-                            item.Gang = settle[i].gang;
-                            item.HuCode = settle[i].hucode;
-                            item.HuJiao = settle[i].hujiao;
-                            item.HuGang = settle[i].hugang;
-                            item.HuaZhu = settle[i].huazhu;
-                            item.DaJiao = settle[i].dajiao;
-                            item.TuiSui = settle[i].tuisui;
-
-                            _service.GetPlayer(idx).AddSettle(item);
-                        }
-                        _service.GetPlayer(idx).Settle();
-                    }
-
+                    OnSettleNext(null);
                 });
 
                 S2cSprotoType.settle.response responseObj = new S2cSprotoType.settle.response();
@@ -837,6 +810,68 @@ namespace Bacon {
                 S2cSprotoType.settle.response responseObj = new S2cSprotoType.settle.response();
                 responseObj.errorcode = Errorcode.FAIL;
                 return responseObj;
+            }
+        }
+
+        private void OnSettleNext(EventCmd e) {
+            _oknum++;
+            if (_oknum >= _service.Max) {
+                if (_settlesidx >= _settles.Count) {
+                    C2sSprotoType.step.request request = new C2sSprotoType.step.request();
+                    request.idx = _service.MyIdx;
+                    _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+                    return;
+                }
+
+                _service.Foreach((Player player) => {
+                    player.ClearSettle();
+
+                    S2cSprotoType.settlementitem si = null;
+                    S2cSprotoType.settle settle = _settles[_settlesidx];
+                    long idx = 0;
+                    if (player.Idx == 1) {
+                        idx = 1;
+                        if (settle.p1 != null) {
+                            si = settle.p1;
+                        }
+                    } else if (player.Idx == 2) {
+                        idx = 2;
+                        if (settle.p2 != null) {
+                            si = settle.p2;
+                        }
+                    } else if (player.Idx == 3) {
+                        idx = 3;
+                        if (settle.p3 != null) {
+                            si = settle.p3;
+                        }
+                    } else if (player.Idx == 4) {
+                        idx = 4;
+                        if (settle.p4 != null) {
+                            si = settle.p4;
+                        }
+                    }
+                    if (si != null) {
+                        SettlementItem item = new SettlementItem();
+                        item.Idx = si.idx;
+                        item.Chip = si.chip;  // 有正负
+                        item.Left = si.left;  // 以次值为准
+
+                        item.Win = si.win;
+                        item.Lose = si.lose;
+
+                        item.Gang = si.gang;
+                        item.HuCode = si.hucode;
+                        item.HuJiao = si.hujiao;
+                        item.HuGang = si.hugang;
+                        item.HuaZhu = si.huazhu;
+                        item.DaJiao = si.dajiao;
+                        item.TuiSui = si.tuisui;
+
+                        _service.GetPlayer(idx).AddSettle(item);
+                        _service.GetPlayer(idx).Settle();
+                    }
+                });
+                _settlesidx++;
             }
         }
 
@@ -855,23 +890,23 @@ namespace Bacon {
                     long idx = 0;
                     if (player.Idx == 1) {
                         idx = 1;
-                        if (obj.settles.p1 != null) {
-                            settle = obj.settles.p1;
+                        if (obj.p1 != null) {
+                            settle = obj.p1;
                         }
                     } else if (player.Idx == 2) {
                         idx = 2;
-                        if (obj.settles.p2 != null) {
-                            settle = obj.settles.p2;
+                        if (obj.p2 != null) {
+                            settle = obj.p2;
                         }
                     } else if (player.Idx == 3) {
                         idx = 3;
-                        if (obj.settles.p3 != null) {
-                            settle = obj.settles.p3;
+                        if (obj.p3 != null) {
+                            settle = obj.p3;
                         }
                     } else if (player.Idx == 4) {
                         idx = 4;
-                        if (obj.settles.p4 != null) {
-                            settle = obj.settles.p4;
+                        if (obj.p4 != null) {
+                            settle = obj.p4;
                         }
                     }
 

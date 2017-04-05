@@ -16,7 +16,7 @@ namespace Bacon {
         private long _max = 0;
         private long _myidx = 0;
         private long _online = 0;
-        
+
         private Dictionary<long, Player> _playes = new Dictionary<long, Player>();
         private GameController _controller = null;
         private bool _loadedcards = false;
@@ -28,6 +28,7 @@ namespace Bacon {
 
         public long RoomId { get { return _roomid; } }
         public long MyIdx { get { return _myidx; } }
+        public long Max { get { return _max; } }
 
         public Player GetPlayer(long idx) {
             if (_playes.ContainsKey(idx)) {
@@ -63,7 +64,7 @@ namespace Bacon {
             _myidx = obj.me.idx;
             _playes[_myidx] = player;
             UnityEngine.Debug.Assert(_ctx.U.Subid == obj.me.sid);
-            
+
             _online++;
         }
 
@@ -98,15 +99,14 @@ namespace Bacon {
                     }
                     switch (offset) {
                         case 1: {
-                                var lplayer = new Bacon.LeftPlayer(_ctx, this);
-                                lplayer.Idx = (int)item.idx;
-                                lplayer.Chip = (int)item.chip;
-                                lplayer.Sid = (int)item.sid;
-                                lplayer.Sex = (int)item.sex;
-                                lplayer.Name = item.name;
-                                lplayer.Controller = _controller;
-                                _playes[item.idx] = lplayer;
-
+                                var rplayer = new Bacon.RightPlayer(_ctx, this);
+                                rplayer.Idx = (int)item.idx;
+                                rplayer.Chip = (int)item.chip;
+                                rplayer.Sid = (int)item.sid;
+                                rplayer.Sex = (int)item.sex;
+                                rplayer.Name = item.name;
+                                rplayer.Controller = _controller;
+                                _playes[item.idx] = rplayer;
                             }
                             break;
                         case 2: {
@@ -121,14 +121,14 @@ namespace Bacon {
                             }
                             break;
                         case 3: {
-                                var rplayer = new Bacon.RightPlayer(_ctx, this);
-                                rplayer.Idx = (int)item.idx;
-                                rplayer.Chip = (int)item.chip;
-                                rplayer.Sid = (int)item.sid;
-                                rplayer.Sex = (int)item.sex;
-                                rplayer.Name = item.name;
-                                rplayer.Controller = _controller;
-                                _playes[item.idx] = rplayer;
+                                var lplayer = new Bacon.LeftPlayer(_ctx, this);
+                                lplayer.Idx = (int)item.idx;
+                                lplayer.Chip = (int)item.chip;
+                                lplayer.Sid = (int)item.sid;
+                                lplayer.Sex = (int)item.sex;
+                                lplayer.Name = item.name;
+                                lplayer.Controller = _controller;
+                                _playes[item.idx] = lplayer;
                             }
                             break;
                         default:
@@ -151,16 +151,16 @@ namespace Bacon {
                 }
                 switch (offset) {
                     case 1: {
-                            var lplayer = new Bacon.LeftPlayer(_ctx, this);
-                            lplayer.Idx = (int)obj.p.idx;
-                            lplayer.Chip = (int)obj.p.chip;
-                            lplayer.Sid = (int)obj.p.sid;
-                            lplayer.Sex = (int)obj.p.sex;
-                            lplayer.Name = obj.p.name;
-                            lplayer.Controller = _controller;
-                            _playes[obj.p.idx] = lplayer;
+                            var rplayer = new RightPlayer(_ctx, this);
+                            rplayer.Idx = (int)obj.p.idx;
+                            rplayer.Chip = (int)obj.p.chip;
+                            rplayer.Sid = (int)obj.p.sid;
+                            rplayer.Sex = (int)obj.p.sex;
+                            rplayer.Name = obj.p.name;
+                            rplayer.Controller = _controller;
+                            _playes[obj.p.idx] = rplayer;
                             if (_loadedcards) {
-                                _controller.Scene.SetupLeftPlayer();
+                                _controller.Scene.SetupRightPlayer();
                             }
                         }
                         break;
@@ -179,16 +179,16 @@ namespace Bacon {
                         }
                         break;
                     case 3: {
-                            var rplayer = new Bacon.RightPlayer(_ctx, this);
-                            rplayer.Idx = (int)obj.p.idx;
-                            rplayer.Chip = (int)obj.p.chip;
-                            rplayer.Sid = (int)obj.p.sid;
-                            rplayer.Sex = (int)obj.p.sex;
-                            rplayer.Name = obj.p.name;
-                            rplayer.Controller = _controller;
-                            _playes[obj.p.idx] = rplayer;
+                            var lplayer = new LeftPlayer(_ctx, this);
+                            lplayer.Idx = (int)obj.p.idx;
+                            lplayer.Chip = (int)obj.p.chip;
+                            lplayer.Sid = (int)obj.p.sid;
+                            lplayer.Sex = (int)obj.p.sex;
+                            lplayer.Name = obj.p.name;
+                            lplayer.Controller = _controller;
+                            _playes[obj.p.idx] = lplayer;
                             if (_loadedcards) {
-                                _controller.Scene.SetupRightPlayer();
+                                _controller.Scene.SetupLeftPlayer();
                             }
                         }
                         break;
