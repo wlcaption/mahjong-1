@@ -17,6 +17,12 @@ public class Board : MonoBehaviour {
     public GameObject _Nan;
     public GameObject _Xi;
     public GameObject _Bei;
+    public GameObject _BottomGai;
+    public GameObject _RightGai;
+    public GameObject _TopGai;
+    public GameObject _LeftGai;
+
+    private int _oknum = 0;
 
     // Use this for initialization
     void Start() {
@@ -56,31 +62,72 @@ public class Board : MonoBehaviour {
     }
 
     public void ThrowDice(long d1, long d2) {
+        _oknum = 0;
         ThrowSDice(d1, _Dice1);
         ThrowSDice(d2, _Dice2);
-        Command cmd = new Command(MyEventCmd.EVENT_THROWDICE);
-        GetComponent<FindApp>().App.Enqueue(cmd);
     }
 
     private void ThrowSDice(long d, GameObject go) {
         switch (d) {
             case 1:
-                go.transform.localRotation = Quaternion.AngleAxis(-180.0f, Vector3.forward);
+                go.GetComponent<Dice>().Play(() => {
+                    go.transform.localRotation = Quaternion.AngleAxis(-180.0f, Vector3.forward);
+                    _oknum++;
+                    if (_oknum >= 2) {
+                        Command cmd = new Command(MyEventCmd.EVENT_THROWDICE);
+                        GetComponent<FindApp>().App.Enqueue(cmd);
+                    }
+                });
                 break;
             case 2:
-                go.transform.localRotation = Quaternion.AngleAxis(180.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
+                go.GetComponent<Dice>().Play(() => {
+                    go.transform.localRotation = Quaternion.AngleAxis(180.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
+                    _oknum++;
+                    if (_oknum >= 2) {
+                        Command cmd = new Command(MyEventCmd.EVENT_THROWDICE);
+                        GetComponent<FindApp>().App.Enqueue(cmd);
+                    }
+                }); 
                 break;
             case 3:
-                go.transform.localRotation = Quaternion.AngleAxis(-90.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
+                go.GetComponent<Dice>().Play(() => {
+                    go.transform.localRotation = Quaternion.AngleAxis(-90.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
+                    _oknum++;
+                    if (_oknum >= 2) {
+                        Command cmd = new Command(MyEventCmd.EVENT_THROWDICE);
+                        GetComponent<FindApp>().App.Enqueue(cmd);
+                    }
+                });
                 break;
             case 4:
-                go.transform.localRotation = Quaternion.AngleAxis(270.0f, Vector3.forward);
+                go.GetComponent<Dice>().Play(() => {
+                    go.transform.localRotation = Quaternion.AngleAxis(270.0f, Vector3.forward);
+                    _oknum++;
+                    if (_oknum >= 2) {
+                        Command cmd = new Command(MyEventCmd.EVENT_THROWDICE);
+                        GetComponent<FindApp>().App.Enqueue(cmd);
+                    }
+                });
                 break;
             case 5:
-                go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
+                go.GetComponent<Dice>().Play(() => {
+                    go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
+                    _oknum++;
+                    if (_oknum >= 2) {
+                        Command cmd = new Command(MyEventCmd.EVENT_THROWDICE);
+                        GetComponent<FindApp>().App.Enqueue(cmd);
+                    }
+                });
                 break;
             case 6:
-                go.transform.localRotation = Quaternion.AngleAxis(0.0f, Vector3.right);
+                go.GetComponent<Dice>().Play(() => {
+                    go.transform.localRotation = Quaternion.AngleAxis(0.0f, Vector3.right);
+                    _oknum++;
+                    if (_oknum >= 2) {
+                        Command cmd = new Command(MyEventCmd.EVENT_THROWDICE);
+                        GetComponent<FindApp>().App.Enqueue(cmd);
+                    }
+                });
                 break;
             default:
                 UnityEngine.Debug.Assert(false);
@@ -89,7 +136,8 @@ public class Board : MonoBehaviour {
     }
 
     public void ShowBottomSlot(Action cb) {
-        cb();
+        _BottomGai.transform.localPosition = new Vector3(1.0f, -0.15f, 1.0f);
+        _BottomGai.transform.DOLocalMoveY(0.0f, 1.0f);
     }
 
     public void CloseBottomSlot(Action cd) {
@@ -97,7 +145,8 @@ public class Board : MonoBehaviour {
     }
 
     public void ShowRightSlot(Action cd) {
-        cd();
+        _RightGai.transform.localPosition = new Vector3(1.0f, -0.15f, 1.0f);
+        _RightGai.transform.DOLocalMoveY(0.0f, 1.0f);
     }
 
     public void CloseRightSlot(Action cb) {
@@ -105,7 +154,8 @@ public class Board : MonoBehaviour {
     }
 
     public void ShowTopSlot(Action cd) {
-        cd();
+        _TopGai.transform.localPosition = new Vector3(1.0f, -0.15f, 1.0f);
+        _RightGai.transform.DOLocalMoveY(0.0f, 1.0f);
     }
 
     public void CloseTopSlot(Action cb) {
@@ -113,90 +163,149 @@ public class Board : MonoBehaviour {
     }
 
     public void ShowLeftSlot(Action cb) {
-        cb();
+        _LeftGai.transform.localPosition = new Vector3(1.0f, -0.15f, 1.0f);
+        _LeftGai.transform.DOLocalMoveY(0.0f, 1.0f);
     }
     public void CloseLeftSlot(Action cb) {
         cb();
     }
 
     public void SetDongAtRight() {
-        _Dong.transform.localPosition = new Vector3(1, -0.06f, 1);
-        _Dong.transform.localRotation = Quaternion.AngleAxis(0.0f, Vector3.up);
+        //_Dong.transform.localPosition = new Vector3(1, -0.06f, 1);
+        _Dong.transform.localRotation = Quaternion.Euler(-90.0f, 90.0f, 90);
     }
 
     public void SetDongAtTop() {
-        _Dong.transform.localPosition = new Vector3(1, -0.06f, 1);
-        _Dong.transform.localRotation = Quaternion.AngleAxis(-90.0f, Vector3.up);
+        _Dong.transform.localPosition = new Vector3(1, 0.0f, 1);
+        _Dong.transform.localRotation = Quaternion.Euler(-90.0f, 0.0f, 90.0f);
     }
 
     public void SetDongAtLeft() {
-        _Dong.transform.localPosition = new Vector3(1.01f, -0.04f, 1.0f);
-        _Dong.transform.localRotation = Quaternion.AngleAxis(180.0f, Vector3.up);
+        _Dong.transform.localPosition = new Vector3(1.01f, 0.0f, 1.0f);
+        _Dong.transform.localRotation = Quaternion.Euler(-90.0f, -90.0f, 90.0f);
     }
 
     public void SetDongAtBottom() {
-        _Dong.transform.localPosition = new Vector3(1.0f, -0.05f, 1.010f);
-        _Dong.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.up);
+        //_Dong.transform.localPosition = new Vector3(1.0f, -0.05f, 1.010f);
+        _Dong.transform.localRotation = Quaternion.Euler(-90.0f, 180.0f, 90.0f);
     }
 
     public void SetNanAtRight() {
-        _Nan.transform.localPosition = new Vector3(1, -0.04f, 1);
-        _Nan.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.up);
+        //_Nan.transform.localPosition = new Vector3(1, -0.04f, 1);
+        _Nan.transform.localRotation = Quaternion.Euler(-90.0f, -90.0f, 0);
     }
 
     public void SetNanAtTop() {
-        _Nan.transform.localPosition = new Vector3(1, -0.05f, 1);
-        _Nan.transform.localRotation = Quaternion.AngleAxis(0.0f, Vector3.up);
+        //_Nan.transform.localPosition = new Vector3(1, -0.05f, 1);
+        _Nan.transform.localRotation = Quaternion.Euler(-90.0f, 180.0f, 0.0f);
     }
 
     public void SetNanAtLeft() {
-        _Nan.transform.localPosition = new Vector3(1, -0.05f, 1);
-        _Nan.transform.localRotation = Quaternion.AngleAxis(0.0f, Vector3.up);
+        //_Nan.transform.localPosition = new Vector3(1, -0.05f, 1);
+        _Nan.transform.localRotation = Quaternion.Euler(-90.0f, 90.0f, 0.0f);
     }
 
     public void SetNanAtBottom() {
-        _Nan.transform.localPosition = new Vector3(1.009f, -0.05f, 1.007f);
-        _Nan.transform.localRotation = Quaternion.AngleAxis(180.0f, Vector3.up);
+        //_Nan.transform.localPosition = new Vector3(1.009f, -0.05f, 1.007f);
+        _Nan.transform.localRotation = Quaternion.Euler(-90.0f, 0.0f, 0.0f);
     }
 
     public void SetXiAtRight() {
-        _Xi.transform.localPosition = new Vector3(1.01f, -0.05f, 1.007f);
-        _Xi.transform.localRotation = Quaternion.AngleAxis(-90.0f, Vector3.up);
+        //_Xi.transform.localPosition = new Vector3(1.01f, -0.05f, 1.007f);
+        _Xi.transform.localRotation = Quaternion.Euler(-90.0f, 0.0f, 0.0f);
     }
 
     public void SetXiAtTop() {
-        _Xi.transform.localPosition = new Vector3(1.00f, -0.04f, 1.000f);
-        _Xi.transform.localRotation = Quaternion.AngleAxis(-90.0f, Vector3.up);
+        //_Xi.transform.localPosition = new Vector3(1.00f, -0.04f, 1.000f);
+        _Xi.transform.localRotation = Quaternion.Euler(-90.0f, -90.0f, 0.0f);
     }
 
     public void SetXiAtLeft() {
-        _Xi.transform.localPosition = new Vector3(1.00f, -0.06f, 1.000f);
-        _Xi.transform.localRotation = Quaternion.AngleAxis(0.0f, Vector3.up);
+        //_Xi.transform.localPosition = new Vector3(1.00f, -0.06f, 1.000f);
+        _Xi.transform.localRotation = Quaternion.Euler(-90.0f, 180.0f, 0.0f);
     }
 
     public void SetXiAtBottom() {
-        _Xi.transform.localPosition = new Vector3(1.01f, -0.06f, 1.000f);
-        _Xi.transform.localRotation = Quaternion.AngleAxis(0.0f, Vector3.up);
+        //_Xi.transform.localPosition = new Vector3(1.01f, -0.06f, 1.000f);
+        _Xi.transform.localRotation = Quaternion.Euler(-90.0f, 90.0f, 0.0f);
     }
 
     public void SetBeiAtRight() {
+        _Bei.transform.localRotation = Quaternion.Euler(-90.0f, 90.0f, 0.0f);
     }
 
     public void SetBeiAtTop() {
-        _Bei.transform.localPosition = new Vector3(1.00f, -0.05f, 1.000f);
-        _Bei.transform.localRotation = Quaternion.AngleAxis(180.0f, Vector3.up);
+        //_Bei.transform.localPosition = new Vector3(1.00f, -0.05f, 1.000f);
+        _Bei.transform.localRotation = Quaternion.Euler(-90.0f, 0.0f, 0.0f);
     }
-    public void SetBeiAtLeft() { }
+
+    public void SetBeiAtLeft() {
+        _Bei.transform.localRotation = Quaternion.Euler(-90.0f, -90.0f, 0.0f);
+    }
+
     public void SetBeiAtBottom() {
-        _Bei.transform.localPosition = new Vector3(1.01f, -0.07f, 1.000f);
-        _Bei.transform.localRotation = Quaternion.AngleAxis(180.0f, Vector3.up) * Quaternion.AngleAxis(180.0f, Vector3.forward); 
+        //_Bei.transform.localPosition = new Vector3(1.01f, -0.07f, 1.000f);
+        _Bei.transform.localRotation = Quaternion.Euler(-90.0f, 180.0f, 0.0f);
+    }
+
+    public void TakeOnDong() {
+        _Dong.GetComponent<Renderer>().material.SetInt("Gray", 1);
+    }
+
+    public void TakeOffDong() {
+        _Dong.GetComponent<Renderer>().material.SetInt("Gray", 0);
     }
 
     public void TakeTurnDong() {
+        _Dong.GetComponent<Renderer>().material.SetInt("Gray", 1);
+        _Nan.GetComponent<Renderer>().material.SetInt("Gray", 0);
+        _Xi.GetComponent<Renderer>().material.SetInt("Gray", 0);
+        _Bei.GetComponent<Renderer>().material.SetInt("Gray", 0);
     }
-    public void TakeTurnNan() { }
-    public void TakeTurnXi() { }
-    public void TakeTurnBei() { }
 
+    public void TakeOnNan() {
+        _Nan.GetComponent<Renderer>().material.SetInt("Gray", 1);
+    }
+
+    public void TakeOffNan() {
+        _Nan.GetComponent<Renderer>().material.SetInt("Gray", 0);
+    }
+
+    public void TakeTurnNan() {
+        _Dong.GetComponent<Renderer>().material.SetInt("Gray", 0);
+        _Nan.GetComponent<Renderer>().material.SetInt("Gray", 1);
+        _Xi.GetComponent<Renderer>().material.SetInt("Gray", 0);
+        _Bei.GetComponent<Renderer>().material.SetInt("Gray", 0);
+    }
+
+    public void TakeOnXi() {
+        _Xi.GetComponent<Renderer>().material.SetInt("Gray", 1);
+    }
+
+    public void TakeOffXi() {
+        _Xi.GetComponent<Renderer>().material.SetInt("Gray", 0);
+    }
+
+    public void TakeTurnXi() {
+        _Dong.GetComponent<Renderer>().material.SetInt("Gray", 0);
+        _Nan.GetComponent<Renderer>().material.SetInt("Gray", 0);
+        _Xi.GetComponent<Renderer>().material.SetInt("Gray", 1);
+        _Bei.GetComponent<Renderer>().material.SetInt("Gray", 0);
+    }
+
+    public void TakeOnBei() {
+        _Bei.GetComponent<Renderer>().material.SetInt("Gray", 1);
+    }
+
+    public void TakeOffBei() {
+        _Bei.GetComponent<Renderer>().material.SetInt("Gray", 0);
+    }
+
+    public void TakeTurnBei() {
+        _Dong.GetComponent<Renderer>().material.SetInt("Gray", 0);
+        _Nan.GetComponent<Renderer>().material.SetInt("Gray", 0);
+        _Xi.GetComponent<Renderer>().material.SetInt("Gray", 0);
+        _Bei.GetComponent<Renderer>().material.SetInt("Gray", 1);
+    }
 
 }

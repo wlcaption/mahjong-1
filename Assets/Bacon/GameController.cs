@@ -149,6 +149,7 @@ namespace Bacon {
                             GameObject go = GameObject.Instantiate<GameObject>(ori);
                             go.transform.SetParent(_cardsgo.transform);
                             go.transform.localPosition = new Vector3(-1.0f, 0.0f, -1.0f);
+                            //go.transform.localScale = new Vector3(0.9f, 0.9f, 0.9f);
 
                             lock (_cards) {
                                 long value = ((i & 0xff) << 8) | ((j & 0x0f) << 4) | (k & 0x0f);

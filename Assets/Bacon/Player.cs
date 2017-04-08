@@ -34,6 +34,8 @@ namespace Bacon {
         // 每个player可能不一样
         protected float _takeleftoffset = 0.5f;
         protected float _takebottomoffset = 0.35f;
+        protected float _takemove = 0.15f;
+        protected float _takemovedelta = 1.0f;
 
         protected int _takecardsidx = 0;
         protected int _takecardscnt = 0;
@@ -83,6 +85,16 @@ namespace Bacon {
         protected List<SettlementItem> _settle = new List<SettlementItem>();
         protected long _wal;         // 赢的钱或者输的钱
         protected long _say;
+
+        protected int _oknum;
+        protected float _chupaishendelta = 1.0f;
+        protected float _chupaishoudelta = 1.0f;
+        protected float _napaishendelta = 1.0f;
+        protected float _fangpaishoudelta = 1.0f;
+        protected float _hupaishendelta = 1.0f;
+        protected float _hupaishoudelta = 1.0f;
+        protected float _penggangshendelta = 1.0f;
+        protected float _penggangshoudelta = 1.0f;
 
         public Player(Context ctx, GameController controller)
             : base(ctx, controller) {
@@ -181,7 +193,7 @@ namespace Bacon {
         }
 
         protected virtual void RenderThrowDice() {
-            ((GameController)_controller).RenderThrowDice(_d1, _d2);
+            //((GameController)_controller).RenderThrowDice(_d1, _d2);
         }
 
         public void Deal() {

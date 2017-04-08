@@ -12,6 +12,9 @@ namespace Bacon {
 
         private global::RightPlayer _com;
 
+        private GameObject _rhand = null;
+        private GameObject _lhand = null;
+
         public RightPlayer(Context ctx, GameService service) : base(ctx, service) {
             _upv = Quaternion.AngleAxis(-90.0f, Vector3.up);
             _uph = Quaternion.AngleAxis(-180.0f, Vector3.up);
@@ -20,10 +23,10 @@ namespace Bacon {
 
             _ori = Orient.RIGHT;
             _takeleftoffset = 0.5f;
-            _takebottomoffset = 0.3f;
+            _takebottomoffset = 0.385f;
 
             _leftoffset = 0.5f;
-            _bottomoffset = 0.2f;
+            _bottomoffset = 1.7f;
 
             _leadleftoffset = 0.8f;
             _leadbottomoffset = 0.8f;
@@ -46,7 +49,8 @@ namespace Bacon {
         protected override Vector3 CalcPos(int pos) {
             Desk desk = ((GameController)_controller).Desk;
             float x = desk.Width - (_bottomoffset + Card.Height / 2.0f);
-            float y = Card.Length / 2.0f;
+            x = _bottomoffset;
+            float y = Card.Length / 2.0f + Card.HeightMZ;
             float z = _leftoffset + Card.Width * pos + Card.Width / 2.0f;
             return new Vector3(x, y, z);
         }
@@ -57,7 +61,7 @@ namespace Bacon {
             int col = pos % 6;
 
             float x = desk.Width - (_leadbottomoffset - (Card.Length * row) - (Card.Length / 2.0f));
-            float y = Card.Height / 2.0f;
+            float y = Card.Height / 2.0f + Card.HeightMZ;
             float z = _leadleftoffset + (Card.Width * col) + Card.Width / 2.0f;
 
             return new Vector3(x, y, z);
@@ -72,7 +76,22 @@ namespace Bacon {
                 ((GameController)_controller).Desk.RenderSetXiAtRight();
             } else if (_idx == 4) {
                 ((GameController)_controller).Desk.RenderSetBeiAtRight();
+            } else {
+                UnityEngine.Debug.Assert(false);
             }
+
+            GameObject rori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "girlrhand");
+            _rhand = GameObject.Instantiate<GameObject>(rori);
+            _rhand.transform.SetParent(_go.transform);
+            _rhand.transform.localPosition = new Vector3(3.0f, -2.0f, 0.16f);
+            _rhand.transform.localRotation = Quaternion.Euler(0.0f, -90.0f, 0.0f);
+
+            GameObject lori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "girllhand");
+            _lhand = GameObject.Instantiate<GameObject>(lori);
+            _lhand.transform.SetParent(_go.transform);
+            _lhand.transform.localRotation = Quaternion.Euler(0.0f, 180.0f, 0.0f);
+            _lhand.SetActive(false);
+
         }
 
         protected override void RenderBoxing() {
@@ -80,58 +99,91 @@ namespace Bacon {
                 int count = 0;
                 Desk desk = ((GameController)_controller).Desk;
                 desk.RenderShowRightSlot(() => {
-                    for (int i = 0; i < _takecards.Count; i++) {
-                        int idx = i / 2;
-                        float x = desk.Width - (_takebottomoffset + Card.Length / 2.0f);
-                        float y = Card.Height / 2.0f;
-                        float z = desk.Width - (_takeleftoffset + idx * Card.Width + Card.Width / 2.0f);
-                        if (i % 2 == 0) {
-                            y = Card.Height / 2.0f + Card.Height;
-                        } else if (i % 2 == 1) {
-                            y = Card.Height / 2.0f;
-                        }
-                        Card card = _takecards[i];
-                        card.Go.transform.localRotation = _downv;
-                        float movey = 1.0f;
-                        card.Go.transform.localPosition = new UnityEngine.Vector3(x, y - movey, z);
-                        Tween t = card.Go.transform.DOLocalMoveY(y + movey, 0.1f);
-                        Sequence mySequence = DOTween.Sequence();
-                        mySequence.Append(t)
-                        .AppendCallback(() => {
-                            count++;
-                            if (count == _takecards.Count) {
-                                desk.RenderCloseRightSlot(() => {
-                                    Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_BOXINGCARDS);
-                                    _ctx.Enqueue(cmd);
-                                });
-                            }
-                        });
-                    }
                 });
+
+                for (int i = 0; i < _takecards.Count; i++) {
+                    int idx = i / 2;
+                    float x = desk.Width - (_takebottomoffset);
+                    float y = Card.HeightMZ + Card.Height / 2.0f;
+                    float z = desk.Length - (_takeleftoffset + idx * Card.Width + Card.Width / 2.0f);
+
+                    if (i % 2 == 0) {
+                        y = Card.HeightMZ + Card.Height + Card.Height / 2.0f;
+                    } else if (i % 2 == 1) {
+                        y = Card.HeightMZ + Card.Height / 2.0f;
+                    }
+
+                    Card card = _takecards[i];
+                    card.Go.transform.localRotation = _downv;
+
+                    card.Go.transform.localPosition = new UnityEngine.Vector3(x, y - _takemove, z);
+                    Tween t = card.Go.transform.DOLocalMoveY(y, _takemovedelta);
+
+                    Sequence mySequence = DOTween.Sequence();
+                    mySequence.Append(t)
+                    .AppendCallback(() => {
+                        count++;
+                        if (count == _takecards.Count) {
+                            Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_BOXINGCARDS);
+                            _ctx.Enqueue(cmd);
+                        }
+                    });
+                }
+
+                desk.RenderCloseRightSlot(() => {
+                });
+
             } catch (Exception ex) {
                 UnityEngine.Debug.LogException(ex);
             }
         }
 
         protected override void RenderThrowDice() {
-            base.RenderThrowDice();
+            //base.RenderThrowDice();
+            Tween t = _rhand.transform.DOLocalMove(new Vector3(1.862f, -2f, 0.162f), 1.0f);
+            Sequence mySequence = DOTween.Sequence();
+            mySequence.Append(t)
+                .AppendCallback(() => {
+                    GirlHand hand = _rhand.GetComponent<GirlHand>();
+                    hand.Rigster(GirlHand.EVENT.DIUSHAIZI_COMPLETED, () => {
+                        UnityEngine.Debug.Log("right diu saizi ");
+                        ((GameController)_controller).RenderThrowDice(_d1, _d2);
+
+                        _rhand.transform.DOLocalMove(new Vector3(3.0f, -2.0f, 0.16f), 1.0f);
+                    });
+
+                    Animator animator = _rhand.GetComponent<Animator>();
+                    animator.SetBool("Diushaizi", true);
+                });
         }
 
         protected override void RenderDeal() {
+            _oknum = 0;
+            int count = 0;
             int i = 0;
             if (_cards.Count == 13) {
                 i = 12;
+                count = 1;
             } else {
                 i = _cards.Count - 4;
+                count = 4;
             }
             for (; i < _cards.Count; i++) {
                 Vector3 dst = CalcPos(i);
                 var card = _cards[i];
                 card.Go.transform.localPosition = dst;
-                card.Go.transform.localRotation = _backv;
+                card.Go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.up) * Quaternion.AngleAxis(115.0f, Vector3.right);
+                Tween t = card.Go.transform.DOLocalRotateQuaternion(_backv, 1.0f);
+                Sequence mySequence = DOTween.Sequence();
+                mySequence.Append(t)
+                    .AppendCallback(() => {
+                        _oknum++;
+                        if (_oknum >= count) {
+                            Command cmd = new Command(MyEventCmd.EVENT_TAKEDEAL);
+                            _ctx.Enqueue(cmd);
+                        }
+                    });
             }
-            Command cmd = new Command(MyEventCmd.EVENT_TAKEDEAL);
-            _ctx.Enqueue(cmd);
         }
 
         protected override void RenderSortCards() {
@@ -196,7 +248,6 @@ namespace Bacon {
         }
 
         protected override void RenderTakeTurn() {
-
             if (_turntype == 1) {
                 Vector3 dst = CalcPos(_cards.Count + 1);
                 dst.y = dst.y + Card.Length;
@@ -271,35 +322,51 @@ namespace Bacon {
             base.RenderLead();
 
             // 出牌
+            Animator animator = _rhand.GetComponent<Animator>();
+            animator.SetTrigger("BeforeChupai");
+
             UnityEngine.Debug.Assert(_leadcards.Count > 0);
             Vector3 dst = CalcLeadPos(_leadcards.Count - 1);
-            _leadcard.Go.transform.localPosition = dst;
-            _leadcard.Go.transform.localRotation = _upv;
-            dst.y = dst.y + 0.1f;
-            ((GameController)_controller).Desk.RenderChangeCursor(dst);
 
-            // 整理手上的牌
-            if (_leadcard.Value != _holdcard.Value) {
-                if (_holdcard.Pos == (_cards.Count - 1)) {
-                    RenderSortCardsToDo(() => {
-                        UnityEngine.Debug.LogFormat("right player send event lead card");
-                        Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
-                        _ctx.Enqueue(cmd);
+            // 1.
+            Sequence mySequence1 = DOTween.Sequence();
+            mySequence1.Append(_rhand.transform.DOLocalMove(dst, 1.0f))
+                .AppendCallback(() => {
+                    // 2.
+                    _leadcard.Go.transform.localPosition = dst;
+                    _leadcard.Go.transform.localRotation = _upv;
+
+                    ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(dst.x, dst.y + _curorMH, dst.z));
+
+                    // 3. 手退回去
+                    Sequence mySequence3 = DOTween.Sequence();
+                    mySequence3.Append(_rhand.transform.DOLocalMove(new Vector3(3.0f, -2.0f, 0.16f), 1.0f))
+                    .AppendCallback(() => {
+
+                        // 4整理手上的牌
+                        if (_leadcard.Value != _holdcard.Value) {
+                            if (_holdcard.Pos == (_cards.Count - 1)) {
+                                RenderSortCardsToDo(() => {
+                                    UnityEngine.Debug.LogFormat("right player send event lead card");
+                                    Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
+                                    _ctx.Enqueue(cmd);
+                                });
+                            } else {
+                                RenderFly(() => {
+                                    UnityEngine.Debug.LogFormat("right player send event lead card");
+                                    Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
+                                    _ctx.Enqueue(cmd);
+                                });
+                            }
+                        } else {
+                            _holdcard = null;
+                            _leadcard = null;
+                            UnityEngine.Debug.LogFormat("right player send event lead card");
+                            Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
+                            _ctx.Enqueue(cmd);
+                        }
                     });
-                } else {
-                    RenderFly(() => {
-                        UnityEngine.Debug.LogFormat("right player send event lead card");
-                        Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
-                        _ctx.Enqueue(cmd);
-                    });
-                }
-            } else {
-                _holdcard = null;
-                _leadcard = null;
-                UnityEngine.Debug.LogFormat("right player send event lead card");
-                Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
-                _ctx.Enqueue(cmd);
-            }
+                });
         }
 
         protected override void RenderClearCall() {

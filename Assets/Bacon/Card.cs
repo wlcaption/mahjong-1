@@ -11,6 +11,7 @@ namespace Bacon {
         public static float Width = 0.074f;
         public static float Height = 0.054f;
         public static float Length = 0.1f;
+        public static float HeightMZ = 0.06f;
 
         public enum CardType {
             Crak = 1,

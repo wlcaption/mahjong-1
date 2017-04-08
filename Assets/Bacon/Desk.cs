@@ -87,7 +87,7 @@ namespace Bacon {
         }
 
         public void RenderSetNanAtRight() {
-            _go.GetComponent<Board>().SetNanAtBottom();
+            _go.GetComponent<Board>().SetNanAtRight();
         }
 
         public void RenderSetNanAtTop() {
@@ -133,16 +133,48 @@ namespace Bacon {
             _go.GetComponent<Board>().SetBeiAtRight();
         }
 
+        public void RenderTakeOnDong() {
+            _go.GetComponent<Board>().TakeOnDong();
+        }
+
+        public void RenderTakeOffDong() {
+            _go.GetComponent<Board>().TakeOffDong();
+        }
+
         public void RenderTakeTurnDong() {
             _go.GetComponent<Board>().TakeTurnDong();
+        }
+
+        public void RenderTakeOnNan() {
+            _go.GetComponent<Board>().TakeOnNan();
+        }
+
+        public void RenderTakeOffNan() {
+            _go.GetComponent<Board>().TakeOffNan();
         }
 
         public void RenderTakeTurnNan() {
             _go.GetComponent<Board>().TakeTurnNan();
         }
 
+        public void RenderTakeOnXi() {
+            _go.GetComponent<Board>().TakeOnXi();
+        }
+
+        public void RenderTakeOffXi() {
+            _go.GetComponent<Board>().TakeOffXi();
+        }
+
         public void RenderTakeTurnXi() {
             _go.GetComponent<Board>().TakeTurnXi();
+        }
+
+        public void RenderTakeOnBei() {
+            _go.GetComponent<Board>().TakeOnBei();
+        }
+
+        public void RenderTakeOffBei() {
+            _go.GetComponent<Board>().TakeOffBei();
         }
 
         public void RenderTakeTurnBei() {
