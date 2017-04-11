@@ -8,6 +8,7 @@ using System;
 
 public class Board : MonoBehaviour {
 
+    public GameObject _Cover;
     public GameObject _Clock1;
     public GameObject _Clock2;
     public GameObject _Cursor;
@@ -68,14 +69,20 @@ public class Board : MonoBehaviour {
     }
 
     private void ThrowSDice(long d, GameObject go) {
+        Action act = delegate () {
+            Command cmd = new Command(MyEventCmd.EVENT_THROWDICE);
+            GetComponent<FindApp>().App.Enqueue(cmd);
+            _Cover.SetActive(true);
+            _Clock1.SetActive(true);
+            _Clock2.SetActive(true);
+        };
         switch (d) {
             case 1:
                 go.GetComponent<Dice>().Play(() => {
                     go.transform.localRotation = Quaternion.AngleAxis(-180.0f, Vector3.forward);
                     _oknum++;
                     if (_oknum >= 2) {
-                        Command cmd = new Command(MyEventCmd.EVENT_THROWDICE);
-                        GetComponent<FindApp>().App.Enqueue(cmd);
+                        act();
                     }
                 });
                 break;
@@ -84,18 +91,16 @@ public class Board : MonoBehaviour {
                     go.transform.localRotation = Quaternion.AngleAxis(180.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
                     _oknum++;
                     if (_oknum >= 2) {
-                        Command cmd = new Command(MyEventCmd.EVENT_THROWDICE);
-                        GetComponent<FindApp>().App.Enqueue(cmd);
+                        act();
                     }
-                }); 
+                });
                 break;
             case 3:
                 go.GetComponent<Dice>().Play(() => {
                     go.transform.localRotation = Quaternion.AngleAxis(-90.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
                     _oknum++;
                     if (_oknum >= 2) {
-                        Command cmd = new Command(MyEventCmd.EVENT_THROWDICE);
-                        GetComponent<FindApp>().App.Enqueue(cmd);
+                        act();
                     }
                 });
                 break;
@@ -104,8 +109,7 @@ public class Board : MonoBehaviour {
                     go.transform.localRotation = Quaternion.AngleAxis(270.0f, Vector3.forward);
                     _oknum++;
                     if (_oknum >= 2) {
-                        Command cmd = new Command(MyEventCmd.EVENT_THROWDICE);
-                        GetComponent<FindApp>().App.Enqueue(cmd);
+                        act();
                     }
                 });
                 break;
@@ -114,8 +118,7 @@ public class Board : MonoBehaviour {
                     go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
                     _oknum++;
                     if (_oknum >= 2) {
-                        Command cmd = new Command(MyEventCmd.EVENT_THROWDICE);
-                        GetComponent<FindApp>().App.Enqueue(cmd);
+                        act();
                     }
                 });
                 break;
@@ -124,8 +127,7 @@ public class Board : MonoBehaviour {
                     go.transform.localRotation = Quaternion.AngleAxis(0.0f, Vector3.right);
                     _oknum++;
                     if (_oknum >= 2) {
-                        Command cmd = new Command(MyEventCmd.EVENT_THROWDICE);
-                        GetComponent<FindApp>().App.Enqueue(cmd);
+                        act();
                     }
                 });
                 break;

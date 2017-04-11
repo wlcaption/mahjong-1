@@ -42,11 +42,6 @@ namespace Bacon {
         protected int _takecardslen = 0;
         protected Dictionary<int, Card> _takecards = new Dictionary<int, Card>();
 
-        protected const float _holddowndelat = 0.3f;
-        protected const float _abdicateholddelta = 0.6f;
-        protected const float _holdflydelta = 1.2f;
-        protected const float _sortcardsdelta = 0.8f;
-
         // 重写
         protected float _leftoffset = 0.56f;
         protected float _bottomoffset = 0.1f;
@@ -59,10 +54,12 @@ namespace Bacon {
         protected float _leadbottomoffset = 0.7f;  // 偏移起始值
         protected List<Card> _leadcards = new List<Card>();
 
+        protected Vector3 _putmove = Vector3.zero;
         protected const float _putmovedelta = 0.1f;
         protected const float _putmargin = 0.02f;
 
         // 重写
+
         protected float _putrightoffset = 0.1f;
         protected float _putbottomoffset = 0.1f;
         protected int _putidx = 0;
@@ -72,10 +69,18 @@ namespace Bacon {
         protected const float _hubottomoffset = 0.4f;
         protected List<Card> _hucards = new List<Card>();
 
+        protected Vector3 _holdnaoffset = new Vector3(0.0f, Card.Length + 0.1f, 0.0f);
+
+        protected const float _holddowndelat = 0.3f;
+        protected const float _abdicateholddelta = 0.6f;
+        protected const float _holdflydelta = 1.2f;
+        protected const float _sortcardsdelta = 0.8f;
+
         protected const float _holddelta = 0.1f;
         protected const float _holdleftoffset = 0.02f;
         protected Card _holdcard;
         protected Card _leadcard;
+        protected Vector3 _leadcardoffset = Vector3.one;
 
         protected long _turntype;
         protected long _fen;
@@ -86,15 +91,37 @@ namespace Bacon {
         protected long _wal;         // 赢的钱或者输的钱
         protected long _say;
 
+        // 手
         protected int _oknum;
-        protected float _chupaishendelta = 1.0f;
+        protected GameObject _rhand = null;
+        protected GameObject _lhand = null;
+        protected Vector3 _rhandinitpos = Vector3.one;
+        protected Quaternion _rhandinitrot = Quaternion.identity;
+        protected Vector3 _rhandtakeoffset = Vector3.one;
+        protected Vector3 _rhandleadoffset = Vector3.one;
+        protected Vector3 _rhandnaoffset = Vector3.one;
+        protected Vector3 _rhandpgoffset = Vector3.zero;
+        protected Vector3 _rhandhuoffset = Vector3.zero;
+
+        protected Vector3 _lhandinitpos = Vector3.one;
+        protected Quaternion _lhandinitrot = Quaternion.identity;
+        protected Vector3 _lhandhuoffset = Vector3.zero;
+
+
+        protected float _diushaizishendelta = 1.0f;
+        protected float _diushaizishoudelta = 1.0f;
+        protected float _chupaishendelta = 3.0f;
         protected float _chupaishoudelta = 1.0f;
-        protected float _napaishendelta = 1.0f;
+        protected float _napaishendelta = 3.0f;
         protected float _fangpaishoudelta = 1.0f;
         protected float _hupaishendelta = 1.0f;
         protected float _hupaishoudelta = 1.0f;
         protected float _penggangshendelta = 1.0f;
         protected float _penggangshoudelta = 1.0f;
+
+        // 牌
+        protected float _fangdaodelta = 1.0f;
+        protected float _dealcarddelta = 1.0f;
 
         public Player(Context ctx, GameController controller)
             : base(ctx, controller) {
@@ -192,9 +219,7 @@ namespace Bacon {
             _ctx.EnqueueRenderQueue(RenderThrowDice);
         }
 
-        protected virtual void RenderThrowDice() {
-            //((GameController)_controller).RenderThrowDice(_d1, _d2);
-        }
+        protected virtual void RenderThrowDice() { }
 
         public void Deal() {
             List<Card> cards = ((GameController)_controller).TakeBlock();
@@ -278,6 +303,53 @@ namespace Bacon {
         }
 
         protected virtual void RenderTakeFirstCard() { }
+
+        protected virtual void RenderTakeCard(Action cb) {
+            Vector3 cdst = CalcPos(_cards.Count + 1);
+            Vector3 hdst = cdst + _rhandtakeoffset;
+            Vector3 cdst1 = new Vector3(cdst.x, cdst.y + Card.Length, cdst.z);
+            Vector3 hdst1 = cdst1 + _rhandtakeoffset;
+
+            // 1.0 伸手
+            Animator animator = _rhand.GetComponent<Animator>();
+            animator.SetTrigger("BeforeFangpai");
+            Tween t1 = _rhand.transform.DOLocalMove(hdst1, _napaishendelta);
+            Sequence mySequence1 = DOTween.Sequence();
+            mySequence1.Append(t1)
+                .AppendCallback(() => {
+
+                    // 2.1 牌下移
+                    _holdcard.Go.transform.localPosition = cdst1;
+                    _holdcard.Go.transform.localRotation = _backv;
+
+                    Sequence mySequence21 = DOTween.Sequence();
+                    mySequence21.Append(_holdcard.Go.transform.DOLocalMove(cdst, _holddelta))
+                        .AppendCallback(() => {
+                        });
+
+                    // 2.2 手下移
+                    Sequence mySequence22 = DOTween.Sequence();
+                    mySequence22.Append(_rhand.transform.DOLocalMove(hdst, _holddelta))
+                    .AppendCallback(() => {
+                        // 3.0 放手
+                        Hand hand = _rhand.GetComponent<Hand>();
+                        hand.Rigster(Hand.EVENT.FANGPAI_COMPLETED, () => {
+                            // 4.0 收手
+                            Tween t4 = _rhand.transform.DOLocalMove(_rhandinitpos, _fangpaishoudelta);
+                            Sequence mySequence4 = DOTween.Sequence();
+                            mySequence4.Append(t4)
+                            .AppendCallback(() => {
+
+                                cb();
+
+                                // 5.0 归位
+                                animator.SetBool("Idle", true);
+                            });
+                        });
+                        animator.SetBool("Fangpai", true);
+                    });
+                });
+        }
 
         public void TakeXuanQue() {
             _ctx.EnqueueRenderQueue(RenderTakeXuanQue);
@@ -436,23 +508,214 @@ namespace Bacon {
             });
         }
 
+        protected virtual void RenderLead1(Action cb) {
+            UnityEngine.Debug.Assert(_leadcards.Count > 0);
+
+            Vector3 cdst = CalcLeadPos(_leadcards.Count - 1);
+            Vector3 hdst = cdst + _rhandleadoffset;
+
+            Vector3 cdst1 = cdst + _leadcardoffset;
+            Vector3 hdst1 = cdst1 + _rhandleadoffset;
+
+            // 1.0 伸手
+            Animator animator = _rhand.GetComponent<Animator>();
+            animator.SetTrigger("BeforeChupai");
+            animator.SetBool("Chupai", true);
+
+            Sequence mySequence1 = DOTween.Sequence();
+            mySequence1.Append(_rhand.transform.DOLocalMove(hdst1, _chupaishendelta))
+                .AppendCallback(() => {
+                    // 21. 牌向前移
+                    _leadcard.Go.transform.localPosition = cdst1;
+                    _leadcard.Go.transform.localRotation = _upv;
+
+                    Tween t21 = _leadcard.Go.transform.DOLocalMove(cdst, 1.0f);
+                    Sequence mySequence21 = DOTween.Sequence();
+                    mySequence21.Append(t21)
+                    .AppendCallback(() => {
+                        ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(cdst.x, cdst.y + _curorMH, cdst.z));
+                    });
+
+                    Tween t22 = _rhand.transform.DOLocalMove(hdst, 1.0f);
+                    Sequence mySequence22 = DOTween.Sequence();
+                    mySequence22.Append(t22)
+                    .AppendCallback(() => {
+                        // 
+                        //3.0 收手
+                        Sequence mySequence4 = DOTween.Sequence();
+                        mySequence4.Append(_rhand.transform.DOLocalMove(_rhandinitpos, _chupaishoudelta))
+                        .AppendCallback(() => {
+                            // 4.1 归为
+                            animator.SetBool("Idle", true);
+                            _rhand.transform.localRotation = _rhandinitrot;
+
+                            // 4.2 整理手上的牌
+                            cb();
+                        });
+                    });
+                });
+        }
+
+        protected virtual void RenderLead1Cb() {
+            if (_leadcard.Value != _holdcard.Value) {
+                if (_holdcard.Pos == (_cards.Count - 1)) {
+                    RenderSortCardsToDo(() => {
+                        Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
+                        _ctx.Enqueue(cmd);
+                    });
+                } else {
+                    RenderFly(() => {
+                        Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
+                        _ctx.Enqueue(cmd);
+                    });
+                }
+            } else {
+                _holdcard = null;
+                _leadcard = null;
+                Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
+                _ctx.Enqueue(cmd);
+            }
+        }
+
         protected virtual void RenderSortCardsToDo(Action cb) {
-            int count = 0;
+            _oknum = 0;
             for (int i = 0; i < _cards.Count; i++) {
                 Vector3 dst = CalcPos(i);
                 Sequence s = DOTween.Sequence();
                 s.Append(_cards[i].Go.transform.DOMove(dst, _abdicateholddelta))
                     .AppendCallback(() => {
-                        count++;
-                        if (count >= _cards.Count) {
+                        _oknum++;
+                        if (_oknum >= _cards.Count) {
                             cb();
                         }
                     });
             }
         }
-        protected virtual void RenderInsert(Action cb) { }
-        protected virtual void RenderSortCardsAfterFly(Action cb) { }
-        protected virtual void RenderFly(Action cb) { }
+
+        protected virtual void RenderInsert(Action cb) {
+            // 1.0
+            Vector3 to = CalcPos(_holdcard.Pos);
+
+            Vector3 cdst = to;
+            Vector3 hdst = cdst + _rhandnaoffset;
+
+            Animator animator = _rhand.GetComponent<Animator>();
+
+            // 1.1 牌下放
+            Tween t11 = _holdcard.Go.transform.DOLocalMove(cdst, _holddowndelat);
+            Sequence mySequence11 = DOTween.Sequence();
+            mySequence11.Append(t11)
+            .AppendCallback(() => {
+                _holdcard = null;
+                _leadcard = null;
+                //cb();
+            });
+
+            // 1.2 手下放
+            Tween t12 = _rhand.transform.DOLocalMove(hdst, _holddowndelat);
+            Sequence mySequence12 = DOTween.Sequence();
+            mySequence12.Append(t12)
+                .AppendCallback(() => {
+                    // 2.0 放手
+                    Hand hand = _rhand.GetComponent<Hand>();
+                    hand.Rigster(Hand.EVENT.FANGPAI_COMPLETED, () => {
+                        // 3.0 收手
+                        Tween t31 = _rhand.transform.DOLocalMove(_rhandinitpos, _fangpaishoudelta);
+                        Sequence mySequence31 = DOTween.Sequence();
+                        mySequence31.Append(t31)
+                        .AppendCallback(() => {
+                            animator.SetBool("Idle", true);
+                            cb();
+                        });
+                    });
+                    animator.SetBool("Fangpai", true);
+                });
+        }
+
+        protected virtual void RenderSortCardsAfterFly(Action cb) {
+            _oknum = 0;
+            for (int i = 0; i < _cards.Count; i++) {
+                if (_cards[i].Value == _holdcard.Value) {
+                    continue;
+                }
+                Vector3 dst = CalcPos(i);
+                Sequence s = DOTween.Sequence();
+                s.Append(_cards[i].Go.transform.DOMove(dst, _abdicateholddelta))
+                    .AppendCallback(() => {
+                        _oknum++;
+                        if (_oknum >= _cards.Count - 1) {
+                            RenderInsert(cb);
+                        }
+                    });
+            }
+        }
+
+        protected virtual void RenderFly(Action cb) {
+            Vector3 cfrom = _holdcard.Go.transform.localPosition;
+            Vector3 hfrom = cfrom + _rhandnaoffset;
+
+            // 1.0
+            Animator animator = _rhand.GetComponent<Animator>();
+            animator.SetTrigger("BeforeNapai");
+            Tween t1 = _rhand.transform.DOLocalMove(hfrom, _napaishendelta);
+            Sequence mySequence1 = DOTween.Sequence();
+            mySequence1.Append(t1)
+                .AppendCallback(() => {
+
+                    return;
+
+                    // 2.0 拿牌
+                    Hand hand = _rhand.GetComponent<Hand>();
+                    hand.Rigster(Hand.EVENT.NAPAI_COMPLETED, () => {
+
+                        // 3.1 上提到目标位置
+                        Vector3 cdst1 = cfrom + _holdnaoffset;
+                        Vector3 hdst1 = cdst1 + _rhandnaoffset;
+                        _holdcard.Go.transform.DOLocalMove(cdst1, 1.0f);
+
+                        // 3.2 
+                        Sequence mySequence32 = DOTween.Sequence();
+                        Tween t32 = _rhand.transform.DOLocalMove(hdst1, 1.0f);
+                        mySequence32.Append(t32)
+                        .AppendCallback(() => {
+                            Vector3 to = CalcPos(_holdcard.Pos);
+
+                            Vector3 cdst2 = to + _holdnaoffset;
+                            Vector3 hdst2 = cdst2 + _rhandnaoffset;
+                            // 4.1 移动到目标位置
+                            _holdcard.Go.transform.DOLocalMove(cdst2, 1.0f);
+
+                            // 4.2 移动手
+                            Tween t42 = _rhand.transform.DOLocalMove(hdst2, 1.0f);
+                            Sequence mySequence42 = DOTween.Sequence();
+                            mySequence42.Append(t42)
+                            .AppendCallback(() => {
+                                RenderSortCardsAfterFly(cb);
+                            });
+                        });
+
+                        //float h = 0.05f;
+                        //to.y = to.y + Card.Length + h;
+                        //Vector3[] waypoints = new[] {
+                        //    from,
+                        //    new Vector3(from.x, (to.y - from.y) * 0.2f + from.y, (to.z - from.z) * 0.2f + from.z),
+                        //    new Vector3(from.x, (to.y - from.y) * 0.3f + from.y, (to.z - from.z) * 0.3f + from.z),
+                        //    new Vector3(from.x, (to.y - from.y) * 0.5f + from.y, (to.z - from.z) * 0.5f + from.z),
+                        //    new Vector3(from.x, (to.y - from.y) * 0.8f + from.y, (to.z - from.z) * 0.8f + from.z),
+                        //    to,
+                        //};
+
+                        //Tween t = _holdcard.Go.transform.DOPath(waypoints, _holdflydelta).SetOptions(false);
+                        //Sequence mySequence = DOTween.Sequence();
+                        //mySequence.Append(t).AppendCallback(() => {
+                        //    RenderSortCardsAfterFly(cb);
+                        //});
+
+                        //_rhand.transform.DOPath(waypoints, _holdflydelta).SetOptions(false);
+                    });
+                    animator.SetBool("Napai", true);
+                });
+        }
 
         public void SetupCall(long c, long countdown) {
             if (Call.Gang == OpCodes.OPCODE_ANGANG ||
@@ -524,6 +787,56 @@ namespace Bacon {
             ABLoader.current.LoadAssetAsync<AudioClip>(path, name, (AudioClip clip) => {
                 SoundMgr.current.PlaySound(_go, clip);
             });
+        }
+
+        protected virtual void RenderPeng1() {
+            PGCards pg = _putcards[_putidx];
+
+            // 1.0 伸手
+            Animator animator = _rhand.GetComponent<Animator>();
+            animator.SetTrigger("BeforePenggang");
+            Tween t1 = _rhand.transform.DOMove(pg.Cards[2].Go.transform.localPosition, _penggangshendelta);
+            Sequence mySequence1 = DOTween.Sequence();
+            mySequence1.Append(t1)
+                .AppendCallback(() => {
+                    // 2.0
+                    _oknum = 0;
+                    // 2.1 牌移动
+                    for (int i = 0; i < pg.Cards.Count; i++) {
+                        Tween t2 = pg.Cards[i].Go.transform.DOLocalMove(pg.Cards[i].Go.transform.localPosition + _putmove, _putmovedelta);
+                        Sequence mySequence21 = DOTween.Sequence();
+                        mySequence21.Append(t2)
+                            .AppendCallback(() => {
+                                _oknum++;
+                                if (_oknum >= pg.Cards.Count) {
+                                    // 3.0 收手
+                                    Vector3 c2pos = pg.Cards[2].Go.transform.localPosition;
+                                    ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(c2pos.x, c2pos.y + _curorMH, c2pos.z));
+                                }
+                            });
+                    }
+
+                    // 2.2 手移动                    
+                    Tween t22 = _rhand.transform.DOLocalMove(_rhand.transform.localPosition + _putmove, _putmovedelta);
+                    Sequence mySequence22 = DOTween.Sequence();
+                    mySequence22.Append(t22)
+                    .AppendCallback(() => {
+
+                        // 3.0 收手
+                        Tween t3 = _rhand.transform.DOMove(_rhandinitpos, _penggangshoudelta);
+                        Sequence mySequence3 = DOTween.Sequence();
+                        mySequence3.Append(t3)
+                        .AppendCallback(() => {
+                            RenderSortCardsToDo(() => {
+                                // 4.0 归为
+                                animator.SetBool("Idle", true);
+
+                                Command cmd = new Command(MyEventCmd.EVENT_PENGCARD);
+                                _ctx.Enqueue(cmd);
+                            });
+                        });
+                    });
+                });
         }
 
         public void Gang(long code, long c, long hor, Player player, Card card) {
@@ -669,12 +982,70 @@ namespace Bacon {
             });
         }
 
+        protected virtual void RenderGang1(Action cb) {
+            PGCards pg = _putcards[_putidx];
+
+            // 1.0 伸手
+            Animator animator = _rhand.GetComponent<Animator>();
+            animator.SetTrigger("BeforePenggang");
+            Tween t1 = _rhand.transform.DOMove(pg.Cards[3].Go.transform.localPosition, _penggangshendelta);
+            Sequence mySequence1 = DOTween.Sequence();
+            mySequence1.Append(t1)
+                .AppendCallback(() => {
+                    // 2.0
+                    _oknum = 0;
+                    // 2.1 牌移动
+                    if (pg.Opcode == OpCodes.OPCODE_BUGANG) {
+                        Sequence mySequence21 = DOTween.Sequence();
+                        mySequence1.Append(pg.Cards[3].Go.transform.DOMove(pg.Cards[3].Go.transform.localPosition + _putmove, _putmovedelta))
+                        .AppendCallback(() => {
+                            Vector3 c2pos = pg.Cards[3].Go.transform.localPosition;
+                            ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(c2pos.x, c2pos.y + _curorMH, c2pos.z));
+                        });
+                    } else {
+                        for (int i = 0; i < pg.Cards.Count; i++) {
+                            Tween t2 = pg.Cards[i].Go.transform.DOLocalMove(pg.Cards[i].Go.transform.localPosition + _putmove, _putmovedelta);
+                            Sequence mySequence21 = DOTween.Sequence();
+                            mySequence21.Append(t2)
+                                .AppendCallback(() => {
+                                    _oknum++;
+                                    if (_oknum >= pg.Cards.Count) {
+                                        // 3.0 收手
+                                        Vector3 c2pos = pg.Cards[3].Go.transform.localPosition;
+                                        ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(c2pos.x, c2pos.y + _curorMH, c2pos.z));
+                                    }
+                                });
+                        }
+                    }
+
+
+                    // 2.2 手移动                    
+                    Tween t22 = _rhand.transform.DOLocalMove(_rhand.transform.localPosition + _putmove, _putmovedelta);
+                    Sequence mySequence22 = DOTween.Sequence();
+                    mySequence22.Append(t22)
+                    .AppendCallback(() => {
+
+                        // 3.0 收手
+                        Tween t3 = _rhand.transform.DOMove(_rhandinitpos, _penggangshoudelta);
+                        Sequence mySequence3 = DOTween.Sequence();
+                        mySequence3.Append(t3)
+                        .AppendCallback(() => {
+                            RenderSortCardsToDo(() => {
+                                // 4.0 归为
+                                animator.SetBool("Idle", true);
+
+                                cb();
+                            });
+                        });
+                    });
+                });
+        }
+
         public void GangSettle() {
             _ctx.EnqueueRenderQueue(RenderGangSettle);
         }
 
         protected virtual void RenderGangSettle() { }
-
 
         public void Hu(long code, long c, long jiao, long gang, long dian, Player player, Card card) {
             if (jiao == JiaoType.PINGFANG) {
@@ -739,6 +1110,94 @@ namespace Bacon {
         }
 
         protected virtual void RenderOver() { }
+
+        protected virtual void RenderOverShen(Action<Action> act31, Action cb) {
+            // 1.0 伸手
+            Animator ranimator = _rhand.GetComponent<Animator>();
+            ranimator.SetTrigger("BeforeHupai");
+
+            _lhand.SetActive(true);
+            Animator lanimator = _rhand.GetComponent<Animator>();
+            lanimator.SetTrigger("BeforeHupai");
+
+            // 5.0
+            Action act5 = delegate () {
+                // 发事件
+                cb();
+            };
+
+            // 3.0 放到牌
+            Action act3 = delegate () {
+                act31(() => {
+                    // 4.0 收手
+                    _oknum = 0;
+                    Sequence mySequence4r = DOTween.Sequence();
+                    mySequence4r.Append(_rhand.transform.DOLocalMove(_rhandinitpos, _hupaishoudelta))
+                    .AppendCallback(() => {
+                        _oknum++;
+                        if (_oknum >= 2) {
+                            act5();
+                        }
+                    });
+
+                    Sequence mySequence4l = DOTween.Sequence();
+                    mySequence4l.Append(_lhand.transform.DOLocalMove(_lhandinitpos, _hupaishoudelta))
+                    .AppendCallback(() => {
+                        _oknum++;
+                        if (_oknum >= 2) {
+                            act5();
+                        }
+                    });
+                });
+            };
+
+            // 2.0
+            Action act2 = delegate () {
+                _oknum = 0;
+                Hand rhand = _rhand.GetComponent<Hand>();
+                rhand.Rigster(Hand.EVENT.HUPAI_COMPLETED, () => {
+                    _oknum++;
+                    if (_oknum >= 2) {
+                        // 3.0
+                        act3();
+                    }
+                });
+                ranimator.SetBool("Hupai", true);
+
+                Hand lhand = _lhand.GetComponent<Hand>();
+                lhand.Rigster(Hand.EVENT.HUPAI_COMPLETED, () => {
+                    _oknum++;
+                    if (_oknum >= 2) {
+                        // 3.0
+                        act3();
+                    }
+                });
+                lanimator.SetBool("Hupai", true);
+            };
+
+            _oknum = 0;
+            Tween t1r = _rhand.transform.DOLocalMove(_cards[_cards.Count - 1].Go.transform.localPosition, _hupaishendelta);
+            Sequence mySequence1r = DOTween.Sequence();
+            mySequence1r.Append(t1r)
+                .AppendCallback(() => {
+                    _oknum++;
+                    if (_oknum >= 2) {
+                        // 2.0
+                        act2();
+                    }
+                });
+
+            Tween t1l = _lhand.transform.DOLocalMove(_cards[0].Go.transform.localPosition, _hupaishendelta);
+            Sequence mySequence1l = DOTween.Sequence();
+            mySequence1l.Append(t1l)
+                .AppendCallback(() => {
+                    _oknum++;
+                    if (_oknum >= 2) {
+                        // 2.0
+                        act2();
+                    }
+                });
+        }
 
         public void Settle() { }
 

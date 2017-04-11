@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class GirlHand : Hand {
+public class GirlHand : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
