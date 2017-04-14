@@ -9,6 +9,9 @@ public class CreateRoom : MonoBehaviour {
     public GameObject _SCPanel;
     public GameObject _SXPanel;
     public GameObject _RCard;
+    public GameObject _Point;
+    public GameObject _XueLiu;
+    public GameObject _XueZhan;
 
     private int _provice = Provice.Sichuan;            // 0:四川 1:陕西
     private int _overtype = OverType.XUELIU;
@@ -40,6 +43,10 @@ public class CreateRoom : MonoBehaviour {
             _provice = Provice.Sichuan;
             _overtype = OverType.XUELIU;
             _SCPanel.SetActive(true);
+            _SXPanel.SetActive(false);
+            Vector3 xpos = transform.worldToLocalMatrix * _XueLiu.transform.position;
+            Vector3 pos = _Point.transform.localPosition;
+            _Point.transform.localPosition = new Vector3(pos.x, xpos.y, pos.z);
         } else {
             _SCPanel.SetActive(false);
         }
@@ -51,6 +58,11 @@ public class CreateRoom : MonoBehaviour {
             _provice = Provice.Sichuan;
             _overtype = OverType.XUELIU;
             _SCPanel.SetActive(true);
+            _SXPanel.SetActive(false);
+
+            Vector3 xpos = transform.worldToLocalMatrix * _XueZhan.transform.position;
+            Vector3 pos = _Point.transform.localPosition;
+            _Point.transform.localPosition = new Vector3(pos.x, xpos.y, pos.z);
         } else {
             _SCPanel.SetActive(false);
         }
@@ -59,6 +71,7 @@ public class CreateRoom : MonoBehaviour {
     public void OnSx(bool value) {
         if (value) {
             _provice = Provice.Shaanxi;
+            _SCPanel.SetActive(false);
             _SXPanel.SetActive(true);
         } else {
             _SXPanel.SetActive(false);

@@ -33,7 +33,7 @@ public class LeftPlayer : MonoBehaviour {
 
     public void Say(long code) {
         SayItem item = SayConfig.Instance.GetItem((int)code);
-        Head.SetSay(item.text);
+        Head.ShowSay(item.text);
         string path = item.sound;
         int idx = path.IndexOf('.');
         if (idx != -1) {

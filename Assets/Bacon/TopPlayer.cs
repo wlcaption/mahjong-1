@@ -30,6 +30,9 @@ namespace Bacon {
 
             _leadcardoffset = new Vector3(-0.05f, 0.0f, 0.0f);
 
+            _putbottomoffset = 0.1f - Card.Length / 2.0f;
+            _putrightoffset = 0.55f - Card.Width / 2.0f;
+
             _rhandinitpos = new Vector3(1.0f, -2.0f, 3.0f);
             _rhandinitrot = Quaternion.Euler(0.0f, 180.0f, 0.0f);
             _rhandleadoffset = new Vector3(0.597f, -1.967f, 1.124f);
@@ -90,13 +93,13 @@ namespace Bacon {
                 UnityEngine.Debug.Assert(false);
             }
 
-            GameObject rori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "girlrhand");
+            GameObject rori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "boyrhand");
             _rhand = GameObject.Instantiate<GameObject>(rori);
             _rhand.transform.SetParent(_go.transform);
             _rhand.transform.localPosition = _rhandinitpos;
             _rhand.transform.localRotation = _rhandinitrot;
 
-            GameObject lori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "girllhand");
+            GameObject lori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "boylhand");
             _lhand = GameObject.Instantiate<GameObject>(lori);
             _lhand.transform.SetParent(_go.transform);
             _lhand.transform.localPosition = _lhandinitpos;
@@ -218,7 +221,7 @@ namespace Bacon {
                         count++;
                         if (count >= _cards.Count) {
                             UnityEngine.Debug.LogFormat("player top send sort cards");
-                            Command cmd = new Command(MyEventCmd.EVENT_SORTCARDS);
+                            Command cmd = new Command(MyEventCmd.EVENT_SORTCARDSAFTERDEAL);
                             _ctx.Enqueue(cmd);
                         }
                     });
@@ -226,7 +229,7 @@ namespace Bacon {
         }
 
         protected override void RenderTakeXuanPao() {
-            _go.GetComponent<global::TopPlayer>().Head.SetMark(string.Format("{0}", _fen));
+            _go.GetComponent<global::TopPlayer>().Head.ShowMark(string.Format("{0}", _fen));
         }
 
         protected override void RenderXuanPao() {
@@ -246,11 +249,11 @@ namespace Bacon {
 
         protected override void RenderXuanQue() {
             if (_que == Card.CardType.Bam) {
-                _go.GetComponent<global::TopPlayer>().Head.SetMark("条");
+                _go.GetComponent<global::TopPlayer>().Head.ShowMark("条");
             } else if (_que == Card.CardType.Crak) {
-                _go.GetComponent<global::TopPlayer>().Head.SetMark("万");
+                _go.GetComponent<global::TopPlayer>().Head.ShowMark("万");
             } else if (_que == Card.CardType.Dot) {
-                _go.GetComponent<global::TopPlayer>().Head.SetMark("同");
+                _go.GetComponent<global::TopPlayer>().Head.ShowMark("同");
             }
             RenderSortCardsToDo(() => {
             });
@@ -264,7 +267,7 @@ namespace Bacon {
                 _holdcard.Go.transform.localRotation = _backv;
 
                 Sequence mySequence = DOTween.Sequence();
-                mySequence.Append(_holdcard.Go.transform.DOMove(dst, _holddelta));
+                mySequence.Append(_holdcard.Go.transform.DOLocalMove(dst, _holddelta));
             }
         }
 

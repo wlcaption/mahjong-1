@@ -30,6 +30,9 @@ namespace Bacon {
 
             _leadcardoffset = new Vector3(0.0f, 0.0f, 0.05f);
 
+            _putbottomoffset = 0.07f - Card.Length /2.0f;
+            _putrightoffset = 0.55f - Card.Width /2.0f;
+
             _holdnaoffset = new Vector3(0.0f, Card.Length + 0.1f, 0.0f);
 
             _rhandinitpos = new Vector3(4.0f, -2.0f, 1f);
@@ -226,7 +229,7 @@ namespace Bacon {
                         count++;
                         if (count >= _cards.Count) {
                             UnityEngine.Debug.LogFormat("player right send sort cards.");
-                            Command cmd = new Command(MyEventCmd.EVENT_SORTCARDS);
+                            Command cmd = new Command(MyEventCmd.EVENT_SORTCARDSAFTERDEAL);
                             _ctx.Enqueue(cmd);
                         }
                     });
@@ -237,7 +240,7 @@ namespace Bacon {
         }
 
         protected override void RenderXuanPao() {
-            _go.GetComponent<global::RightPlayer>().Head.SetMark(string.Format("{0}", _fen));
+            _go.GetComponent<global::RightPlayer>().Head.ShowMark(string.Format("{0}", _fen));
         }
 
         protected override void RenderTakeFirstCard() {
@@ -253,11 +256,11 @@ namespace Bacon {
 
         protected override void RenderXuanQue() {
             if (_que == Card.CardType.Bam) {
-                _go.GetComponent<global::RightPlayer>().Head.SetMark("条");
+                _go.GetComponent<global::RightPlayer>().Head.ShowMark("条");
             } else if (_que == Card.CardType.Crak) {
-                _go.GetComponent<global::RightPlayer>().Head.SetMark("万");
+                _go.GetComponent<global::RightPlayer>().Head.ShowMark("万");
             } else if (_que == Card.CardType.Dot) {
-                _go.GetComponent<global::RightPlayer>().Head.SetMark("同");
+                _go.GetComponent<global::RightPlayer>().Head.ShowMark("同");
             }
             RenderSortCardsToDo(() => {
             });
@@ -271,7 +274,7 @@ namespace Bacon {
                 _holdcard.Go.transform.localRotation = _backv;
 
                 Sequence mySequence = DOTween.Sequence();
-                mySequence.Append(_holdcard.Go.transform.DOMove(dst, _holddelta));
+                mySequence.Append(_holdcard.Go.transform.DOLocalMove(dst, _holddelta));
             }
         }
 

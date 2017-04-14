@@ -97,6 +97,7 @@ namespace Bacon {
         protected GameObject _lhand = null;
         protected Vector3 _rhandinitpos = Vector3.one;
         protected Quaternion _rhandinitrot = Quaternion.identity;
+        protected Vector3 _rhanddiuszoffset = Vector3.zero;
         protected Vector3 _rhandtakeoffset = Vector3.one;
         protected Vector3 _rhandleadoffset = Vector3.one;
         protected Vector3 _rhandnaoffset = Vector3.one;
@@ -485,23 +486,32 @@ namespace Bacon {
         }
 
         protected virtual void RenderLead() {
-            string prefix = "Sound/";
+            string prefix = "Sound/scmj";
             string path = prefix;
             string name = string.Empty;
             if (_sex == 1) {
-                path += "Man";
+                path += "male";
             } else {
-                path += "Woman";
+                path += "female";
             }
 
             if (_leadcard.Type == Card.CardType.Bam) {
-                name = "bam";
+                name = "s_";
             } else if (_leadcard.Type == Card.CardType.Crak) {
-                name = "crak";
+                name = "w_";
             } else if (_leadcard.Type == Card.CardType.Dot) {
-                name = "dot";
+                name = "t_";
             }
-            name += string.Format("{0}", _leadcard.Num);
+            name += string.Format("{0}_", _leadcard.Num);
+            if (_leadcard.Type == Card.CardType.Bam && _leadcard.Num == 1) {
+                name += string.Format("{0}", _ctx.Range(1, 3));
+            } else if (_leadcard.Type == Card.CardType.Bam && _leadcard.Num == 2) {
+                name += string.Format("{0}", _ctx.Range(1, 2));
+            } else if (_leadcard.Type == Card.CardType.Bam && _leadcard.Num == 4) {
+                name += string.Format("{0}", _ctx.Range(1, 2));
+            } else {
+                name += string.Format("{0}", 1);
+            }
 
             ABLoader.current.LoadAssetAsync<AudioClip>(path, name, (AudioClip clip) => {
                 SoundMgr.current.PlaySound(_leadcard.Go, clip);
@@ -582,7 +592,7 @@ namespace Bacon {
             for (int i = 0; i < _cards.Count; i++) {
                 Vector3 dst = CalcPos(i);
                 Sequence s = DOTween.Sequence();
-                s.Append(_cards[i].Go.transform.DOMove(dst, _abdicateholddelta))
+                s.Append(_cards[i].Go.transform.DOLocalMove(dst, _abdicateholddelta))
                     .AppendCallback(() => {
                         _oknum++;
                         if (_oknum >= _cards.Count) {
@@ -661,8 +671,6 @@ namespace Bacon {
             Sequence mySequence1 = DOTween.Sequence();
             mySequence1.Append(t1)
                 .AppendCallback(() => {
-
-                    return;
 
                     // 2.0 拿牌
                     Hand hand = _rhand.GetComponent<Hand>();
@@ -773,16 +781,16 @@ namespace Bacon {
         }
 
         protected virtual void RenderPeng() {
-            string prefix = "Sound/";
+            string prefix = "Sound/scmj";
             string path = prefix;
             string name = string.Empty;
             if (_sex == 1) {
-                path += "Man";
+                path += "male";
             } else {
-                path += "Woman";
+                path += "female";
             }
 
-            name = "peng";
+            name = "peng_" + string.Format("{0}", _ctx.Range(1, 3));
 
             ABLoader.current.LoadAssetAsync<AudioClip>(path, name, (AudioClip clip) => {
                 SoundMgr.current.PlaySound(_go, clip);
@@ -792,10 +800,14 @@ namespace Bacon {
         protected virtual void RenderPeng1() {
             PGCards pg = _putcards[_putidx];
 
+            Vector3 cdst = pg.Cards[2].Go.transform.localPosition;
+            Vector3 hdst = cdst + _rhandpgoffset;
+
             // 1.0 伸手
             Animator animator = _rhand.GetComponent<Animator>();
             animator.SetTrigger("BeforePenggang");
-            Tween t1 = _rhand.transform.DOMove(pg.Cards[2].Go.transform.localPosition, _penggangshendelta);
+            animator.SetBool("Penggang", true);
+            Tween t1 = _rhand.transform.DOLocalMove(hdst, _penggangshendelta);
             Sequence mySequence1 = DOTween.Sequence();
             mySequence1.Append(t1)
                 .AppendCallback(() => {
@@ -803,7 +815,7 @@ namespace Bacon {
                     _oknum = 0;
                     // 2.1 牌移动
                     for (int i = 0; i < pg.Cards.Count; i++) {
-                        Tween t2 = pg.Cards[i].Go.transform.DOLocalMove(pg.Cards[i].Go.transform.localPosition + _putmove, _putmovedelta);
+                        Tween t2 = pg.Cards[i].Go.transform.DOLocalMove(cdst + _putmove, _putmovedelta);
                         Sequence mySequence21 = DOTween.Sequence();
                         mySequence21.Append(t2)
                             .AppendCallback(() => {
@@ -817,13 +829,13 @@ namespace Bacon {
                     }
 
                     // 2.2 手移动                    
-                    Tween t22 = _rhand.transform.DOLocalMove(_rhand.transform.localPosition + _putmove, _putmovedelta);
+                    Tween t22 = _rhand.transform.DOLocalMove(hdst + _putmove, _putmovedelta);
                     Sequence mySequence22 = DOTween.Sequence();
                     mySequence22.Append(t22)
                     .AppendCallback(() => {
 
                         // 3.0 收手
-                        Tween t3 = _rhand.transform.DOMove(_rhandinitpos, _penggangshoudelta);
+                        Tween t3 = _rhand.transform.DOLocalMove(_rhandinitpos, _penggangshoudelta);
                         Sequence mySequence3 = DOTween.Sequence();
                         mySequence3.Append(t3)
                         .AppendCallback(() => {
@@ -970,12 +982,12 @@ namespace Bacon {
             string path = prefix;
             string name = string.Empty;
             if (_sex == 1) {
-                path += "Man";
+                path += "male";
             } else {
-                path += "Woman";
+                path += "female";
             }
 
-            name = "gang";
+            name = "minggang_2";
 
             ABLoader.current.LoadAssetAsync<AudioClip>(path, name, (AudioClip clip) => {
                 SoundMgr.current.PlaySound(_go, clip);
@@ -1086,9 +1098,9 @@ namespace Bacon {
             string path = prefix;
             string name = string.Empty;
             if (_sex == 1) {
-                path += "Man";
+                path += "male";
             } else {
-                path += "Woman";
+                path += "female";
             }
 
             name = "hu";

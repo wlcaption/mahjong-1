@@ -12,6 +12,8 @@ public class SoundMgr : MonoBehaviour {
     private GameObject _soundGo;
     private AudioClip _soundClip;
 
+    private Dictionary<string, AudioClip> _res = new Dictionary<string, AudioClip>();
+
     void Awake() {
         if (current == null) {
             current = this;
@@ -74,6 +76,18 @@ public class SoundMgr : MonoBehaviour {
         }
         if (_sound > 0.0f) {
             go.GetComponent<AudioSource>().Play();
+        }
+    }
+
+    public void PlaySound(GameObject go, string path, string name) {
+        string key = path + "/" + name;
+        if (_res.ContainsKey(key)) {
+            AudioClip clip = _res[path];
+            PlaySound(go, clip);
+        } else {
+            AudioClip clip = ABLoader.current.LoadAsset<AudioClip>(path, name);
+            _res[key] = clip;
+            PlaySound(go, clip);
         }
     }
 }

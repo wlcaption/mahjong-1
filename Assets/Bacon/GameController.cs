@@ -67,7 +67,7 @@ namespace Bacon {
             EventListenerCmd listener9 = new EventListenerCmd(MyEventCmd.EVENT_HUCARD, HuCard);
             _ctx.EventDispatcher.AddCmdEventListener(listener9);
 
-            EventListenerCmd listener10 = new EventListenerCmd(MyEventCmd.EVENT_SORTCARDS, OnSortCards);
+            EventListenerCmd listener10 = new EventListenerCmd(MyEventCmd.EVENT_SORTCARDSAFTERDEAL, OnSortCardsAfterDeal);
             _ctx.EventDispatcher.AddCmdEventListener(listener10);
 
             EventListenerCmd listener11 = new EventListenerCmd(MyEventCmd.EVENT_LEADCARD, OnLeadCard);
@@ -114,6 +114,60 @@ namespace Bacon {
         public Card LastCard { get { return _lastCard; } set { _lastCard = value; } }
         public int TakeRound { get { return _takeround; } }
         public int Type { get { return _type; } set { _type = value; } }
+
+        public void OnUpdateClock(int past, int left) {
+            _desk.UpdateClock(left);
+        }
+
+        public bool TakeCard(out Card card) {
+            if (_service.GetPlayer(_curtake).TakeCard(out card)) {
+                return true;
+            } else {
+                _takepoint++;
+                if (_takepoint >= 6) {
+                    // over
+                    return false;
+                } else {
+                    _curtake--;
+                    if (_curtake <= 0) {
+                        _curtake = _service.Max;
+                    }
+                    return true;
+                }
+            }
+            UnityEngine.Debug.Assert(card != null);
+            return true;
+        }
+
+        public List<Card> TakeBlock() {
+            try {
+                if (_takeround == 4) {
+                    List<Card> cards = new List<Card>();
+                    Card card;
+                    if (TakeCard(out card)) {
+                        cards.Add(card);
+                        return cards;
+                    } else {
+                        UnityEngine.Debug.Assert(false);
+                    }
+                } else {
+                    List<Card> cards = new List<Card>();
+                    Card card;
+                    for (int i = 0; i < 4; i++) {
+                        if (TakeCard(out card)) {
+                            cards.Add(card);
+                        } else {
+                            UnityEngine.Debug.Assert(false);
+                        }
+                    }
+                    return cards;
+                }
+                return null;
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
+                return null;
+            }
+        }
 
         public void SetupMap(EventCmd e) {
             GameObject map = e.Orgin;
@@ -176,56 +230,6 @@ namespace Bacon {
             _ui.RenderRoomId((int)_service.RoomId);
         }
 
-        public bool TakeCard(out Card card) {
-            if (_service.GetPlayer(_curtake).TakeCard(out card)) {
-                return true;
-            } else {
-                _takepoint++;
-                if (_takepoint >= 6) {
-                    // over
-                    return false;
-                } else {
-                    _curtake--;
-                    if (_curtake <= 0) {
-                        _curtake = _service.Max;
-                    }
-                    return true;
-                }
-            }
-            UnityEngine.Debug.Assert(card != null);
-            return true;
-        }
-
-        public List<Card> TakeBlock() {
-            try {
-                if (_takeround == 4) {
-                    List<Card> cards = new List<Card>();
-                    Card card;
-                    if (TakeCard(out card)) {
-                        cards.Add(card);
-                        return cards;
-                    } else {
-                        UnityEngine.Debug.Assert(false);
-                    }
-                } else {
-                    List<Card> cards = new List<Card>();
-                    Card card;
-                    for (int i = 0; i < 4; i++) {
-                        if (TakeCard(out card)) {
-                            cards.Add(card);
-                        } else {
-                            UnityEngine.Debug.Assert(false);
-                        }
-                    }
-                    return cards;
-                }
-                return null;
-            } catch (Exception ex) {
-                UnityEngine.Debug.LogException(ex);
-                return null;
-            }
-        }
-
         public SprotoTypeBase OnReady(SprotoTypeBase requestObj) {
             try {
                 _oknum = 0;
@@ -249,24 +253,10 @@ namespace Bacon {
             }
         }
 
-        public void SendStep() {
-            _oknum++;
-            if (_oknum == 4) {
-                _oknum = 0;
-                UnityEngine.Debug.LogFormat("send step.");
-                GameService service = _ctx.QueryService<GameService>(GameService.Name);
-                if (_type == GameType.GAME) {
-                    C2sSprotoType.step.request request = new C2sSprotoType.step.request();
-                    request.idx = service.MyIdx;
-                    _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
-                }
-            }
-        }
-
         public SprotoTypeBase OnShuffle(SprotoTypeBase requestObj) {
-            _oknum = 0;
             S2cSprotoType.shuffle.request obj = requestObj as S2cSprotoType.shuffle.request;
             try {
+                _oknum = 0;
                 foreach (var item in _cards) {
                     item.Value.Clear();
                 }
@@ -300,7 +290,17 @@ namespace Bacon {
         }
 
         public void BoxingCards(EventCmd e) {
-            SendStep();
+            _oknum++;
+            if (_oknum == 4) {
+                _oknum = 0;
+                if (_type == GameType.GAME) {
+                    UnityEngine.Debug.LogFormat("send step after boxing.");
+                    GameService service = _ctx.QueryService<GameService>(GameService.Name);
+                    C2sSprotoType.step.request request = new C2sSprotoType.step.request();
+                    request.idx = service.MyIdx;
+                    _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+                }
+            }
         }
 
         public SprotoTypeBase OnDice(SprotoTypeBase requestObj) {
@@ -341,6 +341,7 @@ namespace Bacon {
         public SprotoTypeBase OnDeal(SprotoTypeBase requestObj) {
             S2cSprotoType.deal.request obj = requestObj as S2cSprotoType.deal.request;
             try {
+                _oknum = 0;
                 _fistidx = obj.firstidx;
                 _fisttake = obj.firsttake;
                 _curidx = _fistidx;
@@ -386,8 +387,18 @@ namespace Bacon {
             player.Deal();
         }
 
-        public void OnSortCards(EventCmd e) {
-            SendStep();
+        public void OnSortCardsAfterDeal(EventCmd e) {
+            _oknum++;
+            if (_oknum == 4) {
+                _oknum = 0;
+                if (_type == GameType.GAME) {
+                    UnityEngine.Debug.LogFormat("send step after sort cards.");
+                    GameService service = _ctx.QueryService<GameService>(GameService.Name);
+                    C2sSprotoType.step.request request = new C2sSprotoType.step.request();
+                    request.idx = service.MyIdx;
+                    _ctx.SendReq<C2sProtocol.step>(C2sProtocol.step.Tag, request);
+                }
+            }
         }
 
         public SprotoTypeBase OnTakeXuanPao(SprotoTypeBase requestObj) {
@@ -458,10 +469,6 @@ namespace Bacon {
                 responseObj.errorcode = Errorcode.FAIL;
                 return responseObj;
             }
-        }
-
-        public void OnUpdateClock(int past, int left) {
-            _desk.UpdateClock(left);
         }
 
         public SprotoTypeBase OnTakeTurn(SprotoTypeBase requestObj) {

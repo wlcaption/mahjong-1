@@ -4,6 +4,9 @@
 	{
 		_MainTex ("Texture", 2D) = "white" {}
 		_Gray ("Gray", Int) = 0
+		_Brightness ("Brightness", Float) = 1
+		_Saturation ("Saturation", Float) = 1
+		_Contrast("Contrast", Float) = 1
 	}
 	SubShader
 	{
@@ -36,6 +39,9 @@
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
 			int _Gray;
+			half _Brightness;
+			half _Saturation;
+			half _Contrast;
 			
 			v2f vert (appdata v)
 			{
@@ -50,7 +56,7 @@
 			{
 				// sample the texture
 				fixed4 col = tex2D(_MainTex, i.uv);
-				fixed4 color = col;
+				fixed4 color = col * _Brightness;
 				if (_Gray == 1) {
 					color = col.r*0.3 + col.g*0.59 + col.b*0.11;
 				}

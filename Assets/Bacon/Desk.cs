@@ -134,7 +134,7 @@ namespace Bacon {
         }
 
         public void RenderTakeOnDong() {
-            _go.GetComponent<Board>().TakeOnDong();
+            _go.GetComponent<Board>().TakeOnDong(false);
         }
 
         public void RenderTakeOffDong() {
@@ -146,7 +146,7 @@ namespace Bacon {
         }
 
         public void RenderTakeOnNan() {
-            _go.GetComponent<Board>().TakeOnNan();
+            _go.GetComponent<Board>().TakeOnNan(false);
         }
 
         public void RenderTakeOffNan() {
@@ -158,7 +158,7 @@ namespace Bacon {
         }
 
         public void RenderTakeOnXi() {
-            _go.GetComponent<Board>().TakeOnXi();
+            _go.GetComponent<Board>().TakeOnXi(false);
         }
 
         public void RenderTakeOffXi() {
@@ -170,7 +170,7 @@ namespace Bacon {
         }
 
         public void RenderTakeOnBei() {
-            _go.GetComponent<Board>().TakeOnBei();
+            _go.GetComponent<Board>().TakeOnBei(false);
         }
 
         public void RenderTakeOffBei() {

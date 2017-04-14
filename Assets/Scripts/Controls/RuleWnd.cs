@@ -7,6 +7,10 @@ public class RuleWnd : MonoBehaviour {
     public GameObject _ScPage;
     public GameObject _SxPage;
 
+    public GameObject _XiuLiu;
+    public GameObject _XiuZhan;
+    public GameObject _Point;
+
 	// Use this for initialization
 	void Start () {
 		
@@ -29,11 +33,25 @@ public class RuleWnd : MonoBehaviour {
         }
     }
 
-    public void OnLookSc(bool value) {
+    public void OnScXiuLiu(bool value) {
         if (value) {
-            _ScPage.SetActive(true);
+            //_ScPage.SetActive(true);
+            Vector3 xpos = transform.worldToLocalMatrix * _XiuLiu.transform.position;
+            Vector3 pos = _Point.transform.localPosition;
+            _Point.transform.localPosition = new Vector3(pos.x, xpos.y, pos.z);
         } else {
-            _ScPage.SetActive(false);
+            //_ScPage.SetActive(false);
+        }
+    }
+
+    public void OnScXiuZhan(bool value) {
+        if (value) {
+            //_ScPage.SetActive(true);
+            Vector3 xpos = transform.worldToLocalMatrix * _XiuZhan.transform.position;
+            Vector3 pos = _Point.transform.localPosition;
+            _Point.transform.localPosition = new Vector3(pos.x, xpos.y, pos.z);
+        } else {
+            //_ScPage.SetActive(false);
         }
     }
 

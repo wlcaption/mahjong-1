@@ -24,11 +24,27 @@ public class Board : MonoBehaviour {
     public GameObject _LeftGai;
 
     private int _oknum = 0;
+    private bool _blink = false;
+    private float _brightness = 1.0f;
+    private int _gray = 0;
+    private float _blinkinterval = 1.0f;
 
     // Use this for initialization
     void Start() {
         Command cmd = new Command(MyEventCmd.EVENT_SETUP_BOARD, gameObject);
         GetComponent<FindApp>().App.Enqueue(cmd);
+
+        //Sequence mySequence = DOTween.Sequence();
+        //mySequence.AppendCallback(() => {
+        //    TakeTurnDong();
+        //}).AppendInterval(20.0f).AppendCallback(() => {
+        //    TakeTurnNan();
+        //}).AppendInterval(20.0f).AppendCallback(() => {
+        //    TakeTurnXi();
+        //}).AppendInterval(20.0f).AppendCallback(() => {
+        //    TakeTurnBei();
+        //});
+
     }
 
     // Update is called once per frame
@@ -157,7 +173,7 @@ public class Board : MonoBehaviour {
 
     public void ShowTopSlot(Action cd) {
         _TopGai.transform.localPosition = new Vector3(1.0f, -0.15f, 1.0f);
-        _RightGai.transform.DOLocalMoveY(0.0f, 1.0f);
+        _TopGai.transform.DOLocalMoveY(0.0f, 1.0f);
     }
 
     public void CloseTopSlot(Action cb) {
@@ -250,64 +266,175 @@ public class Board : MonoBehaviour {
         _Bei.transform.localRotation = Quaternion.Euler(-90.0f, 180.0f, 0.0f);
     }
 
-    public void TakeOnDong() {
-        _Dong.GetComponent<Renderer>().material.SetInt("Gray", 1);
+    public void TakeOnDong(bool blink) {
+        _blink = blink;
+        _gray = 0;
+        _brightness = 0.9f;
+
+        _Dong.GetComponent<Renderer>().material.SetInt("_Gray", _gray);
+        _Dong.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
+
+        if (_blink) {
+            Sequence mySequence = DOTween.Sequence();
+            mySequence.AppendInterval(_blinkinterval)
+                .AppendCallback(() => {
+                    if (_brightness == 1.0f) {
+                        _brightness = 0.9f;
+                        _Dong.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
+                    } else {
+                        _brightness = 1.0f;
+                        _Dong.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
+                    }
+
+                    if (!_blink) {
+                        mySequence.SetLoops(0);
+                    }
+                }).SetLoops(-1);
+        }
     }
 
     public void TakeOffDong() {
-        _Dong.GetComponent<Renderer>().material.SetInt("Gray", 0);
+        _blink = false;
+        _gray = 1;
+        _brightness = 1.0f;
+        _Dong.GetComponent<Renderer>().material.SetInt("_Gray", _gray);
+        _Dong.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
     }
 
-    public void TakeTurnDong() {
-        _Dong.GetComponent<Renderer>().material.SetInt("Gray", 1);
-        _Nan.GetComponent<Renderer>().material.SetInt("Gray", 0);
-        _Xi.GetComponent<Renderer>().material.SetInt("Gray", 0);
-        _Bei.GetComponent<Renderer>().material.SetInt("Gray", 0);
+    public void TakeTurnDong(bool blink = true) {
+        TakeOnDong(true);
+        TakeOffNan();
+        TakeOffXi();
+        TakeOffBei();
     }
 
-    public void TakeOnNan() {
-        _Nan.GetComponent<Renderer>().material.SetInt("Gray", 1);
+    public void TakeOnNan(bool blink) {
+        _blink = blink;
+        _gray = 0;
+        _brightness = 0.9f;
+
+        _Nan.GetComponent<Renderer>().material.SetInt("_Gray", _gray);
+        _Nan.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
+
+        if (_blink) {
+            Sequence mySequence = DOTween.Sequence();
+            mySequence.AppendInterval(_blinkinterval)
+                .AppendCallback(() => {
+                    if (_brightness == 1.0f) {
+                        _brightness = 0.9f;
+                        _Nan.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
+                    } else {
+                        _brightness = 1.0f;
+                        _Nan.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
+                    }
+
+                    if (!_blink) {
+                        mySequence.SetLoops(0);
+                    }
+                }).SetLoops(-1);
+        }
     }
 
     public void TakeOffNan() {
-        _Nan.GetComponent<Renderer>().material.SetInt("Gray", 0);
+        _blink = false;
+        _gray = 1;
+        _brightness = 1.0f;
+
+        _Nan.GetComponent<Renderer>().material.SetInt("_Gray", _gray);
+        _Nan.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
     }
 
-    public void TakeTurnNan() {
-        _Dong.GetComponent<Renderer>().material.SetInt("Gray", 0);
-        _Nan.GetComponent<Renderer>().material.SetInt("Gray", 1);
-        _Xi.GetComponent<Renderer>().material.SetInt("Gray", 0);
-        _Bei.GetComponent<Renderer>().material.SetInt("Gray", 0);
+    public void TakeTurnNan(bool blink = true) {
+        TakeOffDong();
+        TakeOnNan(blink);
+        TakeOffXi();
+        TakeOffBei();
     }
 
-    public void TakeOnXi() {
-        _Xi.GetComponent<Renderer>().material.SetInt("Gray", 1);
+    public void TakeOnXi(bool blink) {
+        _blink = blink;
+        _gray = 0;
+        _brightness = 0.9f;
+
+        _Xi.GetComponent<Renderer>().material.SetInt("_Gray", _gray);
+        _Xi.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
+
+        if (_blink) {
+            Sequence mySequence = DOTween.Sequence();
+            mySequence.AppendInterval(_blinkinterval)
+                .AppendCallback(() => {
+                    if (_brightness == 1.0f) {
+                        _brightness = 0.9f;
+                        _Xi.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
+                    } else {
+                        _brightness = 1.0f;
+                        _Xi.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
+                    }
+
+                    if (!_blink) {
+                        mySequence.SetLoops(0);
+                    }
+                }).SetLoops(-1);
+        }
     }
 
     public void TakeOffXi() {
-        _Xi.GetComponent<Renderer>().material.SetInt("Gray", 0);
+        _blink = false;
+        _gray = 1;
+        _brightness = 1.0f;
+
+        _Xi.GetComponent<Renderer>().material.SetInt("_Gray", _gray);
+        _Xi.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
     }
 
-    public void TakeTurnXi() {
-        _Dong.GetComponent<Renderer>().material.SetInt("Gray", 0);
-        _Nan.GetComponent<Renderer>().material.SetInt("Gray", 0);
-        _Xi.GetComponent<Renderer>().material.SetInt("Gray", 1);
-        _Bei.GetComponent<Renderer>().material.SetInt("Gray", 0);
+    public void TakeTurnXi(bool blink = true) {
+        TakeOffDong();
+        TakeOffNan();
+        TakeOnXi(blink);
+        TakeOffBei();
     }
 
-    public void TakeOnBei() {
-        _Bei.GetComponent<Renderer>().material.SetInt("Gray", 1);
+    public void TakeOnBei(bool blink) {
+        _blink = blink;
+        _gray = 0;
+        _brightness = 0.9f;
+
+        _Bei.GetComponent<Renderer>().material.SetInt("_Gray", _gray);
+        _Bei.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
+
+        if (_blink) {
+            Sequence mySequence = DOTween.Sequence();
+            mySequence.AppendInterval(_blinkinterval)
+                .AppendCallback(() => {
+                    if (_brightness == 1.0f) {
+                        _brightness = 0.9f;
+                        _Bei.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
+                    } else {
+                        _brightness = 1.0f;
+                        _Bei.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
+                    }
+
+                    if (!_blink) {
+                        mySequence.SetLoops(0);
+                    }
+                }).SetLoops(-1);
+        }
     }
 
     public void TakeOffBei() {
-        _Bei.GetComponent<Renderer>().material.SetInt("Gray", 0);
+        _blink = false;
+        _gray = 1;
+        _brightness = 1.0f;
+
+        _Bei.GetComponent<Renderer>().material.SetInt("_Gray", _gray);
+        _Bei.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
     }
 
-    public void TakeTurnBei() {
-        _Dong.GetComponent<Renderer>().material.SetInt("Gray", 0);
-        _Nan.GetComponent<Renderer>().material.SetInt("Gray", 0);
-        _Xi.GetComponent<Renderer>().material.SetInt("Gray", 0);
-        _Bei.GetComponent<Renderer>().material.SetInt("Gray", 1);
+    public void TakeTurnBei(bool blink = true) {
+        TakeOffDong();
+        TakeOffNan();
+        TakeOffXi();
+        TakeOnBei(true);
     }
 
 }

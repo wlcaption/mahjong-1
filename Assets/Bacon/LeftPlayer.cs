@@ -30,12 +30,15 @@ namespace Bacon {
 
             _leadcardoffset = new Vector3(0.0f, 0.0f, -0.05f);
 
+            _putbottomoffset = 0.07f - Card.Length / 2.0f;
+            _putrightoffset = 0.55f - Card.Width / 2.0f;
+
             _rhandinitpos = new Vector3(-2.0f, -2.0f, 1.0f);
             _rhandinitrot = Quaternion.Euler(0.0f, 90.0f, 0.0f);
             _rhandtakeoffset = new Vector3(-0.469f, -1.991f, 0.381f);
             _rhandleadoffset = new Vector3(-1.135f, -1.938f, 0.624f);
             _rhandnaoffset = new Vector3(-0.4195f, -2.143f, 0.4219f);
-            _rhandpgoffset = Vector3.zero;
+            _rhandpgoffset = new Vector3(-0.662f, -2.648f, 0.791f);
             _rhandhuoffset = Vector3.zero;
 
             _lhandinitpos = new Vector3(-2.0f, -2.0f, 1.0f);
@@ -222,7 +225,7 @@ namespace Bacon {
                         count++;
                         if (count >= _cards.Count) {
                             UnityEngine.Debug.LogFormat("player left send sortcards");
-                            Command cmd = new Command(MyEventCmd.EVENT_SORTCARDS);
+                            Command cmd = new Command(MyEventCmd.EVENT_SORTCARDSAFTERDEAL);
                             _ctx.Enqueue(cmd);
                         }
                     });
@@ -232,7 +235,7 @@ namespace Bacon {
         protected override void RenderTakeXuanPao() { }
 
         protected override void RenderXuanPao() {
-            _go.GetComponent<global::LeftPlayer>().Head.SetMark(string.Format("{0}", _fen));
+            _go.GetComponent<global::LeftPlayer>().Head.ShowMark(string.Format("{0}", _fen));
         }
 
         protected override void RenderTakeFirstCard() {
@@ -248,11 +251,11 @@ namespace Bacon {
 
         protected override void RenderXuanQue() {
             if (_que == Card.CardType.Bam) {
-                _go.GetComponent<global::LeftPlayer>().Head.SetMark("条");
+                _go.GetComponent<global::LeftPlayer>().Head.ShowMark("条");
             } else if (_que == Card.CardType.Crak) {
-                _go.GetComponent<global::LeftPlayer>().Head.SetMark("万");
+                _go.GetComponent<global::LeftPlayer>().Head.ShowMark("万");
             } else if (_que == Card.CardType.Dot) {
-                _go.GetComponent<global::LeftPlayer>().Head.SetMark("同");
+                _go.GetComponent<global::LeftPlayer>().Head.ShowMark("同");
             }
             RenderSortCardsToDo(() => {
             });
@@ -261,13 +264,13 @@ namespace Bacon {
         protected override void RenderTakeTurn() {
             if (_turntype == 1) {
                 RenderTakeCard(() => { });
-            } else if (_turntype == 0) { 
+            } else if (_turntype == 0) {
                 // 碰后
                 Vector3 dst = CalcPos(_cards.Count + 1);
                 _holdcard.Go.transform.localRotation = _backv;
 
                 Sequence mySequence = DOTween.Sequence();
-                mySequence.Append(_holdcard.Go.transform.DOMoveY(Card.Length / 2.0f, _holddelta));
+                mySequence.Append(_holdcard.Go.transform.DOLocalMove(dst, _holddelta));
             }
         }
 
@@ -426,7 +429,7 @@ namespace Bacon {
                         });
                     }
                 });
-                
+
             } else {
                 UnityEngine.Debug.Assert(false);
             }

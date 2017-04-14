@@ -29,8 +29,12 @@ namespace Bacon {
 
             _leadcardoffset = new Vector3(0.05f, 0.0f, 0.0f);
 
+            _putbottomoffset = 0.235f - Card.Length / 2.0f;
+            _putrightoffset = 0.25f - Card.Width / 2.0f;
+
             _rhandinitpos = new Vector3(1.0f, -1.0f, -2.0f);
             _rhandinitrot = Quaternion.Euler(30.0f, 0.0f, 0.0f);
+            _rhanddiuszoffset = new Vector3(0.154f, -1.965f, 0.123f);
             _rhandtakeoffset = new Vector3(-0.39f, -1.445f, -1.546f);
             _rhandleadoffset = new Vector3(-0.592f, -1.954f, -1.111f);
             _rhandnaoffset = new Vector3(-0.413f, -1.633f, -1.456f);
@@ -232,6 +236,7 @@ namespace Bacon {
                 UnityEngine.Debug.Assert(false);
             }
 
+            //GameObject rori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "girlrhand");
             GameObject rori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "girlrhand");
             _rhand = GameObject.Instantiate<GameObject>(rori);
             _rhand.transform.SetParent(_go.transform);
@@ -284,9 +289,10 @@ namespace Bacon {
 
             // 1.0 浼告墜
             Desk desk = ((GameController)_controller).Desk;
+            
             Animator animator = _rhand.GetComponent<Animator>();
             _rhand.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
-            Tween t = _rhand.transform.DOLocalMove(new Vector3(0.154f, -1.965f, 0.123f), _diushaizishendelta);
+            Tween t = _rhand.transform.DOLocalMove(_rhanddiuszoffset, _diushaizishendelta);
             Sequence mySequence = DOTween.Sequence();
             mySequence.Append(t)
                 .AppendCallback(() => {
@@ -331,6 +337,9 @@ namespace Bacon {
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(t)
                     .AppendCallback(() => {
+                        // 播放声音
+                        SoundMgr.current.PlaySound(_go, "Sound/common", "changescene");
+
                         _oknum++;
                         if (_oknum >= count) {
                             Command cmd = new Command(MyEventCmd.EVENT_TAKEDEAL);
@@ -338,7 +347,6 @@ namespace Bacon {
                         }
                     });
             }
-
         }
 
         protected override void RenderSortCards() {
@@ -358,7 +366,7 @@ namespace Bacon {
                         count++;
                         if (count >= _cards.Count) {
                             UnityEngine.Debug.LogFormat("bottom player send event sortcards");
-                            Command cmd = new Command(MyEventCmd.EVENT_SORTCARDS);
+                            Command cmd = new Command(MyEventCmd.EVENT_SORTCARDSAFTERDEAL);
                             _ctx.Enqueue(cmd);
                         }
                     });
@@ -380,7 +388,7 @@ namespace Bacon {
         }
 
         protected override void RenderXuanPao() {
-            _go.GetComponent<global::BottomPlayer>().Head.SetMark(string.Format("{0}", _fen));
+            _go.GetComponent<global::BottomPlayer>().Head.ShowMark(string.Format("{0}", _fen));
         }
 
         protected override void RenderTakeFirstCard() {
@@ -409,11 +417,11 @@ namespace Bacon {
 
         protected override void RenderXuanQue() {
             if (_que == Card.CardType.Bam) {
-                _go.GetComponent<global::BottomPlayer>().Head.SetMark("条");
+                _go.GetComponent<global::BottomPlayer>().Head.ShowMark("条");
             } else if (_que == Card.CardType.Crak) {
-                _go.GetComponent<global::BottomPlayer>().Head.SetMark("万");
+                _go.GetComponent<global::BottomPlayer>().Head.ShowMark("万");
             } else if (_que == Card.CardType.Dot) {
-                _go.GetComponent<global::BottomPlayer>().Head.SetMark("筒");
+                _go.GetComponent<global::BottomPlayer>().Head.ShowMark("筒");
             }
             RenderSortCardsToDo(() => {
             });
@@ -427,14 +435,14 @@ namespace Bacon {
                 });
             } else if (_turntype == 0) {
                 Vector3 dst = CalcPos(_cards.Count + 1);
-                _holdcard.Go.transform.localRotation = Quaternion.AngleAxis(-25.0f, Vector3.right);
+                _holdcard.Go.transform.localRotation = _backv;
 
-                // 浠巆ards鍒嗗嚭鏉ョ殑
+                // 
                 _com.Remove(_holdcard);
                 _com.HoldCard = _holdcard.Go;
 
                 Sequence mySequence = DOTween.Sequence();
-                mySequence.Append(_holdcard.Go.transform.DOMove(dst, _holddelta))
+                mySequence.Append(_holdcard.Go.transform.DOLocalMove(dst, _holddelta))
                     .AppendCallback(() => {
                         UnityEngine.Debug.Assert(_hashu == false);
                         _go.GetComponent<global::BottomPlayer>().SwitchOnTouch();

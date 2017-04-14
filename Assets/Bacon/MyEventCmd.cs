@@ -54,7 +54,7 @@ namespace Bacon {
         public static uint EVENT_GANGCARD = 221;
         public static uint EVENT_HUCARD = 222;
 
-        public static uint EVENT_SORTCARDS = 223;
+        public static uint EVENT_SORTCARDSAFTERDEAL = 223;
         public static uint EVENT_LEADCARD = 224;
 
         public static uint EVENT_RESTART = 225;
