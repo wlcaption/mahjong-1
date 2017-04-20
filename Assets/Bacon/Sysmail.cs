@@ -12,7 +12,9 @@ namespace Bacon {
         public string Content { get; set; }
 
         public int CompareTo(Sysmail other) {
-            return (int)(this.DateTime - other.DateTime);
+            return (int)(this.Id - other.Id);
         }
+
+
     }
 }

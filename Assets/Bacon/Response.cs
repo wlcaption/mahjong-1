@@ -33,6 +33,8 @@ namespace Maria.Network {
 
             _cs.RegisterResponse(C2sProtocol.records.Tag, records);
             _cs.RegisterResponse(C2sProtocol.record.Tag, record);
+
+            _cs.RegisterResponse(C2sProtocol.logout.Tag, logout);
         }
 
         public void handshake(uint session, SprotoTypeBase responseObj) {
@@ -43,7 +45,7 @@ namespace Maria.Network {
         }
 
         public void match(uint session, SprotoTypeBase responseObj) {
-            MainController ctr = _ctx.Top() as MainController;
+            MainController ctr = _ctx.Peek<MainController>();
             ctr.Match(responseObj);
         }
 
@@ -82,17 +84,17 @@ namespace Maria.Network {
         }
 
         public void first(uint session, SprotoTypeBase responseObj) {
-            MainController ctr = _ctx.Top() as MainController;
+            MainController ctr = _ctx.Peek<MainController>();
             ctr.First(responseObj);
         }
 
         public void fetchsysmail(uint session, SprotoTypeBase responseObj) {
-            MainController ctr = _ctx.Top() as MainController;
+            MainController ctr = _ctx.Peek<MainController>();
             ctr.FetchSysmail(responseObj);
         }
 
         public void syncsysmail(uint session, SprotoTypeBase responseObj) {
-            MainController ctr = _ctx.Top() as MainController;
+            MainController ctr = _ctx.Peek<MainController>();
             ctr.SyncSysmail(responseObj);
         }
 
@@ -102,7 +104,7 @@ namespace Maria.Network {
         public void xuanque(uint session, SprotoTypeBase responseObj) { }
 
         public void records(uint session, SprotoTypeBase responseObj) {
-            MainController ctr = _ctx.Top() as MainController;
+            MainController ctr = _ctx.Peek<MainController>();
             ctr.Records(responseObj);
         }
 
@@ -110,6 +112,11 @@ namespace Maria.Network {
             PlayService service = _ctx.QueryService<PlayService>(PlayService.Name);
             UnityEngine.Debug.Assert(service != null);
             service.record(responseObj);
+        }
+
+        public void logout(uint session, SprotoTypeBase responseObj) {
+            MainController ctr = _ctx.Peek<MainController>();
+            ctr.FetchSysmail(responseObj);
         }
     }
 }

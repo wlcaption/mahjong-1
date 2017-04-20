@@ -49,6 +49,10 @@ namespace Maria {
             _authtcp = false;
         }
 
+        public virtual void Logout() {
+
+        }
+
         public virtual void OnUdpSync() {
             _authudp = true;
         }

@@ -33,7 +33,7 @@ namespace Bacon {
             _putbottomoffset = 0.07f - Card.Length / 2.0f;
             _putrightoffset = 0.55f - Card.Width / 2.0f;
 
-            _rhandinitpos = new Vector3(-2.0f, -2.0f, 1.0f);
+            _rhandinitpos = new Vector3(-2.0f, -1.8f, 1.6f);
             _rhandinitrot = Quaternion.Euler(0.0f, 90.0f, 0.0f);
             _rhandtakeoffset = new Vector3(-0.469f, -1.991f, 0.381f);
             _rhandleadoffset = new Vector3(-1.135f, -1.938f, 0.624f);
@@ -41,12 +41,35 @@ namespace Bacon {
             _rhandpgoffset = new Vector3(-0.662f, -2.648f, 0.791f);
             _rhandhuoffset = Vector3.zero;
 
-            _lhandinitpos = new Vector3(-2.0f, -2.0f, 1.0f);
+            _lhandinitpos = new Vector3(-2.0f, -1.8f, 1.6f);
             _lhandinitrot = Quaternion.Euler(0.0f, 90.0f, 0.0f);
             _lhandhuoffset = Vector3.zero;
 
             EventListenerCmd listener1 = new EventListenerCmd(MyEventCmd.EVENT_SETUP_LEFTPLAYER, OnSetup);
             _ctx.EventDispatcher.AddCmdEventListener(listener1);
+        }
+
+        public override void Init() {
+            base.Init();
+
+            if (_sex == 1) { // 男
+                _rhandleadoffset = new Vector3(-0.83f, -1.91f, 0.18f);
+                _rhandtakeoffset = new Vector3(-0.492f, -2.034f, 0.473f);
+                _rhandnaoffset = new Vector3(-0.492f, -2.096f, 0.473f);
+                _rhandpgoffset = new Vector3(-0.739f, -1.979f, 0.83f);
+                _rhandhuoffset = new Vector3(-0.614f, -2.18f, 0.123f);
+
+            } else {
+                _rhandnaoffset = new Vector3(-0.4195f, -2.143f, 0.4219f);
+            }
+        }
+
+        protected override void RenderPlayFlameCountdown() {
+            _com.Head.PlayFlameCountdown(_cd);
+        }
+
+        protected override void RenderStopFlame() {
+            _com.Head.StopFlame();
         }
 
         private void OnSetup(EventCmd e) {
@@ -94,14 +117,24 @@ namespace Bacon {
                 UnityEngine.Debug.Assert(false);
             }
 
-            GameObject rori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "girlrhand");
-            _rhand = GameObject.Instantiate<GameObject>(rori);
+            if (_sex == 1) {
+                GameObject rori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "boyrhand");
+                _rhand = GameObject.Instantiate<GameObject>(rori);
+
+                GameObject lori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "boylhand");
+                _lhand = GameObject.Instantiate<GameObject>(lori);
+            } else {
+                GameObject rori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "girlrhand");
+                _rhand = GameObject.Instantiate<GameObject>(rori);
+
+                GameObject lori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "girllhand");
+                _lhand = GameObject.Instantiate<GameObject>(lori);
+            }
+
             _rhand.transform.SetParent(_go.transform);
             _rhand.transform.localPosition = _rhandinitpos;
             _rhand.transform.localRotation = _rhandinitrot;
 
-            GameObject lori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "girllhand");
-            _lhand = GameObject.Instantiate<GameObject>(lori);
             _lhand.transform.SetParent(_go.transform);
             _lhand.transform.localPosition = _lhandinitpos;
             _lhand.transform.localRotation = _lhandinitrot;
@@ -193,7 +226,7 @@ namespace Bacon {
                 var card = _cards[i];
                 card.Go.transform.localPosition = dst;
                 card.Go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.up) * Quaternion.AngleAxis(-115.0f, Vector3.right);
-                Tween t = card.Go.transform.DOLocalRotateQuaternion(_backv, 1.0f);
+                Tween t = card.Go.transform.DOLocalRotateQuaternion(_backv, _dealcarddelta);
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(t)
                     .AppendCallback(() => {
@@ -262,6 +295,8 @@ namespace Bacon {
         }
 
         protected override void RenderTakeTurn() {
+            base.RenderTakeTurn();
+
             if (_turntype == 1) {
                 RenderTakeCard(() => { });
             } else if (_turntype == 0) {

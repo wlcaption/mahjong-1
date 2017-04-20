@@ -30,6 +30,14 @@ namespace Bacon {
             _go.GetComponent<Board>().ShowCountdown(_clockleft);
         }
 
+        public void ShowCountdown() {
+            _ctx.EnqueueRenderQueue(RenderShowCountdown);
+        }
+
+        private void RenderShowCountdown() {
+            _go.GetComponent<Board>().ShowCountdown();
+        }
+
         public void RenderChangeCursor(Vector3 pos) {
             _go.GetComponent<Board>().ChangeCursor(pos);
         }

@@ -1,21 +1,24 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Role : MonoBehaviour {
 
-    private bool _rotation;
+    public GameObject _BUICanvas;
+
+    private bool _rotation = false;
     private Vector2 _lastPos = Vector2.zero;
-    private float _past;
+    private float _past = 0.0f;
 
     // Use this for initialization
     protected void Start () {
-		
+        _past = 10.0f;
 	}
 	
 	// Update is called once per frame
 	protected void Update () {
-        if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) {
+        if (EventSystem.current.IsPointerOverGameObject() && EventSystem.current.currentSelectedGameObject == null) {
             if (Input.touchSupported) {
                 if (Input.touches[0].phase == TouchPhase.Began) {
                     _rotation = true;
@@ -45,12 +48,12 @@ public class Role : MonoBehaviour {
         }
 
         _past += Time.deltaTime;
-        if (_past > 60) {
+        if (_past > 12.0f) {
             _past = 0.0f;
-            int r = Random.Range(0, 1);
-            if (r == 0) {
+            int r = Random.Range(1, 3);
+            if (r >= 2) {
                 GetComponent<Animator>().SetTrigger("Idle01");
-            } else if (r == 1) {
+            } else if (r >= 1) {
                 GetComponent<Animator>().SetTrigger("Idle02");
             }
         }

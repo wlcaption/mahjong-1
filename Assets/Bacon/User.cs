@@ -8,5 +8,6 @@ namespace Bacon {
         public string Name { get; set; }
         public long NameId { get; set; }
         public long RCard { get; set; }
+        public long Sex { get; set; }
     }
 }

@@ -61,109 +61,109 @@ namespace Bacon {
         }
 
         public SprotoTypeBase match(uint session, SprotoTypeBase requestObj) {
-            MainController controller = _ctx.Top() as MainController;
+            MainController controller = _ctx.Peek<MainController>();
             return controller.OnMatch(requestObj);
         }
         #endregion
 
 
         public SprotoTypeBase ready(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnReady(requestObj);
         }
 
         public SprotoTypeBase shuffle(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnShuffle(requestObj);
         }
 
         public SprotoTypeBase dice(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnDice(requestObj);
         }
 
         public SprotoTypeBase deal(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnDeal(requestObj);
         }
 
         public SprotoTypeBase take_xuanpao(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnTakeXuanPao(requestObj);
         }
 
         public SprotoTypeBase xuanpao(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnXuanPao(requestObj);
         }
 
         public SprotoTypeBase take_xuanque(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnTakeXuanQue(requestObj);
         }
 
         public SprotoTypeBase xuanque(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnXuanQue(requestObj);
         }
 
         public SprotoTypeBase take_turn(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnTakeTurn(requestObj);
         }
 
         public SprotoTypeBase call(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnCall(requestObj);
         }
 
         public SprotoTypeBase peng(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnPeng(requestObj);
         }
 
         public SprotoTypeBase gang(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnGang(requestObj);
         }
 
         public SprotoTypeBase hu(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnHu(requestObj);
         }
 
         public SprotoTypeBase lead(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnLead(requestObj);
         }
 
         public SprotoTypeBase over(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnOver(requestObj);
         }
 
         public SprotoTypeBase settle(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnSettle(requestObj);
         }
 
         public SprotoTypeBase final_settle(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnFinalSettle(requestObj);
         }
 
         public SprotoTypeBase restart(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnRestart(requestObj);
         }
 
         public SprotoTypeBase take_restart(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnTakeRestart(requestObj);
         }
 
         public SprotoTypeBase rchat(uint session, SprotoTypeBase requestObj) {
-            GameController controller = _ctx.Top() as GameController;
+            GameController controller = _ctx.Peek<GameController>();
             return controller.OnRChat(requestObj);
         }
 

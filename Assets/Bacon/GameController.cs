@@ -84,6 +84,7 @@ namespace Bacon {
 
             EventListenerCmd listener15 = new EventListenerCmd(MyEventCmd.EVENT_SETTLE_NEXT, OnSettleNext);
             _ctx.EventDispatcher.AddCmdEventListener(listener15);
+
         }
 
         public override void Update(float delta) {
@@ -436,6 +437,8 @@ namespace Bacon {
         public SprotoTypeBase OnTakeXuanQue(SprotoTypeBase requestObj) {
             S2cSprotoType.take_xuanque.request obj = requestObj as S2cSprotoType.take_xuanque.request;
             try {
+                _desk.ShowCountdown();
+
                 _ctx.Countdown(Timer.CLOCK, (int)obj.countdown, OnUpdateClock, null);
                 _service.GetPlayer(obj.your_turn).TakeFirsteCard(obj.card);
 
@@ -451,6 +454,7 @@ namespace Bacon {
         }
 
         public void OnTakeFirstCard(EventCmd e) {
+
             _service.GetPlayer(_service.MyIdx).TakeXuanQue();
         }
 
@@ -480,7 +484,16 @@ namespace Bacon {
 
                 _curidx = obj.your_turn;
                 _ctx.Countdown(Timer.CLOCK, (int)obj.countdown, OnUpdateClock, null);
-                _service.GetPlayer(obj.your_turn).TakeTurn(obj.type, obj.card);
+                _service.GetPlayer(obj.your_turn).TakeTurn(obj.type, obj.card, obj.countdown);
+
+                // flame
+                _service.Foreach((Player player) => {
+                    if (player.Idx == obj.your_turn) {
+                        player.PlayFlameCountdown();
+                    } else {
+                        player.StopFlame();
+                    }
+                });
 
                 S2cSprotoType.take_turn.response responseObj = new S2cSprotoType.take_turn.response();
                 responseObj.errorcode = Errorcode.SUCCESS;
@@ -758,6 +771,10 @@ namespace Bacon {
         public SprotoTypeBase OnLead(SprotoTypeBase requestObj) {
             S2cSprotoType.lead.request obj = requestObj as S2cSprotoType.lead.request;
             try {
+
+                _ctx.Countdown(Timer.CLOCK, -1, null, null);
+                _desk.UpdateClock(0);
+
                 _service.GetPlayer(obj.idx).Lead(obj.card);
 
                 S2cSprotoType.lead.response responseObj = new S2cSprotoType.lead.response();

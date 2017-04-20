@@ -16,8 +16,12 @@ public class ABBuild : EditorWindow {
         } else {
             Directory.CreateDirectory(Application.streamingAssetsPath);
         }
+        Directory.CreateDirectory(Application.streamingAssetsPath + "/Win");
+        Directory.CreateDirectory(Application.streamingAssetsPath + "/Android");
+
         //BuildPipeline.BuildAssetBundles("Assets/ABs", BuildAssetBundleOptions.None, BuildTarget.Android);
-        BuildPipeline.BuildAssetBundles("Assets/streamingAssets", BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows64);
+        BuildPipeline.BuildAssetBundles("Assets/streamingAssets/Win", BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows64);
+        BuildPipeline.BuildAssetBundles("Assets/streamingAssets/Android", BuildAssetBundleOptions.None, BuildTarget.Android);
     }
 
 }

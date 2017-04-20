@@ -10,8 +10,11 @@ namespace Bacon {
     class MainController : Controller {
         private InitService _service = null;
         private GameObject _uiroot = null;
+        private GameObject _role = null;
+
         private long _curmsgid;
         private MsgItem.Type _curtype;
+        private string _tipscontent = string.Empty;
 
         public MainController(Context ctx) : base(ctx) {
             _name = "main";
@@ -39,6 +42,9 @@ namespace Bacon {
 
             EventListenerCmd listener8 = new EventListenerCmd(MyEventCmd.EVENT_MUI_SHOWCREATE, OnShowCreate);
             _ctx.EventDispatcher.AddCmdEventListener(listener8);
+
+            EventListenerCmd listener9 = new EventListenerCmd(MyEventCmd.EVENT_MUI_EXITLOGIN, OnLogout);
+            _ctx.EventDispatcher.AddCmdEventListener(listener9);
 
         }
 
@@ -86,11 +92,44 @@ namespace Bacon {
             u.Name = obj.name;
             u.NameId = obj.nameid;
             u.RCard = obj.rcard;
+            u.Sex = obj.sex;
 
             _service.Board = obj.board;
             _service.Adver = obj.adver;
 
             _ctx.EnqueueRenderQueue(RenderFirst);
+        }
+
+        public void RenderFirst() {
+            MUIRoot com = _uiroot.GetComponent<global::MUIRoot>();
+            com.SetBoard(_service.Board);
+            com.SetAdver(_service.Adver);
+            var title = com._Title.GetComponent<Title>();
+            title.SetName(_service.User.Name);
+            string nameid = string.Format("ID:{0}", _service.User.NameId);
+            title.SetNameId(nameid);
+
+            string rcard = string.Format("{0}", _service.User.RCard);
+            title.SetRCard(rcard);
+
+            if (_role == null) {
+                if (_service.User.Sex == 1) {
+                    ABLoader.current.LoadAssetAsync<GameObject>("Prefabs/Role", "boy", (GameObject go) => {
+                        _role = GameObject.Instantiate<GameObject>(go);
+                        _role.transform.SetParent(_uiroot.transform);
+                        _role.transform.localPosition = new Vector3(0.0f, -1.13f, 2.3f);
+                        _role.transform.localRotation = Quaternion.AngleAxis(180.0f, Vector3.up);
+                    });
+                } else {
+                    ABLoader.current.LoadAssetAsync<GameObject>("Prefabs/Role", "girl", (GameObject go) => {
+                        _role = GameObject.Instantiate<GameObject>(go);
+                        _role.transform.SetParent(_uiroot.transform);
+                        _role.transform.localPosition = new Vector3(0.0f, -1.13f, 2.3f);
+                        _role.transform.localRotation = Quaternion.AngleAxis(180.0f, Vector3.up);
+                    });
+                }
+            }
+
         }
 
         public void FetchSysmail(SprotoTypeBase responseObj) {
@@ -100,6 +139,7 @@ namespace Bacon {
             }
 
             SysInbox sib = _service.SysInBox;
+            sib.Clear();
             for (int i = 0; i < obj.inbox.Count; i++) {
                 var mail = sib.CreateMail();
                 mail.Id = obj.inbox[i].id;
@@ -128,18 +168,7 @@ namespace Bacon {
             _ctx.EnqueueRenderQueue(RenderFetchSysmail);
         }
 
-        public void RenderFirst() {
-            MUIRoot com = _uiroot.GetComponent<global::MUIRoot>();
-            com.SetBoard(_service.Board);
-            com.SetAdver(_service.Adver);
-            var title = com._Title.GetComponent<Title>();
-            title.SetName(_service.User.Name);
-            string nameid = string.Format("ID:{0}", _service.User.NameId);
-            title.SetNameId(nameid);
 
-            string rcard = string.Format("{0}", _service.User.RCard);
-            title.SetRCard(rcard);
-        }
 
         public void RenderFetchSysmail() {
             var com = _uiroot.GetComponent<MUIRoot>();
@@ -199,6 +228,7 @@ namespace Bacon {
 
         public void SyncSysmail(SprotoTypeBase responseObj) {
             C2sSprotoType.syncsysmail.response obj = responseObj as C2sSprotoType.syncsysmail.response;
+            _service.SysInBox.Clear();
             if (obj.inbox.Count > 0) {
                 for (int i = 0; i < obj.inbox.Count; i++) {
                     var mail = _service.SysInBox.CreateMail();
@@ -304,7 +334,6 @@ namespace Bacon {
 
             C2sSprotoType.join.request request = new C2sSprotoType.join.request();
             request.roomid = roomid;
-
             _ctx.SendReq<C2sProtocol.join>(C2sProtocol.join.Tag, request);
         }
 
@@ -320,5 +349,26 @@ namespace Bacon {
 
         }
 
+        public void OnLogout(EventCmd e) {
+            _ctx.Logined = false;
+            _ctx.SendReq<C2sProtocol.logout>(C2sProtocol.logout.Tag, null);
+        }
+
+        public void Logout(SprotoTypeBase responseObj) {
+            _ctx.Pop();
+        }
+
+        public override void Logout() {
+            _ctx.Pop();
+        }
+
+        public void ShowTips(string content) {
+            _tipscontent = content;
+            _ctx.EnqueueRenderQueue(RenderShowTips);
+        }
+
+        private void RenderShowTips() {
+            _uiroot.GetComponent<MUIRoot>().ShowTips(_tipscontent);
+        }
     }
 }

@@ -9,6 +9,7 @@ public class XuanQue : MonoBehaviour {
     // Use this for initialization
     void Start() {
         transform.localPosition = Vector3.zero;
+        transform.localScale = Vector3.one;
     }
 
     // Update is called once per frame

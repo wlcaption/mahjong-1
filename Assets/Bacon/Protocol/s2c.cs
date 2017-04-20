@@ -419,6 +419,56 @@ namespace S2cSprotoType {
 	}
 
 
+	public class exit_room {
+	
+		public class response : SprotoTypeBase {
+			private static int max_field_count = 1;
+			
+			
+			private Int64 _errorcode; // tag 0
+			public Int64 errorcode {
+				get { return _errorcode; }
+				set { base.has_field.set_field (0, true); _errorcode = value; }
+			}
+			public bool HasErrorcode {
+				get { return base.has_field.has_field (0); }
+			}
+
+			public response () : base(max_field_count) {}
+
+			public response (byte[] buffer) : base(max_field_count, buffer) {
+				this.decode ();
+			}
+
+			protected override void decode () {
+				int tag = -1;
+				while (-1 != (tag = base.deserialize.read_tag ())) {
+					switch (tag) {
+					case 0:
+						this.errorcode = base.deserialize.read_integer ();
+						break;
+					default:
+						base.deserialize.read_unknow_data ();
+						break;
+					}
+				}
+			}
+
+			public override int encode (SprotoStream stream) {
+				base.serialize.open (stream);
+
+				if (base.has_field.has_field (0)) {
+					base.serialize.write_integer (this.errorcode, 0);
+				}
+
+				return base.serialize.close ();
+			}
+		}
+
+
+	}
+
+
 	public class final_settle {
 	
 		public class request : SprotoTypeBase {
@@ -1251,12 +1301,12 @@ namespace S2cSprotoType {
 			private static int max_field_count = 1;
 			
 			
-			private player _p; // tag 0
-			public player p {
-				get { return _p; }
-				set { base.has_field.set_field (0, true); _p = value; }
+			private Int64 _idx; // tag 0
+			public Int64 idx {
+				get { return _idx; }
+				set { base.has_field.set_field (0, true); _idx = value; }
 			}
-			public bool HasP {
+			public bool HasIdx {
 				get { return base.has_field.has_field (0); }
 			}
 
@@ -1271,7 +1321,7 @@ namespace S2cSprotoType {
 				while (-1 != (tag = base.deserialize.read_tag ())) {
 					switch (tag) {
 					case 0:
-						this.p = base.deserialize.read_obj<player> ();
+						this.idx = base.deserialize.read_integer ();
 						break;
 					default:
 						base.deserialize.read_unknow_data ();
@@ -1284,7 +1334,7 @@ namespace S2cSprotoType {
 				base.serialize.open (stream);
 
 				if (base.has_field.has_field (0)) {
-					base.serialize.write_obj (this.p, 0);
+					base.serialize.write_integer (this.idx, 0);
 				}
 
 				return base.serialize.close ();

@@ -16,6 +16,7 @@ namespace Bacon {
         private long _max = 0;
         private long _myidx = 0;
         private long _online = 0;
+        private bool _host = false;
 
         private Dictionary<long, Player> _playes = new Dictionary<long, Player>();
         private GameController _controller = null;
@@ -24,11 +25,15 @@ namespace Bacon {
         public GameService(Context ctx) : base(ctx) {
             EventListenerCmd listener1 = new EventListenerCmd(MyEventCmd.EVENT_LOADEDCARDS, LoadedCards);
             _ctx.EventDispatcher.AddCmdEventListener(listener1);
+
+            EventListenerCmd listener2 = new EventListenerCmd(MyEventCmd.EVENT_EXITROOM, SendLeave);
+            _ctx.EventDispatcher.AddCmdEventListener(listener2);
         }
 
         public long RoomId { get { return _roomid; } }
         public long MyIdx { get { return _myidx; } }
         public long Max { get { return _max; } }
+        public bool Host { get { return _host; } }
 
         public Player GetPlayer(long idx) {
             if (_playes.ContainsKey(idx)) {
@@ -46,98 +51,120 @@ namespace Bacon {
         }
 
         public void Create(SprotoTypeBase responseObj) {
-            _controller = (GameController)_ctx.Push(typeof(GameController));
 
             C2sSprotoType.create.response obj = responseObj as C2sSprotoType.create.response;
-            UnityEngine.Debug.Assert(obj.errorcode == Errorcode.SUCCESS);
-            _roomid = obj.roomid;
-            _max = obj.room_max;
+            if (obj.errorcode == Errorcode.SUCCESS) {
+                try {
+                    _roomid = obj.roomid;
+                    _max = obj.room_max;
+                    _host = true;
 
-            Player player = new BottomPlayer(_ctx, this);
-            player.Idx = (int)obj.me.idx;
-            player.Chip = (int)obj.me.chip;
-            player.Sid = (int)obj.me.sid;
-            player.Sex = (int)obj.me.sex;
-            player.Name = obj.me.name;
-            player.Controller = _controller;
+                    _controller = (GameController)_ctx.Push(typeof(GameController));
 
-            _myidx = obj.me.idx;
-            _playes[_myidx] = player;
-            UnityEngine.Debug.Assert(_ctx.U.Subid == obj.me.sid);
+                    Player player = new BottomPlayer(_ctx, this);
+                    player.Idx = (int)obj.me.idx;
+                    player.Chip = (int)obj.me.chip;
+                    player.Sid = (int)obj.me.sid;
+                    player.Sex = (int)obj.me.sex;
+                    player.Name = obj.me.name;
+                    player.Controller = _controller;
+                    player.Init();
 
-            _online++;
+                    _myidx = obj.me.idx;
+                    _playes[_myidx] = player;
+                    UnityEngine.Debug.Assert(_ctx.U.Subid == obj.me.sid);
+
+                    _online++;
+                } catch (Exception ex) {
+                    UnityEngine.Debug.LogException(ex);
+                }
+            }
         }
 
         public void Join(SprotoTypeBase responseObj) {
-            _controller = (GameController)_ctx.Push(typeof(GameController));
-
             C2sSprotoType.join.response obj = responseObj as C2sSprotoType.join.response;
-            _roomid = obj.roomid;
-            _max = obj.room_max;
+            if (obj.errorcode == Errorcode.SUCCESS) {
+                _roomid = obj.roomid;
+                _max = obj.room_max;
+                _host = false;
 
-            Player player = new BottomPlayer(_ctx, this);
-            player.Idx = (int)obj.me.idx;
-            player.Chip = (int)obj.me.chip;
-            player.Sid = (int)obj.me.sid;
-            player.Sex = (int)obj.me.sex;
-            player.Name = obj.me.name;
-            player.Controller = _controller;
+                _controller = (GameController)_ctx.Push(typeof(GameController));
 
-            _myidx = obj.me.idx;
-            _playes[_myidx] = player;
-            UnityEngine.Debug.Assert(_ctx.U.Subid == obj.me.sid);
-            _online++;
+                Player player = new BottomPlayer(_ctx, this);
+                player.Idx = (int)obj.me.idx;
+                player.Chip = (int)obj.me.chip;
+                player.Sid = (int)obj.me.sid;
+                player.Sex = (int)obj.me.sex;
+                player.Name = obj.me.name;
+                player.Controller = _controller;
+                player.Init();
 
-            if (obj.ps != null && obj.ps.Count > 0) {
-                for (int i = 0; i < obj.ps.Count; i++) {
-                    var item = obj.ps[i];
-                    long offset = 0;
-                    if (item.idx > _myidx) {
-                        offset = item.idx - _myidx;
-                    } else {
-                        offset = item.idx + 4 - _myidx;
+                _myidx = obj.me.idx;
+                _playes[_myidx] = player;
+                UnityEngine.Debug.Assert(_ctx.U.Subid == obj.me.sid);
+                _online++;
+
+                if (obj.ps != null && obj.ps.Count > 0) {
+                    for (int i = 0; i < obj.ps.Count; i++) {
+                        var item = obj.ps[i];
+                        long offset = 0;
+                        if (item.idx > _myidx) {
+                            offset = item.idx - _myidx;
+                        } else {
+                            offset = item.idx + 4 - _myidx;
+                        }
+                        switch (offset) {
+                            case 1: {
+                                    var rplayer = new Bacon.RightPlayer(_ctx, this);
+                                    rplayer.Idx = (int)item.idx;
+                                    rplayer.Chip = (int)item.chip;
+                                    rplayer.Sid = (int)item.sid;
+                                    rplayer.Sex = (int)item.sex;
+                                    rplayer.Name = item.name;
+                                    rplayer.Controller = _controller;
+                                    rplayer.Init();
+                                    _playes[item.idx] = rplayer;
+                                }
+                                break;
+                            case 2: {
+                                    var tplayer = new Bacon.TopPlayer(_ctx, this);
+                                    tplayer.Idx = (int)item.idx;
+                                    tplayer.Chip = (int)item.chip;
+                                    tplayer.Sid = (int)item.sid;
+                                    tplayer.Sex = (int)item.sex;
+                                    tplayer.Name = item.name;
+                                    tplayer.Controller = _controller;
+                                    tplayer.Init();
+                                    _playes[item.idx] = tplayer;
+                                }
+                                break;
+                            case 3: {
+                                    var lplayer = new Bacon.LeftPlayer(_ctx, this);
+                                    lplayer.Idx = (int)item.idx;
+                                    lplayer.Chip = (int)item.chip;
+                                    lplayer.Sid = (int)item.sid;
+                                    lplayer.Sex = (int)item.sex;
+                                    lplayer.Name = item.name;
+                                    lplayer.Controller = _controller;
+                                    lplayer.Init();
+                                    _playes[item.idx] = lplayer;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        _online++;
                     }
-                    switch (offset) {
-                        case 1: {
-                                var rplayer = new Bacon.RightPlayer(_ctx, this);
-                                rplayer.Idx = (int)item.idx;
-                                rplayer.Chip = (int)item.chip;
-                                rplayer.Sid = (int)item.sid;
-                                rplayer.Sex = (int)item.sex;
-                                rplayer.Name = item.name;
-                                rplayer.Controller = _controller;
-                                _playes[item.idx] = rplayer;
-                            }
-                            break;
-                        case 2: {
-                                var tplayer = new Bacon.TopPlayer(_ctx, this);
-                                tplayer.Idx = (int)item.idx;
-                                tplayer.Chip = (int)item.chip;
-                                tplayer.Sid = (int)item.sid;
-                                tplayer.Sex = (int)item.sex;
-                                tplayer.Name = item.name;
-                                tplayer.Controller = _controller;
-                                _playes[item.idx] = tplayer;
-                            }
-                            break;
-                        case 3: {
-                                var lplayer = new Bacon.LeftPlayer(_ctx, this);
-                                lplayer.Idx = (int)item.idx;
-                                lplayer.Chip = (int)item.chip;
-                                lplayer.Sid = (int)item.sid;
-                                lplayer.Sex = (int)item.sex;
-                                lplayer.Name = item.name;
-                                lplayer.Controller = _controller;
-                                _playes[item.idx] = lplayer;
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                    _online++;
                 }
+                SendStep();
+            } else if (obj.errorcode == Errorcode.NOEXiST_ROOMID) {
+                MainController controller = _ctx.Peek<MainController>();
+                controller.ShowTips("不存在相应的房间号");
+            } else if (obj.errorcode == Errorcode.ROOM_FULL) {
+
+                MainController controller = _ctx.Peek<MainController>();
+                controller.ShowTips("房间已经满了");
             }
-            SendStep();
         }
 
         public SprotoTypeBase OnJoin(SprotoTypeBase requestObj) {
@@ -158,6 +185,7 @@ namespace Bacon {
                             rplayer.Sex = (int)obj.p.sex;
                             rplayer.Name = obj.p.name;
                             rplayer.Controller = _controller;
+                            rplayer.Init();
                             _playes[obj.p.idx] = rplayer;
                             if (_loadedcards) {
                                 _controller.Scene.SetupRightPlayer();
@@ -172,6 +200,7 @@ namespace Bacon {
                             tplayer.Sex = (int)obj.p.sex;
                             tplayer.Name = obj.p.name;
                             tplayer.Controller = _controller;
+                            tplayer.Init();
                             _playes[obj.p.idx] = tplayer;
                             if (_loadedcards) {
                                 _controller.Scene.SetupTopPlayer();
@@ -186,6 +215,7 @@ namespace Bacon {
                             lplayer.Sex = (int)obj.p.sex;
                             lplayer.Name = obj.p.name;
                             lplayer.Controller = _controller;
+                            lplayer.Init();
                             _playes[obj.p.idx] = lplayer;
                             if (_loadedcards) {
                                 _controller.Scene.SetupLeftPlayer();
@@ -206,6 +236,9 @@ namespace Bacon {
 
         public void Leave(SprotoTypeBase responseObj) {
             C2sSprotoType.leave.response obj = responseObj as C2sSprotoType.leave.response;
+            if (obj.errorcode == Errorcode.SUCCESS) {
+                _ctx.Pop();
+            }
         }
 
         public SprotoTypeBase OnLeave(SprotoTypeBase requestObj) {
@@ -251,5 +284,10 @@ namespace Bacon {
             SendStep();
         }
 
+        private void SendLeave(EventCmd e) {
+            C2sSprotoType.leave.request request = new C2sSprotoType.leave.request();
+            request.idx = _myidx;
+            _ctx.SendReq<C2sProtocol.leave>(C2sProtocol.leave.Tag, request);
+        }
     }
 }

@@ -18,6 +18,9 @@ public class S2cProtocol : ProtocolBase {
 		Protocol.SetRequest<S2cSprotoType.dice.request> (dice.Tag);
 		Protocol.SetResponse<S2cSprotoType.dice.response> (dice.Tag);
 
+		Protocol.SetProtocol<exit_room> (exit_room.Tag);
+		Protocol.SetResponse<S2cSprotoType.exit_room.response> (exit_room.Tag);
+
 		Protocol.SetProtocol<final_settle> (final_settle.Tag);
 		Protocol.SetRequest<S2cSprotoType.final_settle.request> (final_settle.Tag);
 		Protocol.SetResponse<S2cSprotoType.final_settle.response> (final_settle.Tag);
@@ -118,6 +121,10 @@ public class S2cProtocol : ProtocolBase {
 
 	public class dice {
 		public const int Tag = 11;
+	}
+
+	public class exit_room {
+		public const int Tag = 100;
 	}
 
 	public class final_settle {

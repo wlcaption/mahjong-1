@@ -33,12 +33,18 @@ namespace Maria {
             _tiSync = new TimeSync();
             _tiSync.LocalTime();
             _lastTi = _tiSync.LocalTime();
+
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
             _cotype = CoType.THREAD;
+#elif UNITY_IOS || UNITY_ANDROID
+            _cotype = CoType.CO;
+#endif
             if (_cotype == CoType.THREAD) {
                 _semaphore = new Semaphore(1, 1);
                 _worker = new Thread(new ThreadStart(Worker));
                 _worker.IsBackground = true;
                 _worker.Start();
+                UnityEngine.Debug.LogWarning("create thread success.");
             }
             _luaenv.AddLoader((ref string filepath) => {
                 filepath = filepath.Replace('.', '/') + ".lua";
@@ -150,15 +156,19 @@ namespace Maria {
 
             if (_cotype == CoType.CO) {
                 CoWorker();
-            }
-
-            // 此段代码可以用协程
-            while (_renderQueue.Count > 0) {
-                Actor.RenderHandler handler = null;
-                lock (_renderQueue) {
-                    handler = _renderQueue.Dequeue();
+                while (_renderQueue.Count > 0) {
+                    Actor.RenderHandler handler = _renderQueue.Dequeue();
+                    handler();
                 }
-                handler();
+            } else {
+                // 此段代码可以用协程
+                while (_renderQueue.Count > 0) {
+                    Actor.RenderHandler handler = null;
+                    lock (_renderQueue) {
+                        handler = _renderQueue.Dequeue();
+                    }
+                    handler();
+                }
             }
         }
 

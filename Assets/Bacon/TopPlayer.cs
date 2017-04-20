@@ -33,20 +33,39 @@ namespace Bacon {
             _putbottomoffset = 0.1f - Card.Length / 2.0f;
             _putrightoffset = 0.55f - Card.Width / 2.0f;
 
-            _rhandinitpos = new Vector3(1.0f, -2.0f, 3.0f);
+            _rhandinitpos = new Vector3(1.6f, -1.8f, 3.0f);
             _rhandinitrot = Quaternion.Euler(0.0f, 180.0f, 0.0f);
             _rhandleadoffset = new Vector3(0.597f, -1.967f, 1.124f);
             _rhandtakeoffset = new Vector3(0.399f, -2.034f, 0.497f);
             _rhandnaoffset = new Vector3(0.43f, -2.136f, 0.4299f);
             _rhandpgoffset = Vector3.zero;
-            _lhandhuoffset = Vector3.zero;
+            _rhandhuoffset = Vector3.zero;
 
-            _lhandinitpos = new Vector3(1.0f, -2.0f, 3.0f);
+            _lhandinitpos = new Vector3(1.6f, -1.8f, 3.0f);
             _lhandinitrot = Quaternion.Euler(0.0f, 180.0f, 0.0f);
             _lhandhuoffset = Vector3.zero;
 
             EventListenerCmd listener1 = new EventListenerCmd(MyEventCmd.EVENT_SETUP_TOPPLAYER, OnSetup);
             _ctx.EventDispatcher.AddCmdEventListener(listener1);
+        }
+
+        public override void Init() {
+            base.Init();
+            if (_sex == 1) { // 男
+                _rhandleadoffset = new Vector3(0.103f, -2.113f, 1.013f);
+                _rhandtakeoffset = new Vector3(0.502f, -2.052f, 0.516f);
+                _rhandnaoffset = new Vector3(0.502f, -2.083f, 0.49f);
+                _rhandpgoffset = new Vector3(0.828f, -1.978f, 0.766f);
+                _rhandpgoffset = new Vector3(0.188f, -2.13f, 0.652f);
+            }
+        }
+
+        protected override void RenderPlayFlameCountdown() {
+            _com.Head.PlayFlameCountdown(_cd);
+        }
+
+        protected override void RenderStopFlame() {
+            _com.Head.StopFlame();
         }
 
         private void OnSetup(EventCmd e) {
@@ -93,14 +112,24 @@ namespace Bacon {
                 UnityEngine.Debug.Assert(false);
             }
 
-            GameObject rori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "boyrhand");
-            _rhand = GameObject.Instantiate<GameObject>(rori);
+            if (_sex == 1) {
+                GameObject rori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "boyrhand");
+                _rhand = GameObject.Instantiate<GameObject>(rori);
+
+                GameObject lori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "boylhand");
+                _lhand = GameObject.Instantiate<GameObject>(lori);
+            } else {
+                GameObject rori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "girlrhand");
+                _rhand = GameObject.Instantiate<GameObject>(rori);
+
+                GameObject lori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "girllhand");
+                _lhand = GameObject.Instantiate<GameObject>(lori);
+            }
+
             _rhand.transform.SetParent(_go.transform);
             _rhand.transform.localPosition = _rhandinitpos;
             _rhand.transform.localRotation = _rhandinitrot;
 
-            GameObject lori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "boylhand");
-            _lhand = GameObject.Instantiate<GameObject>(lori);
             _lhand.transform.SetParent(_go.transform);
             _lhand.transform.localPosition = _lhandinitpos;
             _lhand.transform.localRotation = _lhandinitrot;
@@ -151,7 +180,33 @@ namespace Bacon {
         protected override void RenderThrowDice() {
             // 1.0 伸手
             Animator animator = _rhand.GetComponent<Animator>();
-            Tween t = _rhand.transform.DOLocalMove(new Vector3(1.845f, -1.948f, 1.847f), _diushaizishendelta);
+            Tween t;
+            if (_sex == 1) {
+                Vector3 dst = new Vector3(1.858f, -1.914f, 1.799f);
+                Vector3 offset = dst - _rhandinitpos;
+                Vector3[] path = new Vector3[] {
+                    _rhandinitpos,
+                    _rhandinitpos + new Vector3(_rhandinitpos.x + offset.x * 0.1f, _rhandinitpos.y, _rhandinitpos.z + offset.z * 0.1f ),
+                    _rhandinitpos + new Vector3(_rhandinitpos.x + offset.x * 0.2f, _rhandinitpos.y, _rhandinitpos.z + offset.z * 0.2f),
+                    _rhandinitpos + new Vector3(_rhandinitpos.x + offset.x * 0.4f, _rhandinitpos.y, _rhandinitpos.z + offset.z * 0.4f),
+                    _rhandinitpos + new Vector3(_rhandinitpos.x + offset.x * 0.6f, _rhandinitpos.y + offset.y * 0.5f, _rhandinitpos.z + offset.z * 0.6f),
+                    dst,
+                };
+                t = _rhand.transform.DOLocalPath(path, _diushaizishendelta);
+            } else {
+                Vector3 dst = new Vector3(1.858f, -1.914f, 1.799f);
+                Vector3 offset = dst - _rhandinitpos;
+                Vector3[] path = new Vector3[] {
+                    _rhandinitpos,
+                    _rhandinitpos + new Vector3(_rhandinitpos.x + offset.x * 0.1f, _rhandinitpos.y, _rhandinitpos.z + offset.z * 0.1f ),
+                    _rhandinitpos + new Vector3(_rhandinitpos.x + offset.x * 0.2f, _rhandinitpos.y, _rhandinitpos.z + offset.z * 0.2f),
+                    _rhandinitpos + new Vector3(_rhandinitpos.x + offset.x * 0.4f, _rhandinitpos.y, _rhandinitpos.z + offset.z * 0.4f),
+                    _rhandinitpos + new Vector3(_rhandinitpos.x + offset.x * 0.6f, _rhandinitpos.y + offset.y * 0.5f, _rhandinitpos.z + offset.z * 0.6f),
+                    dst,
+                };
+                t = _rhand.transform.DOLocalPath(path, _diushaizishendelta);
+            }
+
             Sequence mySequence = DOTween.Sequence();
             mySequence.Append(t)
                 .AppendCallback(() => {
@@ -161,8 +216,34 @@ namespace Bacon {
                         // 3.1
                         UnityEngine.Debug.Log("top diu saizi ");
                         ((GameController)_controller).RenderThrowDice(_d1, _d2);
-                        // 3.2
-                        Tween t32 = _rhand.transform.DOLocalMove(_rhandinitpos, _diushaizishoudelta);
+                        // 3.2, 收手
+                        Tween t32;
+                        if (_sex == 1) {
+                            Vector3 src = new Vector3(1.858f, -1.914f, 1.799f);
+                            Vector3 offset = _rhandinitpos - src;
+                            Vector3[] path = {
+                                src,
+                                _rhandinitpos + new Vector3(src.x + offset.x * 0.6f, src.y + offset.y + 0.5f, src.z + offset.z * 0.6f ),
+                                _rhandinitpos + new Vector3(src.x + offset.x * 0.4f, _rhandinitpos.y, src.z + offset.z * 0.3f),
+                                _rhandinitpos + new Vector3(src.x + offset.x * 0.2f, _rhandinitpos.y, src.z + offset.z * 0.2f),
+                                _rhandinitpos + new Vector3(src.x + offset.x * 0.1f, _rhandinitpos.y, src.z + offset.z * 0.1f),
+                                _rhandinitpos,
+                            };
+                            t32 = _rhand.transform.DOLocalPath(path, _diushaizishendelta);
+                        } else {
+                            Vector3 src = new Vector3(1.858f, -1.914f, 1.799f);
+                            Vector3 offset = _rhandinitpos - src;
+                            Vector3[] path = {
+                                src,
+                                _rhandinitpos + new Vector3(src.x + offset.x * 0.6f, src.y + offset.y + 0.5f, src.z + offset.z * 0.6f ),
+                                _rhandinitpos + new Vector3(src.x + offset.x * 0.4f, _rhandinitpos.y, src.z + offset.z * 0.3f),
+                                _rhandinitpos + new Vector3(src.x + offset.x * 0.2f, _rhandinitpos.y, src.z + offset.z * 0.2f),
+                                _rhandinitpos + new Vector3(src.x + offset.x * 0.1f, _rhandinitpos.y, src.z + offset.z * 0.1f),
+                                _rhandinitpos,
+                            };
+                            t32 = _rhand.transform.DOLocalPath(path, _diushaizishendelta);
+                        }
+
                         Sequence mySequence32 = DOTween.Sequence();
                         mySequence32.Append(t32).
                         AppendCallback(() => {
@@ -190,7 +271,7 @@ namespace Bacon {
                 var card = _cards[i];
                 card.Go.transform.localPosition = dst;
                 card.Go.transform.localRotation = Quaternion.AngleAxis(180.0f, Vector3.up) * Quaternion.AngleAxis(-115.0f, Vector3.right);
-                Tween t = card.Go.transform.DOLocalRotateQuaternion(_backv, 1.0f);
+                Tween t = card.Go.transform.DOLocalRotateQuaternion(_backv, _dealcarddelta);
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(t)
                     .AppendCallback(() => {
@@ -260,6 +341,8 @@ namespace Bacon {
         }
 
         protected override void RenderTakeTurn() {
+            base.RenderTakeTurn();
+
             if (_turntype == 1) {
                 RenderTakeCard(() => { });
             } else if (_turntype == 0) {

@@ -65,4 +65,8 @@ public class FlameThrower : MonoBehaviour {
         Flame.Play();
         DoPath(duration);
     }
+
+    public void Stop() {
+        Flame.Stop();
+    }
 }

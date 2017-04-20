@@ -29,6 +29,7 @@ namespace Bacon {
 
             _ctx.EventDispatcher.AddCustomEventListener(EventCustom.OnDisconnected, OnDiconnected, null);
             _ctx.EventDispatcher.AddCustomEventListener(EventCustom.OnAuthed, OnAuthed, null);
+            _ctx.EventDispatcher.AddCustomEventListener(MyEventCustom.LOGOUT, Logout, null);
         }
 
         public override void Update(float delta) {
@@ -49,9 +50,13 @@ namespace Bacon {
         public RecordMgr RecordMgr { get { return _recordmgr; } }
 
         public void SendHandshake(float delta) {
+            if (!_ctx.Logined) {
+                return;
+            }
             if (!_authed) {
                 return;
             }
+
             if (_handshakecd > 0) {
                 _handshakecd -= delta;
                 if (_handshakecd <= 0) {
@@ -75,7 +80,13 @@ namespace Bacon {
 
         private void OnDiconnected(EventCustom e) {
             _authed = false;
-            _ctx.GateAuth();
+            if (_ctx.Logined) {
+                _ctx.GateAuth();
+            }
+        }
+
+        private void Logout(EventCustom e) {
+            _authed = false;
         }
 
         public SprotoTypeBase OnRadio(SprotoTypeBase requestObj) {

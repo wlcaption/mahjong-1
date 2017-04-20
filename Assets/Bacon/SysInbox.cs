@@ -42,7 +42,9 @@ namespace Bacon {
 
         public int Count { get { return _li.Count; } }
 
-
-
+        public void Clear() {
+            _dic.Clear();
+            _li.Clear();
+        }
     }
 }

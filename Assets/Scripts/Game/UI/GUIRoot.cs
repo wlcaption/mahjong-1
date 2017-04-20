@@ -58,8 +58,13 @@ public class GUIRoot : MonoBehaviour {
     }
 
     public void OnSetting() {
+        Command cmd = new Maria.Command(MyEventCmd.EVENT_GAME_OPENSETTING, gameObject);
+        _Root.App.Enqueue(cmd);
+    }
+
+    public void ShowSetting(SettingWnd.ExitType et) {
         if (_SettingWnd != null) {
-            _SettingWnd.GetComponent<SettingWnd>().Show();
+            _SettingWnd.GetComponent<SettingWnd>().Show(et);
         }
     }
 

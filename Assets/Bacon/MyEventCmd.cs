@@ -26,6 +26,8 @@ namespace Bacon {
         public static uint EVENT_MUI_MSGCLOSED = 127;
         public static uint EVENT_MUI_SHOWCREATE = 128;
 
+        public static uint EVENT_MUI_EXITLOGIN = 129;
+        
 
         // 游戏界面
 
@@ -65,6 +67,10 @@ namespace Bacon {
         public static uint EVENT_SENDCHATMSG = 228;
         public static uint EVENT_TAKEFIRSTCARD = 229;
         public static uint EVENT_SETTLE_NEXT = 230;
+
+        public static uint EVENT_EXITROOM = 231;
+
+        public static uint EVENT_GAME_OPENSETTING = 232;
 
         public MyEventCmd(uint cmd) : base(cmd) {
         }

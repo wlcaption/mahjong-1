@@ -11,7 +11,10 @@ public class JoinRoom : MonoBehaviour {
     private int _count = 0;
     private const int _max = 6;
     private int _num = 0;
+    private string _numstr = string.Empty;
     private bool _sended;
+
+    private string _tips = "请输入六位数字";
 
     // Use this for initialization
     void Start() {
@@ -23,9 +26,10 @@ public class JoinRoom : MonoBehaviour {
     }
 
     void OnEnable() {
-        _RoomNum.text = "请输入六位数字";
+        _RoomNum.text = _tips;
         _count = 0;
         _num = 0;
+        _numstr = string.Empty;
         _sended = false;
     }
 
@@ -39,7 +43,8 @@ public class JoinRoom : MonoBehaviour {
         }
         _num *= 10;
         _num += num;
-        _RoomNum.text = string.Format("{0}", _num);
+        _numstr += string.Format("{0}", num);
+        _RoomNum.text = _numstr;
         _count++;
     }
 
@@ -96,17 +101,23 @@ public class JoinRoom : MonoBehaviour {
     }
 
     public void OnBtnDel() {
-        if (_num > 0) {
+        if (_count > 0) {
             _num /= 10;
-            _RoomNum.text = string.Format("{0}", _num);
+            _numstr = _numstr.Remove(_numstr.Length - 1);
+            _RoomNum.text = _numstr;
             _count--;
+            if (_count <= 0) {
+                _RoomNum.text = _tips;
+            }
         }
     }
 
     public void OnBtnClr() {
-        _num = 0;
-        _RoomNum.text = "请输入六位数字";
+        
+        _RoomNum.text = _tips;
         _count = 0;
+        _num = 0;
+        _numstr = string.Empty;
     }
 
     public void OnJoin() {

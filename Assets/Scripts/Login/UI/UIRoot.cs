@@ -8,6 +8,8 @@ public class UIRoot : MonoBehaviour {
     public RootBehaviour _Root;
     public GameObject _LoginPanel;
 
+    private bool _logined;
+
     // Use this for initialization
     void Start() {
 
@@ -18,25 +20,44 @@ public class UIRoot : MonoBehaviour {
 
     }
 
+    void OnEnable() {
+        _logined = false;
+    }
+
     public void OnLogin() {
         if (_LoginPanel == null) {
             return;
         }
-
-        var ungo = _LoginPanel.transform.FindChild("username").gameObject;
-        string username = ungo.GetComponentInChildren<InputField>().text;
-        var pwgo = _LoginPanel.transform.FindChild("password").gameObject;
-        string password = pwgo.GetComponentInChildren<InputField>().text;
-
-        if (username != null && username.Length > 0 && password != null && password.Length > 0) {
-
-            Maria.Message msg = new Maria.Message();
-            msg["username"] = username;
-            msg["password"] = password;
-            msg["server"] = "sample";
-            Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_LOGIN, gameObject, msg);
-            _Root.App.Enqueue(cmd);
+        if (_logined) {
+            return;
         }
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        string code = string.Format("{0}", Random.Range(100, 10000));
+        Login(code);
+#elif UNITY_IOS || UNITY_ANDROID
+        try {
+            AndroidJavaClass c = new AndroidJavaClass("com.emberfarkas.mahjong.wxapi.WXEntryActivity");
+            AndroidJavaObject o = c.GetStatic<AndroidJavaObject>("currentWXActivity");
+            o.Call("login");
+        } catch (System.Exception ex) {
+            UnityEngine.Debug.LogException(ex);
+        }
+#endif
+        _logined = true;
+    }
 
+    void Login(string code) {
+        UnityEngine.Debug.Log(code);
+
+        Maria.Message msg = new Maria.Message();
+        msg["username"] = code;
+        msg["password"] = "Password";
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        msg["server"] = "sample1";
+#elif UNITY_IOS || UNITY_ANDROID
+        msg["server"] = "sample";
+#endif
+        Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_LOGIN, gameObject, msg);
+        _Root.App.Enqueue(cmd);
     }
 }

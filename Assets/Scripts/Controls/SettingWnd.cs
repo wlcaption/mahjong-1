@@ -2,16 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Maria;
+using Bacon;
 
 public class SettingWnd : MonoBehaviour {
+
+    public enum ExitType {
+        EXIT_LOGIN,
+        JIESHAN_ROOM,
+        EXIT_ROOM,
+    }
 
     public Slider _MusicSlider;
     public Slider _SoundSlider;
     public Toggle _MusicToggle;
     public Toggle _SoundToggle;
+    public GameObject _ExitBtn;
+
 
     private float _music = 1.0f;
     private float _sound = 1.0f;
+
+    private ExitType _et;
 
     // Use this for initialization
     void Start() {
@@ -24,9 +36,20 @@ public class SettingWnd : MonoBehaviour {
 
     }
 
-    public void Show() {
+    public void Show(ExitType et) {
         if (!gameObject.activeSelf) {
             gameObject.SetActive(true);
+        }
+        _et = et;
+        if (et == ExitType.EXIT_LOGIN) {
+            var txt = _ExitBtn.transform.FindChild("Text").transform;
+            txt.GetComponent<Text>().text = "退出登录";
+        } else if (et == ExitType.EXIT_ROOM) {
+            var txt = _ExitBtn.transform.FindChild("Text").transform;
+            txt.GetComponent<Text>().text = "退出房间";
+        } else if (et == ExitType.JIESHAN_ROOM) {
+            var txt = _ExitBtn.transform.FindChild("Text").transform;
+            txt.GetComponent<Text>().text = "解散房间";
         }
     }
 
@@ -84,5 +107,18 @@ public class SettingWnd : MonoBehaviour {
             }
         }
         SoundMgr.current.SetSound(_sound);
+    }
+
+    public void OnExit() {
+        if (_et == ExitType.EXIT_LOGIN) {
+            Command cmd = new Command(MyEventCmd.EVENT_MUI_EXITLOGIN);
+            GetComponent<FindApp>().App.Enqueue(cmd);
+        } else if (_et == ExitType.EXIT_ROOM) {
+            Command cmd = new Command(MyEventCmd.EVENT_EXITROOM);
+            GetComponent<FindApp>().App.Enqueue(cmd);
+        } else if (_et == ExitType.JIESHAN_ROOM) {
+            Command cmd = new Command(MyEventCmd.EVENT_EXITROOM);
+            GetComponent<FindApp>().App.Enqueue(cmd);
+        }
     }
 }

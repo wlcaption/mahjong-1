@@ -131,7 +131,14 @@ public class ABLoader : MonoBehaviour {
     }
 
     public T LoadAsset<T>(string path, string name) where T : UnityEngine.Object {
-        T res = LoadAB<T>(path.ToLower(), name);
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        string res_path = "WIN/" + path.ToLower();
+#elif UNITY_IOS
+        string res_path = "Android/" + path.ToLower();
+#elif UNITY_ANDROID
+        string res_path = "iOS/" + path.ToLower();
+#endif
+        T res = LoadAB<T>(res_path, name);
         if (res == null) {
             string xpath = path + "/" + name;
             res = LoadRes<T>(xpath);
@@ -140,7 +147,14 @@ public class ABLoader : MonoBehaviour {
     }
 
     public void LoadAssetAsync<T>(string path, string name, Action<T> cb) where T : UnityEngine.Object {
-        LoadABAsync<T>(path.ToLower(), name, (T asset) => {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        string res_path = "WIN/" + path.ToLower();
+#elif UNITY_IOS
+        string res_path = "Android/" + path.ToLower();
+#elif UNITY_ANDROID
+        string res_path = "iOS/" + path.ToLower();
+#endif
+        LoadABAsync<T>(res_path, name, (T asset) => {
             if (asset == null) {
                 LoadResAsync<T>(Path.Combine(path, name), cb);
             } else {
@@ -150,18 +164,36 @@ public class ABLoader : MonoBehaviour {
     }
 
     private T LoadAB<T>(string xpath, string name) where T : UnityEngine.Object {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        string per_prefix = Application.persistentDataPath + "/Win/";
+        string str_prefix = Application.streamingAssetsPath + "/Win/";
+#elif UNITY_IOS
+        string per_prefix = Application.persistentDataPath + "/iOS/";
+        string str_prefix = Application.streamingAssetsPath + "/iOS/";
+#elif UNITY_ANDROID
+        string per_prefix = Application.persistentDataPath + "/Android/";
+        string str_prefix = Application.streamingAssetsPath + "/Android/";
+#endif
+
         string path = xpath + _abversion;
         if (_dic.ContainsKey(path)) {
             AssetBundle ab = _dic[path];
             return ab.LoadAsset<T>(name);
         } else {
             if (_manifest == null) {
-                if (_path.ContainsKey(ABConfig.ABMANIFEST) && _path[ABConfig.ABMANIFEST] == PathType.PER) {
-                    AssetBundle manifest = AssetBundle.LoadFromFile(Application.persistentDataPath + "/" + ABConfig.ABMANIFEST);
-                    _manifest = manifest.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+                string manifest = "Win";
+#elif UNITY_IOS
+                string manifest = "iOS";
+#elif UNITY_ANDROID
+                string manifest = "Android";
+#endif
+                if (_path.ContainsKey(manifest) && _path[manifest] == PathType.PER) {
+                    AssetBundle manifestab = AssetBundle.LoadFromFile(per_prefix + manifest);
+                    _manifest = manifestab.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
                 } else {
-                    AssetBundle manifest = AssetBundle.LoadFromFile(Application.streamingAssetsPath + "/" + ABConfig.ABMANIFEST);
-                    _manifest = manifest.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+                    AssetBundle manifestab = AssetBundle.LoadFromFile(str_prefix + manifest);
+                    _manifest = manifestab.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
                 }
             }
             if (_manifest != null) {
@@ -172,7 +204,7 @@ public class ABLoader : MonoBehaviour {
             }
             if (_path.ContainsKey(path)) {
                 if (_path[path] == PathType.PER) {
-                    AssetBundle ab = AssetBundle.LoadFromFile(Application.persistentDataPath + "/" + path);
+                    AssetBundle ab = AssetBundle.LoadFromFile(per_prefix + path);
                     if (ab.Contains(name)) {
                         return ab.LoadAsset<T>(name);
                     } else {
@@ -180,7 +212,7 @@ public class ABLoader : MonoBehaviour {
                         return null;
                     }
                 } else {
-                    AssetBundle ab = AssetBundle.LoadFromFile(Application.streamingAssetsPath + "/" + path);
+                    AssetBundle ab = AssetBundle.LoadFromFile(str_prefix + path);
                     if (ab != null && ab.Contains(name)) {
                         return ab.LoadAsset<T>(name);
                     } else {
@@ -209,24 +241,42 @@ public class ABLoader : MonoBehaviour {
     }
 
     IEnumerator LoadABAsyncImp<T>(string path, string name, Action<T> cb) where T : UnityEngine.Object {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        string per_prefix = Application.persistentDataPath + "/Win/";
+        string str_prefix = Application.streamingAssetsPath + "/Win/";
+#elif UNITY_IOS
+        string per_prefix = Application.persistentDataPath + "/iOS/";
+        string str_prefix = Application.streamingAssetsPath + "/iOS/";
+#elif UNITY_ANDROID
+        string per_prefix = Application.persistentDataPath + "/Android/";
+        string str_prefix = Application.streamingAssetsPath + "/Android/";
+#endif
+
         if (_manifest == null) {
-            if (_path.ContainsKey(ABConfig.ABMANIFEST) && _path[ABConfig.ABMANIFEST] == PathType.PER) {
-                AssetBundle ab = AssetBundle.LoadFromFile(Application.persistentDataPath + "/" + ABConfig.ABMANIFEST);
-                _manifest = ab.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+            string manifest = "Win";
+#elif UNITY_IOS
+                string manifest = "iOS";
+#elif UNITY_ANDROID
+                string manifest = "Android";
+#endif
+            if (_path.ContainsKey(manifest) && _path[manifest] == PathType.PER) {
+                AssetBundle manifestab = AssetBundle.LoadFromFile(per_prefix + manifest);
+                _manifest = manifestab.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
             } else {
-                AssetBundle ab = AssetBundle.LoadFromFile(Application.streamingAssetsPath + "/" + ABConfig.ABMANIFEST);
-                _manifest = ab.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+                AssetBundle manifestab = AssetBundle.LoadFromFile(str_prefix + manifest);
+                _manifest = manifestab.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
             }
         }
         if (_manifest != null) {
             string[] depends = _manifest.GetAllDependencies(path);
             for (int i = 0; i < depends.Length; i++) {
                 if (_path.ContainsKey(depends[i]) && _path[depends[i]] == PathType.PER) {
-                    AssetBundleCreateRequest depend_request = AssetBundle.LoadFromFileAsync(Application.persistentDataPath + "/" + depends[i]);
+                    AssetBundleCreateRequest depend_request = AssetBundle.LoadFromFileAsync(per_prefix + depends[i]);
                     yield return depend_request;
                     _dic[depends[i]] = depend_request.assetBundle;
                 } else {
-                    AssetBundleCreateRequest depend_request = AssetBundle.LoadFromFileAsync(Application.streamingAssetsPath + "/" + depends[i]);
+                    AssetBundleCreateRequest depend_request = AssetBundle.LoadFromFileAsync(str_prefix + depends[i]);
                     yield return depend_request;
                     _dic[depends[i]] = depend_request.assetBundle;
                 }

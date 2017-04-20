@@ -43,7 +43,11 @@ public class C2sProtocol : ProtocolBase {
 		Protocol.SetResponse<C2sSprotoType.lead.response> (lead.Tag);
 
 		Protocol.SetProtocol<leave> (leave.Tag);
+		Protocol.SetRequest<C2sSprotoType.leave.request> (leave.Tag);
 		Protocol.SetResponse<C2sSprotoType.leave.response> (leave.Tag);
+
+		Protocol.SetProtocol<logout> (logout.Tag);
+		Protocol.SetResponse<C2sSprotoType.logout.response> (logout.Tag);
 
 		Protocol.SetProtocol<match> (match.Tag);
 		Protocol.SetRequest<C2sSprotoType.match.request> (match.Tag);
@@ -138,6 +142,10 @@ public class C2sProtocol : ProtocolBase {
 
 	public class leave {
 		public const int Tag = 6;
+	}
+
+	public class logout {
+		public const int Tag = 100;
 	}
 
 	public class match {

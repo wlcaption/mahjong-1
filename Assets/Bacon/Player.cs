@@ -74,7 +74,7 @@ namespace Bacon {
         protected const float _holddowndelat = 0.3f;
         protected const float _abdicateholddelta = 0.6f;
         protected const float _holdflydelta = 1.2f;
-        protected const float _sortcardsdelta = 0.8f;
+        protected const float _sortcardsdelta = 0.3f;       // 发完牌后的排序旋转与转会需要的时间，
 
         protected const float _holddelta = 0.1f;
         protected const float _holdleftoffset = 0.02f;
@@ -109,20 +109,22 @@ namespace Bacon {
         protected Vector3 _lhandhuoffset = Vector3.zero;
 
 
-        protected float _diushaizishendelta = 1.0f;
-        protected float _diushaizishoudelta = 1.0f;
-        protected float _chupaishendelta = 3.0f;
-        protected float _chupaishoudelta = 1.0f;
-        protected float _napaishendelta = 3.0f;
-        protected float _fangpaishoudelta = 1.0f;
-        protected float _hupaishendelta = 1.0f;
-        protected float _hupaishoudelta = 1.0f;
-        protected float _penggangshendelta = 1.0f;
-        protected float _penggangshoudelta = 1.0f;
+        protected const float _diushaizishendelta = 1.0f;
+        protected const float _diushaizishoudelta = 1.0f;
+        protected const float _chupaishendelta = 3.0f;
+        protected const float _chupaishoudelta = 1.0f;
+        protected const float _napaishendelta = 0.8f;     // 拿牌伸手消耗的时间s
+        protected const float _fangpaishoudelta = 1.0f;
+        protected const float _hupaishendelta = 1.0f;
+        protected const float _hupaishoudelta = 1.0f;
+        protected const float _penggangshendelta = 1.0f;
+        protected const float _penggangshoudelta = 1.0f;
 
         // 牌
-        protected float _fangdaodelta = 1.0f;
-        protected float _dealcarddelta = 1.0f;
+        protected float _fangdaodelta  = 0.3f;  
+        protected float _dealcarddelta = 0.3f;  // 拿牌的时候，牌旋转到最适合的位置消耗的时间，单位s
+
+        protected long _cd;
 
         public Player(Context ctx, GameController controller)
             : base(ctx, controller) {
@@ -143,12 +145,21 @@ namespace Bacon {
         public List<long> CS { get; set; }
         public CallInfo Call { get; set; }
 
-        public void Start() {
-            _takecards.Clear();
-            _cards.Clear();
-            _putcards.Clear();
-            _holdcard = null;
-            _leadcard = null;
+        public virtual void Init() {}
+
+        public void PlayFlameCountdown() {
+            _ctx.EnqueueRenderQueue(RenderPlayFlameCountdown);
+        }
+
+        protected virtual void RenderPlayFlameCountdown() {
+        }
+
+        public void StopFlame() {
+            _ctx.EnqueueRenderQueue(RenderStopFlame);
+        }
+
+        protected virtual void RenderStopFlame() {
+
         }
 
         public bool TakeCard(out Card nx) {
@@ -326,6 +337,7 @@ namespace Bacon {
                     Sequence mySequence21 = DOTween.Sequence();
                     mySequence21.Append(_holdcard.Go.transform.DOLocalMove(cdst, _holddelta))
                         .AppendCallback(() => {
+                            cb();
                         });
 
                     // 2.2 手下移
@@ -341,7 +353,7 @@ namespace Bacon {
                             mySequence4.Append(t4)
                             .AppendCallback(() => {
 
-                                cb();
+                                //cb();
 
                                 // 5.0 归位
                                 animator.SetBool("Idle", true);
@@ -372,8 +384,9 @@ namespace Bacon {
 
         protected virtual void RenderXuanQue() { }
 
-        public void TakeTurn(long type, long c) {
+        public void TakeTurn(long type, long c, long cd) {
             _turntype = type;
+            _cd = cd;
             if (type == 1) {
                 Card card;
                 if (((GameController)_controller).TakeCard(out card)) {
@@ -416,7 +429,24 @@ namespace Bacon {
             }
         }
 
-        protected virtual void RenderTakeTurn() { }
+
+        protected void RenderTakeTurnDir() {
+            if (_idx == 1) {
+                ((GameController)_controller).Desk.RenderTakeTurnDong();
+            } else if (_idx == 2) {
+                ((GameController)_controller).Desk.RenderTakeTurnNan();
+            } else if (_idx == 3) {
+                ((GameController)_controller).Desk.RenderTakeTurnXi();
+            } else if (_idx == 4) {
+                ((GameController)_controller).Desk.RenderTakeTurnBei();
+            } else {
+                UnityEngine.Debug.Assert(false);
+            }
+        }
+
+        protected virtual void RenderTakeTurn() {
+            RenderTakeTurnDir();
+        }
 
         private void Insert(Card card) {
             UnityEngine.Debug.Assert(_cards.Count > 0);
@@ -486,7 +516,7 @@ namespace Bacon {
         }
 
         protected virtual void RenderLead() {
-            string prefix = "Sound/scmj";
+            string prefix = "Sound/scmj/";
             string path = prefix;
             string name = string.Empty;
             if (_sex == 1) {

@@ -19,8 +19,14 @@ public class VersionFileBuild : EditorWindow {
         root.AddField("version", version);
         JSONObject abs = new JSONObject(JSONObject.Type.OBJECT);
         root.AddField("abs", abs);
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        DirectoryInfo streaming = new DirectoryInfo(Application.streamingAssetsPath + "/Win");
+#elif UNITY_IOS
+        DirectoryInfo streaming = new DirectoryInfo(Application.streamingAssetsPath + "/iOS");
+#elif UNITY_ANDROID
+        DirectoryInfo streaming = new DirectoryInfo(Application.streamingAssetsPath + "/Android");
+#endif
 
-        DirectoryInfo streaming = new DirectoryInfo(Application.streamingAssetsPath);
         XX(abs, string.Empty, streaming);
 
         string en = root.Print();

@@ -141,8 +141,12 @@ public class PlayerHeadBase : MonoBehaviour {
         }
     }
 
-    public virtual void ShowFlameCountdown(float cd) {
+    public virtual void PlayFlameCountdown(float cd) {
         _Flame.GetComponent<FlameThrower>().Play(cd);
+    }
+
+    public virtual void StopFlame() {
+        _Flame.GetComponent<FlameThrower>().Stop();
     }
 
     public virtual void Clear() {

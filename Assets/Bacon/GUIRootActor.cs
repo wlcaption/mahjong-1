@@ -13,6 +13,9 @@ namespace Bacon {
 
             EventListenerCmd listener2 = new EventListenerCmd(MyEventCmd.EVENT_RESTART, OnSendRestart);
             _ctx.EventDispatcher.AddCmdEventListener(listener2);
+
+            EventListenerCmd listener3 = new EventListenerCmd(MyEventCmd.EVENT_GAME_OPENSETTING, OnOpenSetting);
+            _ctx.EventDispatcher.AddCmdEventListener(listener3);
         }
 
         private void SetupGuiRoot(EventCmd e) {
@@ -47,5 +50,18 @@ namespace Bacon {
             _ctx.SendReq<C2sProtocol.restart>(C2sProtocol.restart.Tag, request);
         }
 
+        private void OnOpenSetting(EventCmd e) {
+            GameService service = _ctx.QueryService<GameService>(GameService.Name);
+            _ctx.EnqueueRenderQueue(RenderOpenSetting);
+        }
+
+        private void RenderOpenSetting() {
+            GameService service = _ctx.QueryService<GameService>(GameService.Name);
+            if (service.Host) {
+                _go.GetComponent<GUIRoot>().ShowSetting(SettingWnd.ExitType.JIESHAN_ROOM);
+            } else {
+                _go.GetComponent<GUIRoot>().ShowSetting(SettingWnd.ExitType.EXIT_ROOM);
+            }
+        }
     }
 }

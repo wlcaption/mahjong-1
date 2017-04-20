@@ -5,11 +5,6 @@ using UnityEngine.EventSystems;
 
 public class Girl : Role {
 
-    
-
-
-    
-
     // Use this for initialization
     void Start() {
         base.Start();

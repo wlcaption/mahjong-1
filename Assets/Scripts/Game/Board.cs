@@ -24,10 +24,16 @@ public class Board : MonoBehaviour {
     public GameObject _LeftGai;
 
     private int _oknum = 0;
-    private bool _blink = false;
+    private bool _dongblink = false;
+    private bool _nanblink = false;
+    private bool _xiblink = false;
+    private bool _beiblink = false;
     private float _brightness = 1.0f;
     private int _gray = 0;
     private float _blinkinterval = 1.0f;
+
+    private int _d1;
+    private int _d2;
 
     // Use this for initialization
     void Start() {
@@ -45,6 +51,7 @@ public class Board : MonoBehaviour {
         //    TakeTurnBei();
         //});
 
+        _Cursor.transform.localPosition = new Vector3(-1.0f, 0.0f, -1.0f);
     }
 
     // Update is called once per frame
@@ -53,6 +60,7 @@ public class Board : MonoBehaviour {
     }
 
     public void ShowCountdown(int pt) {
+
         int c1 = pt / 10;
         int c2 = pt % 10;
         if (_Clock1 != null) {
@@ -80,76 +88,75 @@ public class Board : MonoBehaviour {
 
     public void ThrowDice(long d1, long d2) {
         _oknum = 0;
-        ThrowSDice(d1, _Dice1);
-        ThrowSDice(d2, _Dice2);
+        _d1 = (int)d1;
+        _d2 = (int)d2;
+
+        //ThrowCompleted();
+
+        _Dice1.GetComponent<Dice>().Play(() => {
+            _oknum++;
+            if (_oknum >= 2) {
+                ThrowCompleted();
+            }
+        });
+
+        _Dice2.GetComponent<Dice>().Play(() => {
+            _oknum++;
+            if (_oknum >= 2) {
+                ThrowCompleted();
+            }
+        });
     }
 
-    private void ThrowSDice(long d, GameObject go) {
-        Action act = delegate () {
-            Command cmd = new Command(MyEventCmd.EVENT_THROWDICE);
-            GetComponent<FindApp>().App.Enqueue(cmd);
-            _Cover.SetActive(true);
-            _Clock1.SetActive(true);
-            _Clock2.SetActive(true);
+    void ThrowCompleted() {
+        Action<int, GameObject> act = delegate (int d, GameObject go) {
+            switch (d) {
+                case 1:
+                    go.transform.FindChild("Dice").localRotation = Quaternion.AngleAxis(-180.0f, Vector3.forward);
+                    break;
+                case 2:
+                    go.transform.FindChild("Dice").localRotation = Quaternion.AngleAxis(180.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
+                    break;
+                case 3:
+                    go.transform.FindChild("Dice").localRotation = Quaternion.AngleAxis(-90.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
+                    break;
+                case 4:
+                    go.transform.FindChild("Dice").localRotation = Quaternion.AngleAxis(270.0f, Vector3.forward);
+
+                    break;
+                case 5:
+                    go.transform.FindChild("Dice").localRotation = Quaternion.AngleAxis(90.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
+                    break;
+                case 6:
+                    go.transform.FindChild("Dice").localRotation = Quaternion.AngleAxis(0.0f, Vector3.right);
+                    break;
+                default:
+                    UnityEngine.Debug.Assert(false);
+                    break;
+            }
         };
-        switch (d) {
-            case 1:
-                go.GetComponent<Dice>().Play(() => {
-                    go.transform.localRotation = Quaternion.AngleAxis(-180.0f, Vector3.forward);
-                    _oknum++;
-                    if (_oknum >= 2) {
-                        act();
-                    }
-                });
-                break;
-            case 2:
-                go.GetComponent<Dice>().Play(() => {
-                    go.transform.localRotation = Quaternion.AngleAxis(180.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
-                    _oknum++;
-                    if (_oknum >= 2) {
-                        act();
-                    }
-                });
-                break;
-            case 3:
-                go.GetComponent<Dice>().Play(() => {
-                    go.transform.localRotation = Quaternion.AngleAxis(-90.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
-                    _oknum++;
-                    if (_oknum >= 2) {
-                        act();
-                    }
-                });
-                break;
-            case 4:
-                go.GetComponent<Dice>().Play(() => {
-                    go.transform.localRotation = Quaternion.AngleAxis(270.0f, Vector3.forward);
-                    _oknum++;
-                    if (_oknum >= 2) {
-                        act();
-                    }
-                });
-                break;
-            case 5:
-                go.GetComponent<Dice>().Play(() => {
-                    go.transform.localRotation = Quaternion.AngleAxis(90.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
-                    _oknum++;
-                    if (_oknum >= 2) {
-                        act();
-                    }
-                });
-                break;
-            case 6:
-                go.GetComponent<Dice>().Play(() => {
-                    go.transform.localRotation = Quaternion.AngleAxis(0.0f, Vector3.right);
-                    _oknum++;
-                    if (_oknum >= 2) {
-                        act();
-                    }
-                });
-                break;
-            default:
-                UnityEngine.Debug.Assert(false);
-                break;
+        act(_d1, _Dice1);
+        act(_d2, _Dice2);
+
+        UnityEngine.Debug.LogFormat("throw dice anim over, d1 = {0}, d2 = {1}", _d1, _d2);
+
+        Command cmd = new Command(MyEventCmd.EVENT_THROWDICE);
+        GetComponent<FindApp>().App.Enqueue(cmd);
+        
+
+        //UnityEngine.Debug.Log("throw dice anim over.");
+        //yield break;
+    }
+
+    public void ShowCountdown() {
+        if (!_Cover.activeSelf) {
+            _Cover.SetActive(true);
+        }
+        if (!_Clock1.activeSelf) {
+            _Clock1.SetActive(true);
+        }
+        if (!_Clock2.activeSelf) {
+            _Clock2.SetActive(true);
         }
     }
 
@@ -267,14 +274,14 @@ public class Board : MonoBehaviour {
     }
 
     public void TakeOnDong(bool blink) {
-        _blink = blink;
+        _dongblink = blink;
         _gray = 0;
         _brightness = 0.9f;
 
         _Dong.GetComponent<Renderer>().material.SetInt("_Gray", _gray);
         _Dong.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
 
-        if (_blink) {
+        if (_dongblink) {
             Sequence mySequence = DOTween.Sequence();
             mySequence.AppendInterval(_blinkinterval)
                 .AppendCallback(() => {
@@ -286,7 +293,7 @@ public class Board : MonoBehaviour {
                         _Dong.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
                     }
 
-                    if (!_blink) {
+                    if (!_dongblink) {
                         mySequence.SetLoops(0);
                     }
                 }).SetLoops(-1);
@@ -294,7 +301,7 @@ public class Board : MonoBehaviour {
     }
 
     public void TakeOffDong() {
-        _blink = false;
+        _dongblink = false;
         _gray = 1;
         _brightness = 1.0f;
         _Dong.GetComponent<Renderer>().material.SetInt("_Gray", _gray);
@@ -309,14 +316,14 @@ public class Board : MonoBehaviour {
     }
 
     public void TakeOnNan(bool blink) {
-        _blink = blink;
+        _nanblink = blink;
         _gray = 0;
         _brightness = 0.9f;
 
         _Nan.GetComponent<Renderer>().material.SetInt("_Gray", _gray);
         _Nan.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
 
-        if (_blink) {
+        if (_nanblink) {
             Sequence mySequence = DOTween.Sequence();
             mySequence.AppendInterval(_blinkinterval)
                 .AppendCallback(() => {
@@ -328,7 +335,7 @@ public class Board : MonoBehaviour {
                         _Nan.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
                     }
 
-                    if (!_blink) {
+                    if (!_nanblink) {
                         mySequence.SetLoops(0);
                     }
                 }).SetLoops(-1);
@@ -336,7 +343,7 @@ public class Board : MonoBehaviour {
     }
 
     public void TakeOffNan() {
-        _blink = false;
+        _nanblink = false;
         _gray = 1;
         _brightness = 1.0f;
 
@@ -352,14 +359,14 @@ public class Board : MonoBehaviour {
     }
 
     public void TakeOnXi(bool blink) {
-        _blink = blink;
+        _xiblink = blink;
         _gray = 0;
         _brightness = 0.9f;
 
         _Xi.GetComponent<Renderer>().material.SetInt("_Gray", _gray);
         _Xi.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
 
-        if (_blink) {
+        if (_xiblink) {
             Sequence mySequence = DOTween.Sequence();
             mySequence.AppendInterval(_blinkinterval)
                 .AppendCallback(() => {
@@ -371,7 +378,7 @@ public class Board : MonoBehaviour {
                         _Xi.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
                     }
 
-                    if (!_blink) {
+                    if (!_xiblink) {
                         mySequence.SetLoops(0);
                     }
                 }).SetLoops(-1);
@@ -379,7 +386,7 @@ public class Board : MonoBehaviour {
     }
 
     public void TakeOffXi() {
-        _blink = false;
+        _xiblink = false;
         _gray = 1;
         _brightness = 1.0f;
 
@@ -395,14 +402,14 @@ public class Board : MonoBehaviour {
     }
 
     public void TakeOnBei(bool blink) {
-        _blink = blink;
+        _beiblink = blink;
         _gray = 0;
         _brightness = 0.9f;
 
         _Bei.GetComponent<Renderer>().material.SetInt("_Gray", _gray);
         _Bei.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
 
-        if (_blink) {
+        if (_beiblink) {
             Sequence mySequence = DOTween.Sequence();
             mySequence.AppendInterval(_blinkinterval)
                 .AppendCallback(() => {
@@ -414,7 +421,7 @@ public class Board : MonoBehaviour {
                         _Bei.GetComponent<Renderer>().material.SetFloat("_Brightness", _brightness);
                     }
 
-                    if (!_blink) {
+                    if (!_beiblink) {
                         mySequence.SetLoops(0);
                     }
                 }).SetLoops(-1);
@@ -422,7 +429,7 @@ public class Board : MonoBehaviour {
     }
 
     public void TakeOffBei() {
-        _blink = false;
+        _beiblink = false;
         _gray = 1;
         _brightness = 1.0f;
 

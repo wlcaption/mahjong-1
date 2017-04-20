@@ -61,7 +61,7 @@ public class MUIRoot : MonoBehaviour {
     public void OnJoin() {
         _JoinPanel.GetComponent<JoinRoom>().Show();
     }
-    
+
     public void OnShare() {
         if (_SharePanel != null) {
             _SharePanel.GetComponent<ShareWnd>().Show();
@@ -90,7 +90,7 @@ public class MUIRoot : MonoBehaviour {
 
     public void OnSetting() {
         if (_SettingPanel != null) {
-            _SettingPanel.GetComponent<SettingWnd>().Show();
+            _SettingPanel.GetComponent<SettingWnd>().Show(SettingWnd.ExitType.EXIT_LOGIN);
         }
     }
 
@@ -111,4 +111,7 @@ public class MUIRoot : MonoBehaviour {
         content.text = adver;
     }
 
+    public void ShowTips(string content) {
+        //_Tips.GetComponent<TipsWnd>().
+    }
 }

@@ -32,7 +32,7 @@ namespace Bacon {
             _putbottomoffset = 0.235f - Card.Length / 2.0f;
             _putrightoffset = 0.25f - Card.Width / 2.0f;
 
-            _rhandinitpos = new Vector3(1.0f, -1.0f, -2.0f);
+            _rhandinitpos = new Vector3(0.4f, -1.0f, -1.8f);
             _rhandinitrot = Quaternion.Euler(30.0f, 0.0f, 0.0f);
             _rhanddiuszoffset = new Vector3(0.154f, -1.965f, 0.123f);
             _rhandtakeoffset = new Vector3(-0.39f, -1.445f, -1.546f);
@@ -41,7 +41,7 @@ namespace Bacon {
             _rhandpgoffset = Vector3.zero;
             _rhandhuoffset = Vector3.zero;
 
-            _lhandinitpos = new Vector3(1.0f, -1.0f, -2.0f);
+            _lhandinitpos = new Vector3(0.4f, -1.0f, -1.8f);
             _lhandinitrot = Quaternion.Euler(30.0f, 0.0f, 0.0f);
             _lhandhuoffset = Vector3.zero;
 
@@ -68,6 +68,18 @@ namespace Bacon {
 
             EventListenerCmd listener8 = new EventListenerCmd(MyEventCmd.EVENT_XUANPAO, OnSendPao);
             _ctx.EventDispatcher.AddCmdEventListener(listener8);
+        }
+
+        public override void Init() {
+            base.Init();
+        }
+
+        protected override void RenderPlayFlameCountdown() {
+            _com.Head.PlayFlameCountdown(_cd);
+        }
+
+        protected override void RenderStopFlame() {
+            _com.Head.StopFlame();
         }
 
         private void OnSetup(EventCmd e) {
@@ -236,15 +248,25 @@ namespace Bacon {
                 UnityEngine.Debug.Assert(false);
             }
 
-            //GameObject rori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "girlrhand");
-            GameObject rori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "girlrhand");
-            _rhand = GameObject.Instantiate<GameObject>(rori);
+            if (_sex == 1) {
+                GameObject rori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "boyrhand");
+                _rhand = GameObject.Instantiate<GameObject>(rori);
+
+                GameObject lori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "boylhand");
+                _lhand = GameObject.Instantiate<GameObject>(lori);
+            } else {
+                GameObject rori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "girlrhand");
+                _rhand = GameObject.Instantiate<GameObject>(rori);
+
+                GameObject lori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "girllhand");
+                _lhand = GameObject.Instantiate<GameObject>(lori);
+            }
+
             _rhand.transform.SetParent(_go.transform);
             _rhand.transform.localPosition = _rhandinitpos;
             _rhand.transform.localRotation = _rhandinitrot;
 
-            GameObject lori = ABLoader.current.LoadAsset<GameObject>("Prefabs/Hand", "girllhand");
-            _lhand = GameObject.Instantiate<GameObject>(lori);
+
             _lhand.transform.SetParent(_go.transform);
             _lhand.transform.localPosition = _lhandinitpos;
             _lhand.transform.localRotation = _lhandinitrot;
@@ -289,7 +311,7 @@ namespace Bacon {
 
             // 1.0 浼告墜
             Desk desk = ((GameController)_controller).Desk;
-            
+
             Animator animator = _rhand.GetComponent<Animator>();
             _rhand.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
             Tween t = _rhand.transform.DOLocalMove(_rhanddiuszoffset, _diushaizishendelta);
@@ -318,6 +340,9 @@ namespace Bacon {
         }
 
         protected override void RenderDeal() {
+            // 播放声音
+            //SoundMgr.current.PlaySound(_go, "Sound/common", "changescene");
+
             _oknum = 0;
             int count = 0;
             int i = 0;
@@ -328,20 +353,21 @@ namespace Bacon {
                 i = _cards.Count - 4;
                 count = 4;
             }
+
             for (; i < _cards.Count; i++) {
                 Vector3 dst = CalcPos(i);
                 var card = _cards[i];
                 card.Go.transform.localPosition = dst;
                 card.Go.transform.localRotation = Quaternion.AngleAxis(-90.0f, Vector3.right);
-                Tween t = card.Go.transform.DOLocalRotateQuaternion(Quaternion.AngleAxis(-25.0f, Vector3.right), 1.0f);
+                Tween t = card.Go.transform.DOLocalRotateQuaternion(Quaternion.AngleAxis(-25.0f, Vector3.right), _dealcarddelta);
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(t)
                     .AppendCallback(() => {
-                        // 播放声音
-                        SoundMgr.current.PlaySound(_go, "Sound/common", "changescene");
-
+                       
                         _oknum++;
                         if (_oknum >= count) {
+                            _oknum = 0;
+
                             Command cmd = new Command(MyEventCmd.EVENT_TAKEDEAL);
                             _ctx.Enqueue(cmd);
                         }
@@ -428,6 +454,8 @@ namespace Bacon {
         }
 
         protected override void RenderTakeTurn() {
+            base.RenderTakeTurn();
+
             if (_turntype == 1) {
                 _com.HoldCard = _holdcard.Go;
                 RenderTakeCard(() => {

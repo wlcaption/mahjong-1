@@ -28,6 +28,7 @@ namespace Maria {
 
         protected bool _authtcp = false;
         protected bool _authudp = false;
+        protected bool _logined = false;
         protected System.Random _rand = new System.Random();
 
         public Context(Application application, Config config, TimeSync ts) {
@@ -92,7 +93,7 @@ namespace Maria {
             }
 
             if (_stack.Count > 0) {
-                Controller controller = Top();
+                Controller controller = Peek();
                 if (controller != null) {
                     controller.Update(delta);
                 }
@@ -103,6 +104,7 @@ namespace Maria {
         public Config Config { get { return _config; } }
         public TimeSync TiSync { get { return _ts; } }
         public SharpC SharpC { get { return _sharpc; } }
+        public bool Logined { get { return _logined; } set { _logined = value; } }
 
         public User U { get { return _user; } }
 
@@ -128,6 +130,7 @@ namespace Maria {
         // login
         public void LoginAuth(string s, string u, string pwd) {
             _authtcp = false;
+            _logined = false;
 
             _user.Server = s;
             _user.Username = u;
@@ -186,9 +189,16 @@ namespace Maria {
             }
         }
 
-        public Controller Top() {
+        public Controller Peek() {
             if (_stack.Count > 0) {
                 return _stack.Peek();
+            }
+            return null;
+        }
+
+        public T Peek<T>() where T : Controller {
+            if (_stack.Count > 0) {
+                return _stack.Peek() as T;
             }
             return null;
         }
@@ -240,25 +250,32 @@ namespace Maria {
         }
 
         public void Countdown(string name, int cd, Timer.CountdownDeltaCb dcb, Timer.CountdownCb cb) {
-            Timer tm;
-            if (_timer.ContainsKey(name)) {
-                tm = _timer[name];
-                tm.Enable = true;
-                tm.ST = _ts.LocalTime();
-                tm.PT = 0;
-                tm.CD = cd;
-                tm.DCB = dcb;
-                tm.CB = cb;
+            if (cd < 0) {
+                if (_timer.ContainsKey(name)) {
+                    Timer tm = _timer[name];
+                    tm.Enable = false;
+                }
             } else {
-                tm = new Timer();
-                tm.Name = name;
-                tm.Enable = true;
-                tm.ST = _ts.LocalTime();
-                tm.PT = 0;
-                tm.CD = cd;
-                tm.DCB = dcb;
-                tm.CB = cb;
-                _timer[name] = tm;
+                Timer tm;
+                if (_timer.ContainsKey(name)) {
+                    tm = _timer[name];
+                    tm.Enable = true;
+                    tm.ST = _ts.LocalTime();
+                    tm.PT = 0;
+                    tm.CD = cd;
+                    tm.DCB = dcb;
+                    tm.CB = cb;
+                } else {
+                    tm = new Timer();
+                    tm.Name = name;
+                    tm.Enable = true;
+                    tm.ST = _ts.LocalTime();
+                    tm.PT = 0;
+                    tm.CD = cd;
+                    tm.DCB = dcb;
+                    tm.CB = cb;
+                    _timer[name] = tm;
+                }
             }
         }
 
@@ -294,34 +311,50 @@ namespace Maria {
         public void OnGateAuthed(int code) {
             if (code == 200) {
                 _authtcp = true;
+                _logined = true;
+
                 string dummy = string.Empty;
                 //
                 EventDispatcher.FireCustomEvent(EventCustom.OnAuthed, null);
+
                 //
-                Controller controller = Top();
-                controller.OnGateAuthed(code);
+                if (_stack.Count > 0) {
+                    Controller controller = Peek();
+
+                    controller.OnGateAuthed(code);
+                }
             } else if (code == 403) {
                 //LoginAuth(_user.Server, _user.Username, _user.Password);
             }
         }
 
         public void OnGateDisconnected() {
-            EventDispatcher.FireCustomEvent(EventCustom.OnDisconnected, null);
-            var controller = Top();
-            if (controller != null) {
-                controller.OnGateDisconnected();
+            if (_logined) {
+                EventDispatcher.FireCustomEvent(EventCustom.OnDisconnected, null);
+                var controller = Peek();
+                if (controller != null) {
+                    controller.OnGateDisconnected();
+                }
+            } else {
+                if (_stack.Count > 0) {
+                    var controller = Peek();
+                    if (controller != null) {
+                        controller.Logout();
+                    }
+                }
             }
+
         }
 
         public void OnUdpSync() {
-            var controller = Top();
+            var controller = Peek();
             if (controller != null) {
                 controller.OnUdpSync();
             }
         }
 
         public void OnUdpRecv(PackageSocketUdp.R r) {
-            var controller = Top();
+            var controller = Peek();
             if (controller != null) {
                 controller.OnUdpRecv(r);
             }

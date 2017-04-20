@@ -24,6 +24,10 @@ public class MsgItem : MonoBehaviour {
 	void Start () {
         GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 1100.0f);
         GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 80.0f);
+        Vector3 pos = transform.localPosition;
+        transform.localPosition = new Vector3(pos.x, pos.y, 0);
+        transform.localScale = Vector3.one;
+        gameObject.layer = transform.parent.gameObject.layer;
 	}
 	
 	// Update is called once per frame
