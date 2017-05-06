@@ -18,6 +18,8 @@ namespace Maria {
             _ctx = ctx;
         }
 
+        public Context Ctx { get { return _ctx; } }
+
         public string Name { get { return _name; } }
 
         // Update is called once per frame

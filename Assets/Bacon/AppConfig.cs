@@ -10,7 +10,7 @@ namespace Bacon {
 
         public AppConfig() : base() {
 
-            VTYPE = VERSION_TYPE.PUBLIC;
+            VTYPE = VERSION_TYPE.DEV;
             UpdateRes = false;
             if (VTYPE == VERSION_TYPE.PUBLIC) {
                 _loginIp = "120.76.248.223";
@@ -19,6 +19,7 @@ namespace Bacon {
                 _gatePort = 3301;
 
             } else {
+
                 _loginIp = "192.168.1.123";
                 _loginPort = 3002;
                 _gateIp = "192.168.1.123";

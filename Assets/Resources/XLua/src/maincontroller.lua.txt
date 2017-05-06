@@ -1,0 +1,16 @@
+xlua.hotfix(CS.Bacon.MainController, "First", function (self, obj, ... )
+	-- body
+	local service = self.Ctx.QueryService(CS.Bacon.InitService.Name)
+
+	local u = service.User
+	u.Name = obj.name
+	u.NameId = obj.nameid
+	u.RCard = obj.rcard
+	u.Sex = obj.sex
+
+	service.Board = obj.board
+	service.Adver = obj.adver
+
+	self.Ctx.EnqueueRenderQueue(CS.Bacon.MainController.RenderFirst)
+
+end)

@@ -16,7 +16,33 @@ namespace XLua
     public partial class DelegateBridge : DelegateBridgeBase
     {
 		
-		public void __Gen_Delegate_Imp0(object p0, bool p1)
+		public System.Collections.Generic.List<System.Type> __Gen_Delegate_Imp0()
+		{
+#if THREAD_SAFT || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int err_func =LuaAPI.load_error_func(L, errorFuncRef);
+                ObjectTranslator translator = luaEnv.translator;
+                
+                LuaAPI.lua_getref(L, luaReference);
+                
+                
+                int __gen_error = LuaAPI.lua_pcall(L, 0, 1, err_func);
+                if (__gen_error != 0)
+                    luaEnv.ThrowExceptionFromError(err_func - 1);
+                
+                
+                System.Collections.Generic.List<System.Type> __gen_ret = (System.Collections.Generic.List<System.Type>)translator.GetObject(L, err_func + 1, typeof(System.Collections.Generic.List<System.Type>));
+                LuaAPI.lua_settop(L, err_func - 1);
+                return  __gen_ret;
+#if THREAD_SAFT || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public void __Gen_Delegate_Imp1(object p0, bool p1)
 		{
 #if THREAD_SAFT || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -44,7 +70,7 @@ namespace XLua
 #endif
 		}
         
-		public XLua.LuaEnv __Gen_Delegate_Imp1(object p0)
+		public XLua.LuaEnv __Gen_Delegate_Imp2(object p0)
 		{
 #if THREAD_SAFT || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -71,7 +97,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp2(object p0)
+		public void __Gen_Delegate_Imp3(object p0)
 		{
 #if THREAD_SAFT || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -98,7 +124,7 @@ namespace XLua
 #endif
 		}
         
-		public System.Collections.IEnumerator __Gen_Delegate_Imp3(object p0, object p1)
+		public System.Collections.IEnumerator __Gen_Delegate_Imp4(object p0, object p1)
 		{
 #if THREAD_SAFT || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -126,7 +152,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp4(object p0, object p1)
+		public void __Gen_Delegate_Imp5(object p0, object p1)
 		{
 #if THREAD_SAFT || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -154,7 +180,7 @@ namespace XLua
 #endif
 		}
         
-		public byte[] __Gen_Delegate_Imp5(ref string p0)
+		public byte[] __Gen_Delegate_Imp6(ref string p0)
 		{
 #if THREAD_SAFT || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -221,27 +247,35 @@ namespace XLua
 			    return new __Gen_Hotfix_Delegate5(__Gen_Delegate_Imp5);
 			}
 		
+		    if (type == typeof(__Gen_Hotfix_Delegate6))
+			{
+			    return new __Gen_Hotfix_Delegate6(__Gen_Delegate_Imp6);
+			}
+		
 		    throw new InvalidCastException("This delegate must add to CSharpCallLua: " + type);
 		}
 	}
     
     
     [HotfixDelegate]
-    public delegate void __Gen_Hotfix_Delegate0(object p0, bool p1);
+    public delegate System.Collections.Generic.List<System.Type> __Gen_Hotfix_Delegate0();
     
     [HotfixDelegate]
-    public delegate XLua.LuaEnv __Gen_Hotfix_Delegate1(object p0);
+    public delegate void __Gen_Hotfix_Delegate1(object p0, bool p1);
     
     [HotfixDelegate]
-    public delegate void __Gen_Hotfix_Delegate2(object p0);
+    public delegate XLua.LuaEnv __Gen_Hotfix_Delegate2(object p0);
     
     [HotfixDelegate]
-    public delegate System.Collections.IEnumerator __Gen_Hotfix_Delegate3(object p0, object p1);
+    public delegate void __Gen_Hotfix_Delegate3(object p0);
     
     [HotfixDelegate]
-    public delegate void __Gen_Hotfix_Delegate4(object p0, object p1);
+    public delegate System.Collections.IEnumerator __Gen_Hotfix_Delegate4(object p0, object p1);
     
     [HotfixDelegate]
-    public delegate byte[] __Gen_Hotfix_Delegate5(ref string p0);
+    public delegate void __Gen_Hotfix_Delegate5(object p0, object p1);
+    
+    [HotfixDelegate]
+    public delegate byte[] __Gen_Hotfix_Delegate6(ref string p0);
     
 }

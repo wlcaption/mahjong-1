@@ -5,11 +5,42 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using UnityEngine;
+using XLua;
+using System.Reflection;
 
 namespace Maria {
 
     [XLua.Hotfix]
     public class Application : DisposeObject {
+
+        [LuaCallCSharp]
+        public static List<Type> LuaCallCsByProperty {
+            get {
+                List<Type> l = new List<Type>();
+                Assembly asm = Assembly.GetExecutingAssembly();
+                foreach (Type t in asm.GetTypes()) {
+                    if (t.Namespace == "Maria") {
+                        l.Add(t);
+                    }
+                }
+                return l;
+            }
+        }
+
+        [Hotfix]
+        public static List<Type> HotFixByProperty {
+            get {
+                List<Type> l = new List<Type>();
+                Assembly asm = Assembly.GetExecutingAssembly();
+                foreach (Type t in asm.GetTypes()) {
+                    if (t.Namespace == "Maria") {
+                        l.Add(t);
+                    }
+                }
+                return l;
+            }
+        }
+
         protected enum CoType {
             NONE = 0,
             THREAD = 1,

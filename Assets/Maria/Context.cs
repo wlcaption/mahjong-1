@@ -300,6 +300,13 @@ namespace Maria {
             return null;
         }
 
+        public Service QueryService(string name) {
+            if (_services.ContainsKey(name)) {
+                return _services[name];
+            }
+            return null;
+        }
+
         public void Enqueue(Command cmd) {
             _application.Enqueue(cmd);
         }
