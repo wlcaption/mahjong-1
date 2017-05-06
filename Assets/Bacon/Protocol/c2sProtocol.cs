@@ -101,11 +101,11 @@ public class C2sProtocol : ProtocolBase {
 	}
 
 	public class call {
-		public const int Tag = 7;
+		public const int Tag = 501;
 	}
 
 	public class checkindaily {
-		public const int Tag = 31;
+		public const int Tag = 8;
 	}
 
 	public class cmatch {
@@ -117,15 +117,15 @@ public class C2sProtocol : ProtocolBase {
 	}
 
 	public class dice {
-		public const int Tag = 9;
+		public const int Tag = 503;
 	}
 
 	public class fetchsysmail {
-		public const int Tag = 34;
+		public const int Tag = 12;
 	}
 
 	public class first {
-		public const int Tag = 30;
+		public const int Tag = 7;
 	}
 
 	public class handshake {
@@ -137,7 +137,7 @@ public class C2sProtocol : ProtocolBase {
 	}
 
 	public class lead {
-		public const int Tag = 10;
+		public const int Tag = 504;
 	}
 
 	public class leave {
@@ -145,7 +145,7 @@ public class C2sProtocol : ProtocolBase {
 	}
 
 	public class logout {
-		public const int Tag = 100;
+		public const int Tag = 17;
 	}
 
 	public class match {
@@ -153,51 +153,51 @@ public class C2sProtocol : ProtocolBase {
 	}
 
 	public class rchat {
-		public const int Tag = 13;
+		public const int Tag = 507;
 	}
 
 	public class record {
-		public const int Tag = 38;
+		public const int Tag = 16;
 	}
 
 	public class records {
-		public const int Tag = 37;
+		public const int Tag = 15;
 	}
 
 	public class restart {
-		public const int Tag = 12;
+		public const int Tag = 506;
 	}
 
 	public class shuffle {
-		public const int Tag = 8;
+		public const int Tag = 502;
 	}
 
 	public class step {
-		public const int Tag = 11;
+		public const int Tag = 505;
 	}
 
 	public class syncsysmail {
-		public const int Tag = 35;
+		public const int Tag = 13;
 	}
 
 	public class toast1 {
-		public const int Tag = 32;
+		public const int Tag = 9;
 	}
 
 	public class toast2 {
-		public const int Tag = 33;
+		public const int Tag = 10;
 	}
 
 	public class viewedsysmail {
-		public const int Tag = 36;
-	}
-
-	public class xuanpao {
 		public const int Tag = 14;
 	}
 
+	public class xuanpao {
+		public const int Tag = 508;
+	}
+
 	public class xuanque {
-		public const int Tag = 15;
+		public const int Tag = 509;
 	}
 
 }

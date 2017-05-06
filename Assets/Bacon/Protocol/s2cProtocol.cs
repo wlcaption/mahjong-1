@@ -128,15 +128,15 @@ public class S2cProtocol : ProtocolBase {
 	}
 
 	public class call {
-		public const int Tag = 9;
+		public const int Tag = 504;
 	}
 
 	public class deal {
-		public const int Tag = 13;
+		public const int Tag = 508;
 	}
 
 	public class dice {
-		public const int Tag = 11;
+		public const int Tag = 506;
 	}
 
 	public class exit_room {
@@ -144,11 +144,11 @@ public class S2cProtocol : ProtocolBase {
 	}
 
 	public class final_settle {
-		public const int Tag = 24;
+		public const int Tag = 519;
 	}
 
 	public class gang {
-		public const int Tag = 7;
+		public const int Tag = 502;
 	}
 
 	public class handshake {
@@ -156,7 +156,7 @@ public class S2cProtocol : ProtocolBase {
 	}
 
 	public class hu {
-		public const int Tag = 8;
+		public const int Tag = 503;
 	}
 
 	public class join {
@@ -164,7 +164,7 @@ public class S2cProtocol : ProtocolBase {
 	}
 
 	public class lead {
-		public const int Tag = 12;
+		public const int Tag = 507;
 	}
 
 	public class leave {
@@ -176,11 +176,11 @@ public class S2cProtocol : ProtocolBase {
 	}
 
 	public class over {
-		public const int Tag = 15;
+		public const int Tag = 510;
 	}
 
 	public class peng {
-		public const int Tag = 6;
+		public const int Tag = 501;
 	}
 
 	public class radio {
@@ -192,47 +192,47 @@ public class S2cProtocol : ProtocolBase {
 	}
 
 	public class rchat {
-		public const int Tag = 18;
+		public const int Tag = 513;
 	}
 
 	public class ready {
-		public const int Tag = 14;
+		public const int Tag = 509;
 	}
 
 	public class restart {
-		public const int Tag = 16;
+		public const int Tag = 511;
 	}
 
 	public class settle {
-		public const int Tag = 23;
+		public const int Tag = 518;
 	}
 
 	public class shuffle {
-		public const int Tag = 10;
+		public const int Tag = 505;
 	}
 
 	public class take_restart {
-		public const int Tag = 17;
+		public const int Tag = 512;
 	}
 
 	public class take_turn {
-		public const int Tag = 5;
+		public const int Tag = 500;
 	}
 
 	public class take_xuanpao {
-		public const int Tag = 19;
+		public const int Tag = 514;
 	}
 
 	public class take_xuanque {
-		public const int Tag = 21;
+		public const int Tag = 516;
 	}
 
 	public class xuanpao {
-		public const int Tag = 20;
+		public const int Tag = 515;
 	}
 
 	public class xuanque {
-		public const int Tag = 22;
+		public const int Tag = 517;
 	}
 
 }
