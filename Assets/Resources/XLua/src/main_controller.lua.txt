@@ -1,0 +1,4 @@
+xlua.hotfix(CS.Bacon.MainController, "First", function (self, obj, ... )
+	-- body
+	
+end)

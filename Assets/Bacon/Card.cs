@@ -52,6 +52,18 @@ namespace Bacon {
             _parent = null;
         }
 
+        //public void SetQueBrightness() {
+        //    _ctx.EnqueueRenderQueue(RenderQueBrightness);
+        //}
+
+        public void RenderQueBrightness() {
+            if (_que == 1) {
+                _go.GetComponent<Renderer>().material.SetFloat("_Brightness", 0.8f);
+            } else {
+                _go.GetComponent<Renderer>().material.SetFloat("_Brightness", 1.0f);
+            }
+        }
+
         public int CompareTo(Card other) {
             if (_que == other._que) {
                 return (int)(_value - other._value);

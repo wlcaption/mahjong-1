@@ -5,6 +5,7 @@ using System.Text;
 using Maria;
 using Sproto;
 using UnityEngine;
+using XLua;
 
 namespace Bacon {
     class MainController : Controller {
@@ -16,6 +17,7 @@ namespace Bacon {
         private MsgItem.Type _curtype;
         private string _tipscontent = string.Empty;
 
+        [Hotfix]
         public MainController(Context ctx) : base(ctx) {
             _name = "main";
 

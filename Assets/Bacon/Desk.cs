@@ -11,6 +11,8 @@ namespace Bacon {
         private float _width = 2.0f;
         private float _length = 2.0f;
         private float _height = 2.0f;
+        private float _curorMH = 0.1f;
+
         private int _clockleft = 0;
 
         public Desk(Context ctx, Controller controller, GameObject go)
@@ -20,6 +22,7 @@ namespace Bacon {
         public float Width { get { return _width; } }
         public float Length { get { return _length; } }
         public float Height { get { return _height; } }
+        public float CurorMH { get { return _curorMH; } }
 
         public void UpdateClock(int left) {
             _clockleft = left;
@@ -188,6 +191,6 @@ namespace Bacon {
         public void RenderTakeTurnBei() {
             _go.GetComponent<Board>().TakeTurnBei();
         }
-        
+
     }
 }

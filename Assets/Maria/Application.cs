@@ -45,6 +45,8 @@ namespace Maria {
                 _worker.IsBackground = true;
                 _worker.Start();
                 UnityEngine.Debug.LogWarning("create thread success.");
+            } else {
+                UnityEngine.Debug.LogWarning("create co success.");
             }
             _luaenv.AddLoader((ref string filepath) => {
                 filepath = filepath.Replace('.', '/') + ".lua";
@@ -115,6 +117,15 @@ namespace Maria {
             yield break;
         }
 
+        IEnumerator CoHandler(Actor.RenderHandler handler) {
+            try {
+                handler();
+            } catch (Exception ex) {
+                UnityEngine.Debug.LogException(ex);
+            }
+            yield break;
+        }
+
         private void CoWorker() {
             for (int i = 0; i < 1; i++) {
                 if (_dispatcher != null) {
@@ -139,13 +150,21 @@ namespace Maria {
         }
 
         public void Enqueue(Command cmd) {
-            lock (_queue) {
+            if (_cotype == CoType.THREAD) {
+                lock (_queue) {
+                    _queue.Enqueue(cmd);
+                }
+            } else {
                 _queue.Enqueue(cmd);
             }
         }
 
         public void EnqueueRenderQueue(Actor.RenderHandler handler) {
-            lock (_renderQueue) {
+            if (_cotype == CoType.THREAD) {
+                lock (_renderQueue) {
+                    _renderQueue.Enqueue(handler);
+                }
+            } else if (_cotype == CoType.CO) {
                 _renderQueue.Enqueue(handler);
             }
         }
@@ -158,7 +177,8 @@ namespace Maria {
                 CoWorker();
                 while (_renderQueue.Count > 0) {
                     Actor.RenderHandler handler = _renderQueue.Dequeue();
-                    handler();
+                    _app.StartCoroutine(CoHandler(handler));
+                    //handler();
                 }
             } else {
                 // 此段代码可以用协程

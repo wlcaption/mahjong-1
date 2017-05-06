@@ -12,7 +12,7 @@ namespace Maria.Network {
         public delegate void AuthedCb(int ok);
         public delegate void DisconnectedCb();
         
-        public delegate void RspCb(uint session, SprotoTypeBase responseObj);
+        public delegate void RspCb(uint session, SprotoTypeBase responseObj, object ud);
         public delegate SprotoTypeBase ReqCb(uint session, SprotoTypeBase requestObj);
 
         private class ReqPg {
@@ -28,7 +28,7 @@ namespace Maria.Network {
             public int Tag { get; set; }
             public int Version { get; set; }
             public int Index { get; set; }
-            public byte[] Buffer { get; set; }
+            public object Ud { get; set; }
         }
 
         private Context _ctx = null;
@@ -104,22 +104,26 @@ namespace Maria.Network {
             _req[tag] = cb;
         }
 
-        public void SendReq<T>(int tag, SprotoTypeBase obj) {
-            UnityEngine.Debug.Assert(_tcpflag == true);
-            uint id = genSession();
-            byte[] d = _sendRequest.Invoke<T>(obj, id);
-            UnityEngine.Debug.Assert(d != null);
+        public void SendReq<T>(int tag, SprotoTypeBase obj, object ud = null) {
+            //UnityEngine.Debug.Assert(_tcpflag == true);
+            if (_tcpflag) {
+                uint id = genSession();
 
-            RspPg pg = new RspPg();
-            pg.Session = id;
-            pg.Buffer = d;
-            pg.Index = _index;
-            pg.Tag = tag;
-            pg.Version = _version;
-            string key = idToHex(id);
-            _rspPg[key] = pg;
+                byte[] d = _sendRequest.Invoke<T>(obj, id);
+                UnityEngine.Debug.Assert(d != null);
 
-            _tcp.Send(d, 0, d.Length);
+                RspPg pg = new RspPg();
+                pg.Tag = tag;
+                pg.Session = id;
+                pg.Index = _index;
+                pg.Version = _version;
+                pg.Ud = ud;
+
+                string key = idToHex(id);
+                _rspPg[key] = pg;
+
+                _tcp.Send(d, 0, d.Length);
+            }
         }
 
         private byte[] WriteToken() {
@@ -208,7 +212,7 @@ namespace Maria.Network {
                     try {
                         RspPg pg = _rspPg[key];
                         var cb = _rsp[pg.Tag];
-                        cb(session, sinfo.responseObj);
+                        cb(session, sinfo.responseObj, pg.Ud);
                         _rspPg.Remove(key);
                     } catch (Exception ex) {
                         UnityEngine.Debug.LogException(ex);

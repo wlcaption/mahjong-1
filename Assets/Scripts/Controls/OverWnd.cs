@@ -14,12 +14,10 @@ public class OverWnd : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
-
     }
 
     // Update is called once per frame
     void Update() {
-
     }
 
     public void OnNext() {
@@ -40,69 +38,124 @@ public class OverWnd : MonoBehaviour {
         }
     }
 
-    public void SettleBottom(List<SettlementItem> li) {
-        GameObject label = ABLoader.current.LoadAsset<GameObject>("Prefabs/UI", "OverLable");
-        Transform content = _Bottom.transform.FindChild("Content");
-        long chip = 0;
+    private void AddSettleItem(int idx, int max, GameObject go, List<SettlementItem> li) {
+        GameObject label = ABLoader.current.LoadAsset<GameObject>("Prefabs/Controls", "SettleItem");
+
         for (int i = 0; i < li.Count; i++) {
-            string tips = string.Empty;
+            GameObject l = GameObject.Instantiate<GameObject>(label);
+
+            string cause = string.Empty;
+            string multiple = string.Empty;
+            string fen = string.Empty;
+            string who = string.Empty;
+
+            long xia = li[i].Idx + 1;
+            xia = xia > max ? xia - max : xia;
+            long dui = li[i].Idx + 2;
+            dui = dui > max ? dui - max : dui;
+            long sha = li[i].Idx + 3;
+            sha = sha > max ? sha - max : sha;
+
             if (li[i].Gang != OpCodes.OPCODE_NONE) {
                 if (li[i].Gang == OpCodes.OPCODE_BUGANG) {
-                    tips += "补杠";
-                    tips += string.Format("{0}", li[i].Chip);
+                    cause += "补杠";
                 } else if (li[i].Gang == OpCodes.OPCODE_ANGANG) {
-                    tips += "暗杠";
-                    tips += string.Format("{0}", li[i].Chip);
+                    cause += "暗杠";
                 } else if (li[i].Gang == OpCodes.OPCODE_ZHIGANG) {
-                    tips += "直杠";
-                    tips += string.Format("{0}", li[i].Chip);
+                    cause += "直杠";
                 }
-                GameObject label1 = Instantiate<GameObject>(label);
-                label1.GetComponent<Text>().text = tips;
-                label1.transform.SetParent(content);
-            } else {
-                UnityEngine.Debug.Assert(li[i].HuCode != HuType.NONE);
-                tips += HutypLangConfig.Instance.GetItem((int)li[i].HuCode).ch;
-                tips += string.Format("{0}", li[i].Chip);
-                GameObject label1 = Instantiate<GameObject>(label);
-                label1.GetComponent<Text>().text = tips;
-                label1.transform.SetParent(content);
+                fen = string.Format("{0}", li[i].Chip);
+
+                if (li[i].Idx == li[i].Win[0]) {
+                    // 赢家
+                    for (int j = 0; j < li[i].Lose.Count; j++) {
+                        if (xia == li[i].Lose[j]) {
+                            if (who.Length > 0) {
+                                who += ",下家";
+                            } else {
+                                who += "下家";
+                            }
+                        } else if (dui == li[i].Lose[j]) {
+                            if (who.Length > 0) {
+                                who += ",对家";
+                            } else {
+                                who += "对家";
+                            }
+                        } else if (sha == li[i].Lose[j]) {
+                            if (who.Length > 0) {
+                                who += ",上家";
+                            } else {
+                                who += "上家";
+                            }
+                        }
+                    }
+                } else if (li[i].TuiSui == 1) {
+                    for (int j = 0; j < li[i].Win.Count; j++) {
+                        if (xia == li[i].Win[j]) {
+                            if (who.Length > 0) {
+                                who += ",下家";
+                            } else {
+                                who += "下家";
+                            }
+                        } else if (dui == li[i].Win[j]) {
+                            if (who.Length > 0) {
+                                who += ",对家";
+                            } else {
+                                who += "对家";
+                            }
+                        } else if (sha == li[i].Win[j]) {
+                            if (who.Length > 0) {
+                                who += ",上家";
+                            } else {
+                                who += "上家";
+                            }
+                        }
+                    }
+                } 
+            } else if (li[i].HuCode != HuType.NONE) {
+                for (int j = 0; j < li[i].Lose.Count; j++) {
+                    if (xia == li[i].Lose[j]) {
+                        if (who.Length > 0) {
+                            who += ",下家";
+                        } else {
+                            who += "下家";
+                        }
+                    } else if (dui == li[i].Lose[j]) {
+                        if (who.Length > 0) {
+                            who += ",对家";
+                        } else {
+                            who += "对家";
+                        }
+                    } else if (sha == li[i].Lose[j]) {
+                        if (who.Length > 0) {
+                            who += ",上家";
+                        } else {
+                            who += "上家";
+                        }
+                    }
+                }
+                
             }
+
+            l.GetComponent<SettleItem>().Init(cause, multiple, fen, who);
+
         }
     }
 
-    public void SettleLeft(List<SettlementItem> li) {
-        GameObject label = ABLoader.current.LoadAsset<GameObject>("Prefabs/UI", "OverLable");
-        long chip = 0;
-        for (int i = 0; i < li.Count; i++) {
-            chip += li[i].Chip;
-        }
-        GameObject label1 = Instantiate<GameObject>(label);
-        Transform content = _Left.transform.FindChild("Content");
-        label1.transform.SetParent(content);
+    public void SettleBottom(int idx, int max, List<SettlementItem> li) {
+        AddSettleItem(idx, max, _Bottom, li);
     }
 
-    public void SettleTop(List<SettlementItem> li) {
-        GameObject label = ABLoader.current.LoadAsset<GameObject>("Prefabs/UI", "OverLable");
-        long chip = 0;
-        for (int i = 0; i < li.Count; i++) {
-            chip += li[i].Chip;
-        }
-        GameObject label1 = Instantiate<GameObject>(label);
-        Transform content = _Top.transform.FindChild("Content");
-        label1.transform.SetParent(content);
+    public void SettleLeft(int idx, int max, List<SettlementItem> li) {
+        AddSettleItem(idx, max, _Left, li);
     }
 
-    public void SettleRight(List<SettlementItem> li) {
-        GameObject label = ABLoader.current.LoadAsset<GameObject>("Prefabs/UI", "OverLable");
-        long chip = 0;
-        for (int i = 0; i < li.Count; i++) {
-            chip += li[i].Chip;
-        }
-        GameObject label1 = Instantiate<GameObject>(label);
-        Transform content = _Right.transform.FindChild("Content");
-        label1.transform.SetParent(content);
+    public void SettleTop(int idx, int max, List<SettlementItem> li) {
+        AddSettleItem(idx, max, _Top, li);
     }
 
+    public void SettleRight(int idx, int max, List<SettlementItem> li) {
+        AddSettleItem(idx, max, _Right, li);
+    }
 
 }

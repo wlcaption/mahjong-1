@@ -25,14 +25,14 @@ namespace Bacon {
             _leftoffset = 0.5f;
             _bottomoffset = 1.72f;
 
+            _leadcardoffset = new Vector3(-0.05f, 0.0f, 0.0f);
             _leadleftoffset = 0.8f;
             _leadbottomoffset = 0.8f;
-
-            _leadcardoffset = new Vector3(-0.05f, 0.0f, 0.0f);
 
             _putbottomoffset = 0.1f - Card.Length / 2.0f;
             _putrightoffset = 0.55f - Card.Width / 2.0f;
 
+            // 手
             _rhandinitpos = new Vector3(1.6f, -1.8f, 3.0f);
             _rhandinitrot = Quaternion.Euler(0.0f, 180.0f, 0.0f);
             _rhandleadoffset = new Vector3(0.597f, -1.967f, 1.124f);
@@ -336,7 +336,7 @@ namespace Bacon {
             } else if (_que == Card.CardType.Dot) {
                 _go.GetComponent<global::TopPlayer>().Head.ShowMark("同");
             }
-            RenderSortCardsToDo(() => {
+            RenderSortCardsToDo(_sortcardsdelta, () => {
             });
         }
 
@@ -350,7 +350,7 @@ namespace Bacon {
                 _holdcard.Go.transform.localRotation = _backv;
 
                 Sequence mySequence = DOTween.Sequence();
-                mySequence.Append(_holdcard.Go.transform.DOLocalMove(dst, _holddelta));
+                mySequence.Append(_holdcard.Go.transform.DOLocalMove(dst, _holddowndelta));
             }
         }
 
@@ -447,7 +447,7 @@ namespace Bacon {
                     pg.Cards[i].Go.transform.localPosition = new Vector3(x, y, z) - _putmove;
                 }
                 RenderGang1(() => {
-                    RenderSortCardsToDo(() => {
+                    RenderSortCardsToDo(_pgsortcardsdelta, () => {
                         Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
                         _ctx.Enqueue(cmd);
                     });
@@ -469,13 +469,13 @@ namespace Bacon {
                 }
                 RenderGang1(() => {
                     if (pg.Cards[3].Value == _holdcard.Value) {
-                        RenderSortCardsToDo(() => {
+                        RenderSortCardsToDo(_pgsortcardsdelta, () => {
                             Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
                             _ctx.Enqueue(cmd);
                         });
                     } else {
                         if (_holdcard.Pos == (_cards.Count - 1)) {
-                            RenderSortCardsToDo(() => {
+                            RenderSortCardsToDo(_pgsortcardsdelta, () => {
                                 Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
                                 _ctx.Enqueue(cmd);
                             });
@@ -603,7 +603,8 @@ namespace Bacon {
         protected override void RenderFinalSettle() {
             _com.Head.SetHu(false);
             _com.Head.CloseWAL();
-            _com.OverWnd.SettleLeft(_settle);
+            int max = (int)_ctx.QueryService<GameService>(GameService.Name).Max;
+            _com.OverWnd.SettleLeft(_idx, max, _settle);
         }
 
         protected override void RenderRestart() {

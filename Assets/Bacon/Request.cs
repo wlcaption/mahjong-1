@@ -14,6 +14,8 @@ namespace Bacon {
             _cs.RegisterRequest(S2cProtocol.match.Tag, match);
             _cs.RegisterRequest(S2cProtocol.join.Tag, join);
             _cs.RegisterRequest(S2cProtocol.leave.Tag, leave);
+            _cs.RegisterRequest(S2cProtocol.afk.Tag, afk);
+            _cs.RegisterRequest(S2cProtocol.authed.Tag, authed);
 
             _cs.RegisterRequest(S2cProtocol.ready.Tag, ready);
             _cs.RegisterRequest(S2cProtocol.shuffle.Tag, shuffle);
@@ -48,6 +50,11 @@ namespace Bacon {
         }
 
         #region enter room
+        public SprotoTypeBase match(uint session, SprotoTypeBase requestObj) {
+            MainController controller = _ctx.Peek<MainController>();
+            return controller.OnMatch(requestObj);
+        }
+
         public SprotoTypeBase join(uint session, SprotoTypeBase requestObj) {
             GameService service = _ctx.QueryService<GameService>(GameService.Name);
             UnityEngine.Debug.Assert(service != null);
@@ -60,9 +67,14 @@ namespace Bacon {
             return service.OnLeave(requestObj);
         }
 
-        public SprotoTypeBase match(uint session, SprotoTypeBase requestObj) {
-            MainController controller = _ctx.Peek<MainController>();
-            return controller.OnMatch(requestObj);
+        public SprotoTypeBase afk(uint session, SprotoTypeBase requestObj) {
+            GameService service = _ctx.QueryService<GameService>(GameService.Name);
+            return service.OnAfk(requestObj);
+        }
+
+        public SprotoTypeBase authed(uint session, SprotoTypeBase requestObj) {
+            GameService service = _ctx.QueryService<GameService>(GameService.Name);
+            return service.OnAuthed(requestObj);
         }
         #endregion
 

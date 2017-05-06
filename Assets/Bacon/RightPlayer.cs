@@ -25,16 +25,18 @@ namespace Bacon {
             _leftoffset = 0.5f;
             _bottomoffset = 1.7f;
 
+            _leadcardoffset = new Vector3(0.0f, 0.0f, 0.05f);
             _leadleftoffset = 0.8f;
             _leadbottomoffset = 0.8f;
 
-            _leadcardoffset = new Vector3(0.0f, 0.0f, 0.05f);
+            _putbottomoffset = 0.07f - Card.Length / 2.0f;
+            _putrightoffset = 0.55f - Card.Width / 2.0f;
 
-            _putbottomoffset = 0.07f - Card.Length /2.0f;
-            _putrightoffset = 0.55f - Card.Width /2.0f;
+            //
+            _hurightoffset = 0.2f;
+            _hubottomoffset = 0.4f;
 
-            _holdnaoffset = new Vector3(0.0f, Card.Length + 0.1f, 0.0f);
-
+            // 手
             _rhandinitpos = new Vector3(4.0f, -1.8f, 0.4f);
             _rhandinitrot = Quaternion.Euler(0.0f, -90.0f, 0.0f);
             _rhandleadoffset = new Vector3(1.08f, -1.95f, -0.6f);
@@ -292,7 +294,7 @@ namespace Bacon {
             } else if (_que == Card.CardType.Dot) {
                 _go.GetComponent<global::RightPlayer>().Head.ShowMark("同");
             }
-            RenderSortCardsToDo(() => {
+            RenderSortCardsToDo(_sortcardsdelta, () => {
             });
         }
 
@@ -306,7 +308,7 @@ namespace Bacon {
                 _holdcard.Go.transform.localRotation = _backv;
 
                 Sequence mySequence = DOTween.Sequence();
-                mySequence.Append(_holdcard.Go.transform.DOLocalMove(dst, _holddelta));
+                mySequence.Append(_holdcard.Go.transform.DOLocalMove(dst, _holddowndelta));
             }
         }
 
@@ -404,7 +406,7 @@ namespace Bacon {
                 }
 
                 RenderGang1(() => {
-                    RenderSortCardsToDo(() => {
+                    RenderSortCardsToDo(_sortcardsdelta, () => {
                         Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
                         _ctx.Enqueue(cmd);
                     });
@@ -428,13 +430,13 @@ namespace Bacon {
 
                 RenderGang1(() => {
                     if (pg.Cards[3].Value == _holdcard.Value) {
-                        RenderSortCardsToDo(() => {
+                        RenderSortCardsToDo(_sortcardsdelta, () => {
                             Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
                             _ctx.Enqueue(cmd);
                         });
                     } else {
                         if (_holdcard.Pos == (_cards.Count - 1)) {
-                            RenderSortCardsToDo(() => {
+                            RenderSortCardsToDo(_sortcardsdelta, () => {
                                 Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
                                 _ctx.Enqueue(cmd);
                             });
@@ -496,7 +498,7 @@ namespace Bacon {
             _go.transform.localPosition = new Vector3(x, y, z);
             _go.transform.localRotation = _upv;
 
-            ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(x, y + _curorMH, z));
+            ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(x, y + desk.CurorMH, z));
 
             _com.Head.SetHu(true);
 
@@ -530,8 +532,8 @@ namespace Bacon {
                     float x = desk.Width - (_bottomoffset + Card.Height / 2.0f);
                     float y = Card.Height / 2.0f;
                     float z = _leftoffset + Card.Width * i + Card.Width / 2.0f;
-                    _cards[i].Go.transform.DOLocalMove(new Vector3(x, y, z), _fangdaodelta);
-                    Tween t3 = _cards[i].Go.transform.DOLocalRotateQuaternion(_upv, _fangdaodelta);
+                    _cards[i].Go.transform.DOLocalMove(new Vector3(x, y, z), _fangdaopaidelta);
+                    Tween t3 = _cards[i].Go.transform.DOLocalRotateQuaternion(_upv, _fangdaopaidelta);
 
                     Sequence mySequence3 = DOTween.Sequence();
                     mySequence3.Append(t3)
@@ -578,7 +580,8 @@ namespace Bacon {
         protected override void RenderFinalSettle() {
             _com.Head.SetHu(false);
             _com.Head.CloseWAL();
-            _com.OverWnd.SettleLeft(_settle);
+            int max = (int)(_ctx.QueryService<GameService>(GameService.Name).Max);
+            _com.OverWnd.SettleLeft(_idx, max, _settle);
         }
 
         protected override void RenderRestart() {

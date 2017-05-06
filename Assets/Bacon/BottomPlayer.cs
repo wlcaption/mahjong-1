@@ -24,14 +24,14 @@ namespace Bacon {
             _leftoffset = 0.5f;
             _bottomoffset = 0.2f;
 
+            _leadcardoffset = new Vector3(0.05f, 0.0f, 0.0f);
             _leadleftoffset = 0.8f;
             _leadbottomoffset = 0.8f;
-
-            _leadcardoffset = new Vector3(0.05f, 0.0f, 0.0f);
 
             _putbottomoffset = 0.235f - Card.Length / 2.0f;
             _putrightoffset = 0.25f - Card.Width / 2.0f;
 
+            // 手
             _rhandinitpos = new Vector3(0.4f, -1.0f, -1.8f);
             _rhandinitrot = Quaternion.Euler(30.0f, 0.0f, 0.0f);
             _rhanddiuszoffset = new Vector3(0.154f, -1.965f, 0.123f);
@@ -72,6 +72,9 @@ namespace Bacon {
 
         public override void Init() {
             base.Init();
+            if (_sex == 1) {
+
+            }
         }
 
         protected override void RenderPlayFlameCountdown() {
@@ -363,7 +366,7 @@ namespace Bacon {
                 Sequence mySequence = DOTween.Sequence();
                 mySequence.Append(t)
                     .AppendCallback(() => {
-                       
+
                         _oknum++;
                         if (_oknum >= count) {
                             _oknum = 0;
@@ -421,6 +424,7 @@ namespace Bacon {
             UnityEngine.Debug.Assert(_takefirst);
             _com.HoldCard = _holdcard.Go;
 
+            _holdcard.RenderQueBrightness();
             RenderTakeCard(() => {
                 Command cmd = new Command(MyEventCmd.EVENT_TAKEFIRSTCARD);
                 _ctx.Enqueue(cmd);
@@ -442,6 +446,10 @@ namespace Bacon {
         }
 
         protected override void RenderXuanQue() {
+            if (_xuanque.activeSelf) {
+                _xuanque.SetActive(false);
+            }
+
             if (_que == Card.CardType.Bam) {
                 _go.GetComponent<global::BottomPlayer>().Head.ShowMark("条");
             } else if (_que == Card.CardType.Crak) {
@@ -449,7 +457,10 @@ namespace Bacon {
             } else if (_que == Card.CardType.Dot) {
                 _go.GetComponent<global::BottomPlayer>().Head.ShowMark("筒");
             }
-            RenderSortCardsToDo(() => {
+            RenderSortCardsToDo(0.0f, () => {
+                for (int i = 0; i < _cards.Count; i++) {
+                    _cards[i].RenderQueBrightness();
+                }
             });
         }
 
@@ -458,6 +469,8 @@ namespace Bacon {
 
             if (_turntype == 1) {
                 _com.HoldCard = _holdcard.Go;
+                _holdcard.RenderQueBrightness();
+
                 RenderTakeCard(() => {
                     _com.SwitchOnTouch();
                 });
@@ -470,7 +483,7 @@ namespace Bacon {
                 _com.HoldCard = _holdcard.Go;
 
                 Sequence mySequence = DOTween.Sequence();
-                mySequence.Append(_holdcard.Go.transform.DOLocalMove(dst, _holddelta))
+                mySequence.Append(_holdcard.Go.transform.DOLocalMove(dst, _holdafterpengdelta))
                     .AppendCallback(() => {
                         UnityEngine.Debug.Assert(_hashu == false);
                         _go.GetComponent<global::BottomPlayer>().SwitchOnTouch();
@@ -519,6 +532,8 @@ namespace Bacon {
                 _com.HoldCard = null;
             }
 
+            _leadcard.RenderQueBrightness();
+
             _rhand.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
             RenderLead1(RenderLead1Cb);
         }
@@ -534,14 +549,14 @@ namespace Bacon {
                 (Call.Hu.Code != HuType.NONE && Call.Hu.Jiao == JiaoType.DIANGANGHUA) ||
                 (Call.Hu.Code != HuType.NONE && Call.Hu.Jiao == JiaoType.ZIGANGHUA)) {
                 Vector3 dst = CalcPos(_cards.Count + 1);
-                dst.y = dst.y + Card.Length;
-                _holdcard.Go.transform.localPosition = dst;
-                _holdcard.Go.transform.localRotation = Quaternion.AngleAxis(-60, Vector3.right);
+                _holdcard.Go.transform.localPosition = dst + _holdnaoffset;
+                _holdcard.Go.transform.localRotation = _backv;
 
                 _com.HoldCard = _holdcard.Go;
+                _holdcard.RenderQueBrightness();
 
                 Sequence mySequence = DOTween.Sequence();
-                mySequence.Append(_holdcard.Go.transform.DOMoveY(Card.Length / 2.0f, _holddelta))
+                mySequence.Append(_holdcard.Go.transform.DOLocalMove(dst, _holddowndelta))
                     .AppendCallback(() => {
                         if (_hashu) {
                             if (Call.Hu.Code != HuType.NONE) {
@@ -590,6 +605,7 @@ namespace Bacon {
         }
 
         protected override void RenderClearCall() {
+
             _com.CloseAll();
             _com.Head.CloseTips();
             _com.Head.CloseWAL();
@@ -675,7 +691,7 @@ namespace Bacon {
                 }
 
                 RenderGang1(() => {
-                    RenderSortCardsToDo(() => {
+                    RenderSortCardsToDo(_pgsortcardsdelta, () => {
                         Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
                         _ctx.Enqueue(cmd);
                     });
@@ -696,9 +712,9 @@ namespace Bacon {
                     pg.Cards[i].Go.transform.localPosition = new Vector3(x, y, z) - _putmove;
                 }
                 RenderGang1(() => {
+
                     Vector3 dst = _putcards[_putidx].Cards[3].Go.transform.localPosition;
-                    dst.y = dst.y + _curorMH;
-                    ((GameController)_controller).Desk.RenderChangeCursor(dst);
+                    ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(dst.x, dst.y + desk.CurorMH, dst.z));
 
                     if (pg.Cards[3].Value == _holdcard.Value) {
                         // 娓呴櫎go
@@ -707,7 +723,7 @@ namespace Bacon {
                         }
                         _com.HoldCard = null;
 
-                        RenderSortCardsToDo(() => {
+                        RenderSortCardsToDo(_pgsortcardsdelta, () => {
                             Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
                             _ctx.Enqueue(cmd);
                         });
@@ -719,7 +735,7 @@ namespace Bacon {
                         _com.Add(_holdcard);
 
                         if (_holdcard.Pos == (_cards.Count - 1)) {
-                            RenderSortCardsToDo(() => {
+                            RenderSortCardsToDo(_pgsortcardsdelta, () => {
                                 Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
                                 _ctx.Enqueue(cmd);
                             });
@@ -741,8 +757,7 @@ namespace Bacon {
 
                 RenderGang1(() => {
                     Vector3 dst = _putcards[_putidx].Cards[3].Go.transform.localPosition;
-                    dst.y = dst.y + _curorMH;
-                    ((GameController)_controller).Desk.RenderChangeCursor(dst);
+                    ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(dst.x, dst.y + desk.CurorMH, +dst.z));
 
                     if (_holdcard.Value == pg.Cards[3].Value) {
                         _com.HoldCard = null;
@@ -754,7 +769,7 @@ namespace Bacon {
                         _com.Add(_holdcard);
 
                         if (_holdcard.Pos == (_cards.Count - 1)) {
-                            RenderSortCardsToDo(() => {
+                            RenderSortCardsToDo(_pgsortcardsdelta, () => {
                                 Command cmd = new Command(MyEventCmd.EVENT_GANGCARD);
                                 _ctx.Enqueue(cmd);
                             });
@@ -797,7 +812,7 @@ namespace Bacon {
             float z = _hubottomoffset + Card.Length / 2.0f;
             card.Go.transform.localPosition = new Vector3(x, y, z);
             card.Go.transform.localRotation = _upv;
-            ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(x, y + _curorMH, z));
+            ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(x, y + desk.CurorMH, z));
 
             _com.Head.SetHu(true);
 
@@ -880,7 +895,8 @@ namespace Bacon {
         protected override void RenderFinalSettle() {
             _com.Head.SetHu(false);
             _com.Head.CloseWAL();
-            _com.OverWnd.SettleBottom(_settle);
+            GameService service = _ctx.QueryService<GameService>(GameService.Name);
+            _com.OverWnd.SettleBottom(_idx, (int)service.Max, _settle);
         }
 
         protected override void RenderRestart() {

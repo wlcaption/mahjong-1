@@ -11,6 +11,7 @@ public class Hand : MonoBehaviour {
         NAPAI_COMPLETED,
         FANGPAI_COMPLETED,
         HUPAI_COMPLETED,
+        PENGGANG_COMPLETED,
     }
 
     protected Animator _animator;
@@ -84,6 +85,14 @@ public class Hand : MonoBehaviour {
     protected void OnHupaiCompleted() {
         if (_callback.ContainsKey(EVENT.HUPAI_COMPLETED)) {
             var cb = _callback[EVENT.HUPAI_COMPLETED];
+            cb();
+        }
+        _callback.Clear();
+    }
+
+    protected void OnPengGangCompleted() {
+        if (_callback.ContainsKey(EVENT.PENGGANG_COMPLETED)) {
+            var cb = _callback[EVENT.PENGGANG_COMPLETED];
             cb();
         }
         _callback.Clear();

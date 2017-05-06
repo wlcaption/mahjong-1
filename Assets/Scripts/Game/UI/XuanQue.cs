@@ -6,6 +6,10 @@ using Bacon;
 
 public class XuanQue : MonoBehaviour {
 
+    public GameObject _Crak;
+    public GameObject _Bam;
+    public GameObject _Dot;
+
     // Use this for initialization
     void Start() {
         transform.localPosition = Vector3.zero;
@@ -20,7 +24,16 @@ public class XuanQue : MonoBehaviour {
     public void Show() {
         if (!gameObject.activeSelf) {
             gameObject.SetActive(true);
-            transform.localPosition = Vector3.zero;
+        }
+        transform.localPosition = Vector3.zero;
+        if (!_Crak.activeSelf) {
+            _Crak.SetActive(true);
+        }
+        if (!_Bam.activeSelf) {
+            _Bam.SetActive(true);
+        }
+        if (!_Dot.activeSelf) {
+            _Dot.SetActive(true);
         }
     }
 
@@ -35,7 +48,12 @@ public class XuanQue : MonoBehaviour {
         msg["cardtype"] = Card.CardType.Crak;
         Command cmd = new Command(MyEventCmd.EVENT_XUANQUE, gameObject, msg);
         GetComponent<FindApp>().App.Enqueue(cmd);
-        Close();
+        if (_Bam.activeSelf) {
+            _Bam.SetActive(false);
+        }
+        if (_Dot.activeSelf) {
+            _Dot.SetActive(false);
+        }
     }
 
     public void OnBam() {
@@ -43,7 +61,12 @@ public class XuanQue : MonoBehaviour {
         msg["cardtype"] = Card.CardType.Bam;
         Command cmd = new Command(MyEventCmd.EVENT_XUANQUE, gameObject, msg);
         GetComponent<FindApp>().App.Enqueue(cmd);
-        Close();
+        if (_Crak.activeSelf) {
+            _Crak.SetActive(false);
+        }
+        if (_Dot.activeSelf) {
+            _Dot.SetActive(false);
+        }
     }
 
     public void OnDot() {
@@ -51,6 +74,11 @@ public class XuanQue : MonoBehaviour {
         msg["cardtype"] = Card.CardType.Dot;
         Command cmd = new Command(MyEventCmd.EVENT_XUANQUE, gameObject, msg);
         GetComponent<FindApp>().App.Enqueue(cmd);
-        Close();
+        if (_Crak.activeSelf) {
+            _Crak.SetActive(false);
+        }
+        if (_Bam.activeSelf) {
+            _Bam.SetActive(false);
+        }
     }
 }

@@ -6,6 +6,14 @@ using System.Collections.Generic;
 public class S2cProtocol : ProtocolBase {
 	public static  S2cProtocol Instance = new S2cProtocol();
 	private S2cProtocol() {
+		Protocol.SetProtocol<afk> (afk.Tag);
+		Protocol.SetRequest<S2cSprotoType.afk.request> (afk.Tag);
+		Protocol.SetResponse<S2cSprotoType.afk.response> (afk.Tag);
+
+		Protocol.SetProtocol<authed> (authed.Tag);
+		Protocol.SetRequest<S2cSprotoType.authed.request> (authed.Tag);
+		Protocol.SetResponse<S2cSprotoType.authed.response> (authed.Tag);
+
 		Protocol.SetProtocol<call> (call.Tag);
 		Protocol.SetRequest<S2cSprotoType.call.request> (call.Tag);
 		Protocol.SetResponse<S2cSprotoType.call.response> (call.Tag);
@@ -109,6 +117,14 @@ public class S2cProtocol : ProtocolBase {
 		Protocol.SetRequest<S2cSprotoType.xuanque.request> (xuanque.Tag);
 		Protocol.SetResponse<S2cSprotoType.xuanque.response> (xuanque.Tag);
 
+	}
+
+	public class afk {
+		public const int Tag = 25;
+	}
+
+	public class authed {
+		public const int Tag = 26;
 	}
 
 	public class call {

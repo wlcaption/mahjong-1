@@ -48,15 +48,15 @@ public class StartBehaviour : MonoBehaviour {
 
     public void TestRes() {
         ABLoader.current.LoadPath();
-        ABLoader.current.LoadAssetAsync<AudioClip>("Sound/Man", "peng", (AudioClip clip) => {
-            UnityEngine.Debug.Log("ok");
-            //Command cmd = new Command(MyEventCmd.EVENT_UPdATERES);
-            //_root.App.Enqueue(cmd);
-        });
+        //ABLoader.current.LoadAssetAsync<AudioClip>("Sound/Man", "peng", (AudioClip clip) => {
+        //    UnityEngine.Debug.Log("ok");
+        //    //Command cmd = new Command(MyEventCmd.EVENT_UPdATERES);
+        //    //_root.App.Enqueue(cmd);
+        //});
 
-        ABLoader.current.LoadAssetAsync<AudioClip>("Sound/Woman", "bam1", (AudioClip clip) => {
-            UnityEngine.Debug.Log("ok");
-        });
+        //ABLoader.current.LoadAssetAsync<AudioClip>("Sound/Woman", "bam1", (AudioClip clip) => {
+        //    UnityEngine.Debug.Log("ok");
+        //});
 
     }
 }

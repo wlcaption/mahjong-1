@@ -37,84 +37,84 @@ namespace Maria.Network {
             _cs.RegisterResponse(C2sProtocol.logout.Tag, logout);
         }
 
-        public void handshake(uint session, SprotoTypeBase responseObj) {
+        public void handshake(uint session, SprotoTypeBase responseObj, object ud) {
             InitService service = _ctx.QueryService<InitService>(InitService.Name);
             if (service != null) {
                 service.Handshake(responseObj);
             }
         }
 
-        public void match(uint session, SprotoTypeBase responseObj) {
+        public void match(uint session, SprotoTypeBase responseObj, object ud) {
             MainController ctr = _ctx.Peek<MainController>();
             ctr.Match(responseObj);
         }
 
-        public void create(uint session, SprotoTypeBase responseObj) {
+        public void create(uint session, SprotoTypeBase responseObj, object ud) {
             GameService service = _ctx.QueryService<GameService>(GameService.Name);
             UnityEngine.Debug.Assert(service != null);
             service.Create(responseObj);
         }
 
-        public void join(uint session, SprotoTypeBase responseObj) {
+        public void join(uint session, SprotoTypeBase responseObj, object ud) {
             GameService service = _ctx.QueryService<GameService>(GameService.Name);
             if (service != null) {
                 service.Join(responseObj);
             }
         }
 
-        public void leave(uint session, SprotoTypeBase responseObj) {
+        public void leave(uint session, SprotoTypeBase responseObj, object ud) {
             GameService service = _ctx.QueryService<GameService>(GameService.Name);
             if (service != null) {
                 service.Leave(responseObj);
             }
         }
 
-        public void call(uint session, SprotoTypeBase responseObj) { }
+        public void call(uint session, SprotoTypeBase responseObj, object ud) { }
 
-        public void lead(uint session, SprotoTypeBase responseObj) { }
+        public void lead(uint session, SprotoTypeBase responseObj, object ud) { }
 
-        public void step(uint session, SprotoTypeBase responseObj) {
+        public void step(uint session, SprotoTypeBase responseObj, object ud) {
             GameService service = _ctx.QueryService<GameService>(GameService.Name);
             if (service != null) {
                 service.Step(responseObj);
             }
         }
 
-        public void restart(uint session, SprotoTypeBase responseObj) {
+        public void restart(uint session, SprotoTypeBase responseObj, object ud) {
         }
 
-        public void first(uint session, SprotoTypeBase responseObj) {
+        public void first(uint session, SprotoTypeBase responseObj, object ud) {
             MainController ctr = _ctx.Peek<MainController>();
             ctr.First(responseObj);
         }
 
-        public void fetchsysmail(uint session, SprotoTypeBase responseObj) {
+        public void fetchsysmail(uint session, SprotoTypeBase responseObj, object ud) {
             MainController ctr = _ctx.Peek<MainController>();
             ctr.FetchSysmail(responseObj);
         }
 
-        public void syncsysmail(uint session, SprotoTypeBase responseObj) {
+        public void syncsysmail(uint session, SprotoTypeBase responseObj, object ud) {
             MainController ctr = _ctx.Peek<MainController>();
             ctr.SyncSysmail(responseObj);
         }
 
-        public void rchat(uint session, SprotoTypeBase responseObj) { }
+        public void rchat(uint session, SprotoTypeBase responseObj, object ud) { }
 
-        public void xuanpao(uint session, SprotoTypeBase responseObj) { }
-        public void xuanque(uint session, SprotoTypeBase responseObj) { }
+        public void xuanpao(uint session, SprotoTypeBase responseObj, object ud) { }
+        public void xuanque(uint session, SprotoTypeBase responseObj, object ud) { }
 
-        public void records(uint session, SprotoTypeBase responseObj) {
+        public void records(uint session, SprotoTypeBase responseObj, object ud) {
             MainController ctr = _ctx.Peek<MainController>();
             ctr.Records(responseObj);
         }
 
-        public void record(uint session, SprotoTypeBase responseObj) {
+        public void record(uint session, SprotoTypeBase responseObj, object ud) {
             PlayService service = _ctx.QueryService<PlayService>(PlayService.Name);
             UnityEngine.Debug.Assert(service != null);
             service.record(responseObj);
         }
 
-        public void logout(uint session, SprotoTypeBase responseObj) {
+        public void logout(uint session, SprotoTypeBase responseObj, object ud) {
             MainController ctr = _ctx.Peek<MainController>();
             ctr.FetchSysmail(responseObj);
         }

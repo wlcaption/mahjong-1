@@ -15,6 +15,7 @@ namespace Bacon {
         private long _roomid = 0;
         private long _max = 0;
         private long _myidx = 0;
+        private long _joined = 0;
         private long _online = 0;
         private bool _host = false;
 
@@ -74,6 +75,7 @@ namespace Bacon {
                     _playes[_myidx] = player;
                     UnityEngine.Debug.Assert(_ctx.U.Subid == obj.me.sid);
 
+                    _joined++;
                     _online++;
                 } catch (Exception ex) {
                     UnityEngine.Debug.LogException(ex);
@@ -102,6 +104,8 @@ namespace Bacon {
                 _myidx = obj.me.idx;
                 _playes[_myidx] = player;
                 UnityEngine.Debug.Assert(_ctx.U.Subid == obj.me.sid);
+
+                _joined++;
                 _online++;
 
                 if (obj.ps != null && obj.ps.Count > 0) {
@@ -153,6 +157,7 @@ namespace Bacon {
                             default:
                                 break;
                         }
+                        _joined++;
                         _online++;
                     }
                 }
@@ -226,6 +231,7 @@ namespace Bacon {
                         break;
                 }
             }
+            _joined++;
             _online++;
             SendStep();
 
@@ -243,9 +249,31 @@ namespace Bacon {
 
         public SprotoTypeBase OnLeave(SprotoTypeBase requestObj) {
             //S2cSprotoType.leave.request obj = requestObj as S2cSprotoType.leave.request;
+            _joined--;
             _online--;
 
             S2cSprotoType.leave.response responseObj = new S2cSprotoType.leave.response();
+            responseObj.errorcode = Errorcode.SUCCESS;
+            return responseObj;
+        }
+
+        public SprotoTypeBase OnAfk(SprotoTypeBase requestObj) {
+            S2cSprotoType.afk.request obj = requestObj as S2cSprotoType.afk.request;
+            //_playes[obj.idx]:Afk()
+
+            _online--;
+
+            S2cSprotoType.afk.response responseObj = new S2cSprotoType.afk.response();
+            responseObj.errorcode = Errorcode.SUCCESS;
+            return responseObj;
+        }
+
+        public SprotoTypeBase OnAuthed(SprotoTypeBase requestObj) {
+            S2cSprotoType.authed.request obj = requestObj as S2cSprotoType.authed.request;
+
+            _online++;
+
+            S2cSprotoType.authed.response responseObj = new S2cSprotoType.authed.response();
             responseObj.errorcode = Errorcode.SUCCESS;
             return responseObj;
         }

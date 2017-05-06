@@ -1,3 +1,5 @@
+local main_controller = require "main_controller"
+
 xlua.hotfix(CS.Maria.Application, 'XluaTest', function (self) 
 	CS.UnityEngine.Debug.Log('xlua hello world')
 end)

@@ -19,7 +19,7 @@ namespace Bacon {
         protected Quaternion _uph = Quaternion.identity;
         protected Quaternion _downv = Quaternion.identity;
         protected Quaternion _backv = Quaternion.identity;
-        protected const float _curorMH = 0.1f;
+
 
         protected Orient _ori;
         protected int _idx;
@@ -28,10 +28,11 @@ namespace Bacon {
         protected int _sid;
         protected string _name;
 
-        protected long _d1;
+        protected long _d1;  // 但前色子点数
         protected long _d2;
+        protected long _cd;  // 当前倒计时
 
-        // 每个player可能不一样
+        // 自己整理的牌
         protected float _takeleftoffset = 0.5f;
         protected float _takebottomoffset = 0.35f;
         protected float _takemove = 0.15f;
@@ -42,45 +43,47 @@ namespace Bacon {
         protected int _takecardslen = 0;
         protected Dictionary<int, Card> _takecards = new Dictionary<int, Card>();
 
-        // 重写
+        // 手上的牌
+        protected bool _takefirst = false;                 // 庄家
         protected float _leftoffset = 0.56f;
         protected float _bottomoffset = 0.1f;
-
-        protected bool _takefirst = false;                 // 庄家
         protected List<Card> _cards = new List<Card>();
 
-        // 重写
+        // 出的牌
+        protected Card _leadcard;                        // 当前出的那张牌
+        protected Vector3 _leadcardoffset = Vector3.one; // 当前出牌时便宜值做动作移动
         protected float _leadleftoffset = 0.7f;
         protected float _leadbottomoffset = 0.7f;  // 偏移起始值
         protected List<Card> _leadcards = new List<Card>();
 
-        protected Vector3 _putmove = Vector3.zero;
+        // 碰杠的牌
         protected const float _putmovedelta = 0.1f;
         protected const float _putmargin = 0.02f;
-
-        // 重写
-
+        protected Vector3 _putmove = Vector3.zero;
         protected float _putrightoffset = 0.1f;
         protected float _putbottomoffset = 0.1f;
         protected int _putidx = 0;
         protected List<PGCards> _putcards = new List<PGCards>();
 
-        protected const float _hurightoffset = 0.2f;
-        protected const float _hubottomoffset = 0.4f;
+        // 胡的牌
+        protected float _hurightoffset = 0.2f;
+        protected float _hubottomoffset = 0.4f;
         protected List<Card> _hucards = new List<Card>();
 
-        protected Vector3 _holdnaoffset = new Vector3(0.0f, Card.Length + 0.1f, 0.0f);
+        // 摸的牌
+        protected Card _holdcard;                                                       // 摸的那张牌
+        protected Vector3 _holdnaoffset = new Vector3(0.0f, Card.Length + 0.1f, 0.0f);  // 摸牌提牌的高度
 
-        protected const float _holddowndelat = 0.3f;
-        protected const float _abdicateholddelta = 0.6f;
-        protected const float _holdflydelta = 1.2f;
-        protected const float _sortcardsdelta = 0.3f;       // 发完牌后的排序旋转与转会需要的时间，
+        protected const float _holdtidelta = 0.1f;                                      // 摸牌提起来花费的时间
+        protected const float _holdflydelta = 0.3f;                                     // 出牌非摸的牌，摸牌移动到插入的位置花费时间
+        protected const float _holddowndelta = 0.3f;                                    // 摸牌时下放时花费的时间
+        protected const float _holdinsortcardsdelta = 0.3f;                             // 插入摸的那张牌整理牌时间
+        protected const float _holdafterpengdelta = 0.1f;                               // 在碰后把最右的牌拿出来
 
-        protected const float _holddelta = 0.1f;
-        protected const float _holdleftoffset = 0.02f;
-        protected Card _holdcard;
-        protected Card _leadcard;
-        protected Vector3 _leadcardoffset = Vector3.one;
+        protected const float _sortcardsdelta = 0.3f;                                   // 自己的牌排序通用花费时间
+        protected const float _pgsortcardsdelta = 0.3f;                                 // 碰杠后排序
+
+        //protected const float _holdleftoffset = 0.02f;
 
         protected long _turntype;
         protected long _fen;
@@ -109,22 +112,20 @@ namespace Bacon {
         protected Vector3 _lhandhuoffset = Vector3.zero;
 
 
-        protected const float _diushaizishendelta = 1.0f;
-        protected const float _diushaizishoudelta = 1.0f;
-        protected const float _chupaishendelta = 3.0f;
-        protected const float _chupaishoudelta = 1.0f;
-        protected const float _napaishendelta = 0.8f;     // 拿牌伸手消耗的时间s
-        protected const float _fangpaishoudelta = 1.0f;
-        protected const float _hupaishendelta = 1.0f;
-        protected const float _hupaishoudelta = 1.0f;
-        protected const float _penggangshendelta = 1.0f;
-        protected const float _penggangshoudelta = 1.0f;
+        protected const float _diushaizishendelta = 0.5f;
+        protected const float _diushaizishoudelta = 0.5f;
+        protected const float _chupaishendelta = 0.5f;
+        protected const float _chupaishoudelta = 0.5f;
+        protected const float _napaishendelta = 0.5f;     // 拿牌伸手消耗的时间s
+        protected const float _fangpaishoudelta = 0.5f;
+        protected const float _hupaishendelta = 0.5f;
+        protected const float _hupaishoudelta = 0.5f;
+        protected const float _penggangshendelta = 0.5f;
+        protected const float _penggangshoudelta = 0.5f;
 
         // 牌
-        protected float _fangdaodelta  = 0.3f;  
-        protected float _dealcarddelta = 0.3f;  // 拿牌的时候，牌旋转到最适合的位置消耗的时间，单位s
-
-        protected long _cd;
+        protected const float _dealcarddelta = 0.3f;      // 拿牌的时候，牌旋转到最适合的位置消耗的时间，单位s
+        protected const float _fangdaopaidelta = 0.3f;    // 牌局结束时放到动作
 
         public Player(Context ctx, GameController controller)
             : base(ctx, controller) {
@@ -145,7 +146,7 @@ namespace Bacon {
         public List<long> CS { get; set; }
         public CallInfo Call { get; set; }
 
-        public virtual void Init() {}
+        public virtual void Init() { }
 
         public void PlayFlameCountdown() {
             _ctx.EnqueueRenderQueue(RenderPlayFlameCountdown);
@@ -335,14 +336,14 @@ namespace Bacon {
                     _holdcard.Go.transform.localRotation = _backv;
 
                     Sequence mySequence21 = DOTween.Sequence();
-                    mySequence21.Append(_holdcard.Go.transform.DOLocalMove(cdst, _holddelta))
+                    mySequence21.Append(_holdcard.Go.transform.DOLocalMove(cdst, _holddowndelta))
                         .AppendCallback(() => {
                             cb();
                         });
 
                     // 2.2 手下移
                     Sequence mySequence22 = DOTween.Sequence();
-                    mySequence22.Append(_rhand.transform.DOLocalMove(hdst, _holddelta))
+                    mySequence22.Append(_rhand.transform.DOLocalMove(hdst, _holddowndelta))
                     .AppendCallback(() => {
                         // 3.0 放手
                         Hand hand = _rhand.GetComponent<Hand>();
@@ -428,7 +429,6 @@ namespace Bacon {
                 _ctx.EnqueueRenderQueue(RenderTakeTurn);
             }
         }
-
 
         protected void RenderTakeTurnDir() {
             if (_idx == 1) {
@@ -573,7 +573,8 @@ namespace Bacon {
                     Sequence mySequence21 = DOTween.Sequence();
                     mySequence21.Append(t21)
                     .AppendCallback(() => {
-                        ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(cdst.x, cdst.y + _curorMH, cdst.z));
+                        var desk = ((GameController)_controller).Desk;
+                        ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(cdst.x, cdst.y + desk.CurorMH, cdst.z));
                     });
 
                     Tween t22 = _rhand.transform.DOLocalMove(hdst, 1.0f);
@@ -599,7 +600,7 @@ namespace Bacon {
         protected virtual void RenderLead1Cb() {
             if (_leadcard.Value != _holdcard.Value) {
                 if (_holdcard.Pos == (_cards.Count - 1)) {
-                    RenderSortCardsToDo(() => {
+                    RenderSortCardsToDo(_sortcardsdelta, () => {
                         Command cmd = new Command(MyEventCmd.EVENT_LEADCARD);
                         _ctx.Enqueue(cmd);
                     });
@@ -617,12 +618,12 @@ namespace Bacon {
             }
         }
 
-        protected virtual void RenderSortCardsToDo(Action cb) {
+        protected virtual void RenderSortCardsToDo(float duration, Action cb) {
             _oknum = 0;
             for (int i = 0; i < _cards.Count; i++) {
                 Vector3 dst = CalcPos(i);
                 Sequence s = DOTween.Sequence();
-                s.Append(_cards[i].Go.transform.DOLocalMove(dst, _abdicateholddelta))
+                s.Append(_cards[i].Go.transform.DOLocalMove(dst, duration))
                     .AppendCallback(() => {
                         _oknum++;
                         if (_oknum >= _cards.Count) {
@@ -642,7 +643,7 @@ namespace Bacon {
             Animator animator = _rhand.GetComponent<Animator>();
 
             // 1.1 牌下放
-            Tween t11 = _holdcard.Go.transform.DOLocalMove(cdst, _holddowndelat);
+            Tween t11 = _holdcard.Go.transform.DOLocalMove(cdst, _holddowndelta);
             Sequence mySequence11 = DOTween.Sequence();
             mySequence11.Append(t11)
             .AppendCallback(() => {
@@ -652,7 +653,7 @@ namespace Bacon {
             });
 
             // 1.2 手下放
-            Tween t12 = _rhand.transform.DOLocalMove(hdst, _holddowndelat);
+            Tween t12 = _rhand.transform.DOLocalMove(hdst, _holddowndelta);
             Sequence mySequence12 = DOTween.Sequence();
             mySequence12.Append(t12)
                 .AppendCallback(() => {
@@ -680,7 +681,7 @@ namespace Bacon {
                 }
                 Vector3 dst = CalcPos(i);
                 Sequence s = DOTween.Sequence();
-                s.Append(_cards[i].Go.transform.DOMove(dst, _abdicateholddelta))
+                s.Append(_cards[i].Go.transform.DOMove(dst, _holdinsortcardsdelta))
                     .AppendCallback(() => {
                         _oknum++;
                         if (_oknum >= _cards.Count - 1) {
@@ -811,7 +812,7 @@ namespace Bacon {
         }
 
         protected virtual void RenderPeng() {
-            string prefix = "Sound/scmj";
+            string prefix = "Sound/scmj/";
             string path = prefix;
             string name = string.Empty;
             if (_sex == 1) {
@@ -828,6 +829,9 @@ namespace Bacon {
         }
 
         protected virtual void RenderPeng1() {
+
+            Desk desk = ((GameController)_controller).Desk;
+
             PGCards pg = _putcards[_putidx];
 
             Vector3 cdst = pg.Cards[2].Go.transform.localPosition;
@@ -853,7 +857,7 @@ namespace Bacon {
                                 if (_oknum >= pg.Cards.Count) {
                                     // 3.0 收手
                                     Vector3 c2pos = pg.Cards[2].Go.transform.localPosition;
-                                    ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(c2pos.x, c2pos.y + _curorMH, c2pos.z));
+                                    ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(c2pos.x, c2pos.y + desk.CurorMH, c2pos.z));
                                 }
                             });
                     }
@@ -869,7 +873,7 @@ namespace Bacon {
                         Sequence mySequence3 = DOTween.Sequence();
                         mySequence3.Append(t3)
                         .AppendCallback(() => {
-                            RenderSortCardsToDo(() => {
+                            RenderSortCardsToDo(_sortcardsdelta, () => {
                                 // 4.0 归为
                                 animator.SetBool("Idle", true);
 
@@ -1008,7 +1012,7 @@ namespace Bacon {
         }
 
         protected virtual void RenderGang() {
-            string prefix = "Sound/";
+            string prefix = "Sound/scmj/";
             string path = prefix;
             string name = string.Empty;
             if (_sex == 1) {
@@ -1025,6 +1029,8 @@ namespace Bacon {
         }
 
         protected virtual void RenderGang1(Action cb) {
+            Desk desk = ((GameController)_controller).Desk;
+
             PGCards pg = _putcards[_putidx];
 
             // 1.0 伸手
@@ -1042,7 +1048,7 @@ namespace Bacon {
                         mySequence1.Append(pg.Cards[3].Go.transform.DOMove(pg.Cards[3].Go.transform.localPosition + _putmove, _putmovedelta))
                         .AppendCallback(() => {
                             Vector3 c2pos = pg.Cards[3].Go.transform.localPosition;
-                            ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(c2pos.x, c2pos.y + _curorMH, c2pos.z));
+                            ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(c2pos.x, c2pos.y + desk.CurorMH, c2pos.z));
                         });
                     } else {
                         for (int i = 0; i < pg.Cards.Count; i++) {
@@ -1054,7 +1060,7 @@ namespace Bacon {
                                     if (_oknum >= pg.Cards.Count) {
                                         // 3.0 收手
                                         Vector3 c2pos = pg.Cards[3].Go.transform.localPosition;
-                                        ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(c2pos.x, c2pos.y + _curorMH, c2pos.z));
+                                        ((GameController)_controller).Desk.RenderChangeCursor(new Vector3(c2pos.x, c2pos.y + desk.CurorMH, c2pos.z));
                                     }
                                 });
                         }
@@ -1072,7 +1078,7 @@ namespace Bacon {
                         Sequence mySequence3 = DOTween.Sequence();
                         mySequence3.Append(t3)
                         .AppendCallback(() => {
-                            RenderSortCardsToDo(() => {
+                            RenderSortCardsToDo(_sortcardsdelta, () => {
                                 // 4.0 归为
                                 animator.SetBool("Idle", true);
 
