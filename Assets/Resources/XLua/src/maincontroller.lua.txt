@@ -1,6 +1,9 @@
 xlua.hotfix(CS.Bacon.MainController, "First", function (self, obj, ... )
 	-- body
-	local service = self.Ctx.QueryService(CS.Bacon.InitService.Name)
+	-- for k,v in pairs(CS.Bacon.InitService) do
+	-- 	print(k,v)
+	-- end
+	local service = self.Ctx:QueryService(CS.Bacon.InitService.Name)
 
 	local u = service.User
 	u.Name = obj.name
@@ -8,9 +11,11 @@ xlua.hotfix(CS.Bacon.MainController, "First", function (self, obj, ... )
 	u.RCard = obj.rcard
 	u.Sex = obj.sex
 
+	print("u.Name = ", u.Name)
+
 	service.Board = obj.board
 	service.Adver = obj.adver
 
-	self.Ctx.EnqueueRenderQueue(CS.Bacon.MainController.RenderFirst)
+	self.Ctx:EnqueueRenderQueue(self.RenderFirst)
 
 end)

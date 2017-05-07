@@ -11,35 +11,8 @@ using System.Reflection;
 namespace Maria {
 
     [XLua.Hotfix]
+    [LuaCallCSharp]
     public class Application : DisposeObject {
-
-        [LuaCallCSharp]
-        public static List<Type> LuaCallCsByProperty {
-            get {
-                List<Type> l = new List<Type>();
-                Assembly asm = Assembly.GetExecutingAssembly();
-                foreach (Type t in asm.GetTypes()) {
-                    if (t.Namespace == "Maria") {
-                        l.Add(t);
-                    }
-                }
-                return l;
-            }
-        }
-
-        [Hotfix]
-        public static List<Type> HotFixByProperty {
-            get {
-                List<Type> l = new List<Type>();
-                Assembly asm = Assembly.GetExecutingAssembly();
-                foreach (Type t in asm.GetTypes()) {
-                    if (t.Namespace == "Maria") {
-                        l.Add(t);
-                    }
-                }
-                return l;
-            }
-        }
 
         protected enum CoType {
             NONE = 0,
@@ -57,7 +30,7 @@ namespace Maria {
         protected Context _ctx = null;
         protected EventDispatcher _dispatcher = null;
         protected CoType _cotype = CoType.THREAD;
-        protected XLua.LuaEnv _luaenv = new XLua.LuaEnv();
+        protected XLua.LuaEnv _luaenv = null;
 
         public Application(global::App app) {
             _app = app;
@@ -79,9 +52,22 @@ namespace Maria {
             } else {
                 UnityEngine.Debug.LogWarning("create co success.");
             }
+            _luaenv = new XLua.LuaEnv();
+            _luaenv.AddBuildin("lpeg", XLua.LuaDLL.Lua.LoadLpeg);
+            _luaenv.AddBuildin("sproto.core", XLua.LuaDLL.Lua.LoadSprotoCore);
             _luaenv.AddLoader((ref string filepath) => {
-                filepath = filepath.Replace('.', '/') + ".lua";
-                TextAsset file = ABLoader.current.LoadAsset<TextAsset>("xlua/src", filepath);
+                UnityEngine.Debug.LogFormat("LUA custom loader {0}", filepath);
+
+                string[] xpaths = filepath.Split(new char[] { '.' });
+                string path = "xlua/src";
+                int idx = 0;
+                while (idx + 1 < xpaths.Length) {
+                    path += "/";
+                    path += xpaths[idx];
+                    idx++;
+                }
+
+                TextAsset file = ABLoader.current.LoadAsset<TextAsset>(path, xpaths[idx] + ".lua");
                 if (file != null) {
                     return file.bytes;
                 } else {
@@ -89,7 +75,7 @@ namespace Maria {
                 }
             });
             _luaenv.DoString(@"
--- require 'main'
+require 'main'
 ");
         }
 

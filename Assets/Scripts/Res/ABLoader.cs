@@ -132,7 +132,7 @@ public class ABLoader : MonoBehaviour {
 
     public T LoadAsset<T>(string path, string name) where T : UnityEngine.Object {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-        string res_path = "WIN/" + path.ToLower();
+        string res_path = "WIN64/" + path.ToLower();
 #elif UNITY_IOS
         string res_path = "Android/" + path.ToLower();
 #elif UNITY_ANDROID
@@ -148,7 +148,7 @@ public class ABLoader : MonoBehaviour {
 
     public void LoadAssetAsync<T>(string path, string name, Action<T> cb) where T : UnityEngine.Object {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-        string res_path = "WIN/" + path.ToLower();
+        string res_path = "WIN64/" + path.ToLower();
 #elif UNITY_IOS
         string res_path = "Android/" + path.ToLower();
 #elif UNITY_ANDROID
@@ -165,8 +165,8 @@ public class ABLoader : MonoBehaviour {
 
     private T LoadAB<T>(string xpath, string name) where T : UnityEngine.Object {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-        string per_prefix = Application.persistentDataPath + "/Win/";
-        string str_prefix = Application.streamingAssetsPath + "/Win/";
+        string per_prefix = Application.persistentDataPath + "/Win64/";
+        string str_prefix = Application.streamingAssetsPath + "/Win64/";
 #elif UNITY_IOS
         string per_prefix = Application.persistentDataPath + "/iOS/";
         string str_prefix = Application.streamingAssetsPath + "/iOS/";
@@ -182,7 +182,7 @@ public class ABLoader : MonoBehaviour {
         } else {
             if (_manifest == null) {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-                string manifest = "Win";
+                string manifest = "Win64";
 #elif UNITY_IOS
                 string manifest = "iOS";
 #elif UNITY_ANDROID
@@ -242,8 +242,8 @@ public class ABLoader : MonoBehaviour {
 
     IEnumerator LoadABAsyncImp<T>(string path, string name, Action<T> cb) where T : UnityEngine.Object {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-        string per_prefix = Application.persistentDataPath + "/Win/";
-        string str_prefix = Application.streamingAssetsPath + "/Win/";
+        string per_prefix = Application.persistentDataPath + "/Win64/";
+        string str_prefix = Application.streamingAssetsPath + "/Win64/";
 #elif UNITY_IOS
         string per_prefix = Application.persistentDataPath + "/iOS/";
         string str_prefix = Application.streamingAssetsPath + "/iOS/";

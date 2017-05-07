@@ -3,8 +3,12 @@ using Maria.Network;
 using Sproto;
 using UnityEngine;
 using System;
+using XLua;
+
 
 namespace Bacon {
+
+    [LuaCallCSharp]
     class InitService : Service {
 
         public static readonly string Name = "init";

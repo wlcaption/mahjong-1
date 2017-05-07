@@ -182,6 +182,18 @@ namespace XLua
 
         public int cacheRef;
 
+        void addAssemblieByName(IEnumerable<Assembly> assemblies_usorted, string name)
+        {
+            foreach(var assemblie in assemblies_usorted)
+            {
+                if (assemblie.FullName.StartsWith(name) && !assemblies.Contains(assemblie))
+                {
+                    assemblies.Add(assemblie);
+                    break;
+                }
+            }
+        }
+
         public ObjectTranslator(LuaEnv luaenv,RealStatePtr L)
 		{
 #if XLUA_GENERAL  || (UNITY_WSA && !UNITY_EDITOR)
@@ -191,17 +203,24 @@ namespace XLua
                 dumb_field.GetValue(null);
             }
 #endif
+            assemblies = new List<Assembly>();
+            assemblies.Add(Assembly.GetExecutingAssembly());
 
 #if UNITY_WSA && !UNITY_EDITOR
-            assemblies = Utils.GetAssemblies();
+            var assemblies_usorted = Utils.GetAssemblies();
 #else
-            assemblies = new List<Assembly>();
-
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                assemblies.Add(assembly);
-            }
+            var assemblies_usorted = AppDomain.CurrentDomain.GetAssemblies();
 #endif
+            addAssemblieByName(assemblies_usorted, "mscorlib,");
+            addAssemblieByName(assemblies_usorted, "System,");
+            addAssemblieByName(assemblies_usorted, "System.Core,");
+            foreach (Assembly assembly in assemblies_usorted)
+            {
+                if (!assemblies.Contains(assembly))
+                {
+                    assemblies.Add(assembly);
+                }
+            }
 
             this.luaEnv=luaenv;
             objectCasters = new ObjectCasters(this);
@@ -298,7 +317,7 @@ namespace XLua
                     }
                 }
                 IEnumerable<IGrouping<MethodInfo, Type>> groups = (from type in cs_call_lua
-                              where typeof(Delegate).IsAssignableFrom(type)
+                              where typeof(Delegate).IsAssignableFrom(type) && type != typeof(Delegate) && type != typeof(MulticastDelegate)
                               where !type.GetMethod("Invoke").GetParameters().Any(paramInfo => paramInfo.ParameterType.IsGenericParameter)
                                select type).GroupBy(t => t.GetMethod("Invoke"), new CompareByArgRet());
 
@@ -522,10 +541,11 @@ namespace XLua
 		
 		internal Type FindType(string className, bool isQualifiedName = false)
 		{
-			foreach(Assembly assembly in assemblies)
+            foreach (Assembly assembly in assemblies)
 			{
                 Type klass = assembly.GetType(className);
-				if(klass!=null)
+
+                if (klass!=null)
 				{
 					return klass;
 				}
@@ -728,12 +748,15 @@ namespace XLua
             }
             return ret;
         }
-#if UNITY_EDITOR
+#if UNITY_EDITOR || XLUA_GENERAL
         public void PushParams(RealStatePtr L, Array ary)
         {
-            for(int i = 0; i < ary.Length; i++)
+            if (ary != null)
             {
-                PushAny(L, ary.GetValue(i));
+                for (int i = 0; i < ary.Length; i++)
+                {
+                    PushAny(L, ary.GetValue(i));
+                }
             }
         }
 #endif
@@ -888,10 +911,6 @@ namespace XLua
             else if (o is decimal)
             {
                 PushDecimal(L, (decimal)o);
-            }
-            else if (o is Delegate && (o as Delegate).Target is DelegateBridgeBase)
-            {
-                ((o as Delegate).Target as DelegateBridgeBase).push(L);
             }
             else if (o is LuaBase)
             {

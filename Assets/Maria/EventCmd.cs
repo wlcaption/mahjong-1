@@ -4,6 +4,8 @@ using System.Text;
 using UnityEngine;
 
 namespace Maria {
+
+    [XLua.LuaCallCSharp]
     public class EventCmd : Event {
 
         public static uint EVENT_LOGIN = 1;

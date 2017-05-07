@@ -4,7 +4,12 @@ using System.Text;
 using UnityEngine;
 
 namespace Maria {
+
+    [XLua.LuaCallCSharp]
     public class Actor : DisposeObject {
+
+        [XLua.LuaCallCSharp]
+        [XLua.CSharpCallLua]
         public delegate void RenderHandler();
 
         protected Context _ctx = null;

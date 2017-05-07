@@ -1,5 +1,14 @@
-local main_controller = require "main_controller"
+local lpeg = require "lpeg"
+local core = require "socket.core"
+require "test"
 
-xlua.hotfix(CS.Maria.Application, 'XluaTest', function (self) 
-	CS.UnityEngine.Debug.Log('xlua hello world')
-end)
+for k,v in pairs(core) do
+	print(k,v)
+end
+
+-- require "test"
+-- local main_controller = require "maincontroller"
+
+-- xlua.hotfix(CS.Maria.Application, 'XluaTest', function (self) 
+-- 	CS.UnityEngine.Debug.Log('xlua hello world')
+-- end)

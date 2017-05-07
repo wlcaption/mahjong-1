@@ -13,7 +13,7 @@ namespace Bacon {
         public static List<Type> LuaCallCsByProperty {
             get {
                 List<Type> l = new List<Type>();
-                Assembly asm = Assembly.GetExecutingAssembly();
+                Assembly asm = System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Assembly;
                 foreach (Type t in asm.GetTypes()) {
                     if (t.Namespace == "Bacon") {
                         l.Add(t);
@@ -31,7 +31,7 @@ namespace Bacon {
         public static List<Type> HotFixByProperty {
             get {
                 List<Type> l = new List<Type>();
-                Assembly asm = Assembly.GetExecutingAssembly();
+                Assembly asm = System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Assembly;
                 foreach (Type t in asm.GetTypes()) {
                     if (t.Namespace == "Bacon") {
                         l.Add(t);

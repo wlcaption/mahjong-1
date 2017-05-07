@@ -155,6 +155,10 @@ namespace XLua
 
         static bool hasGenericParameter(TypeReference type)
         {
+            if (type.HasGenericParameters)
+            {
+                return true;
+            }
             if (type.IsByReference)
             {
                 return hasGenericParameter(((ByReferenceType)type).ElementType);
@@ -253,14 +257,18 @@ namespace XLua
             return false;
         }
 
-        static bool injectType(AssemblyDefinition assembly, TypeReference hotfixAttributeType, TypeDefinition type)
+        static bool injectType(AssemblyDefinition assembly, TypeReference hotfixAttributeType, TypeDefinition type, bool noGen)
         {
             foreach(var nestedTypes in type.NestedTypes)
             {
-                if (!injectType(assembly, hotfixAttributeType, nestedTypes))
+                if (!injectType(assembly, hotfixAttributeType, nestedTypes, noGen))
                 {
                     return false;
                 }
+            }
+            if (type.Name.Contains("<")) // skip anonymous type
+            {
+                return true;
             }
             CustomAttribute hotfixAttr = type.CustomAttributes.FirstOrDefault(ca => ca.AttributeType == hotfixAttributeType);
             int hotfixType;
@@ -290,9 +298,9 @@ namespace XLua
             }
             foreach (var method in type.Methods)
             {
-                if (method.Name != ".cctor" && !method.IsAbstract && !method.IsPInvokeImpl && method.Body != null)
+                if (method.Name != ".cctor" && !method.IsAbstract && !method.IsPInvokeImpl && method.Body != null && !method.Name.Contains("<"))
                 {
-                    if ((method.HasGenericParameters || genericInOut(assembly, method, hotfixType)) ? !injectGenericMethod(assembly, method, hotfixType, stateTable) :
+                    if ((noGen || method.HasGenericParameters || genericInOut(assembly, method, hotfixType)) ? !injectGenericMethod(assembly, method, hotfixType, stateTable) :
                         !injectMethod(assembly, method, hotfixType, stateTable))
                     {
                         return false;
@@ -311,12 +319,16 @@ namespace XLua
             {
                 return;
             }
-            HotfixInject("./Library/ScriptAssemblies/Assembly-CSharp.dll", null, Utils.GetAllTypes());
+#if NO_HOTFIX_GEN
+            HotfixInject("./Library/ScriptAssemblies/Assembly-CSharp.dll", null, true, Utils.GetAllTypes());
+#else
+            HotfixInject("./Library/ScriptAssemblies/Assembly-CSharp.dll", null, false, Utils.GetAllTypes());
+#endif
         }
 #endif
 
-        //返回-1表示没有标签
-        static int getHotfixType(MemberInfo memberInfo)
+            //返回-1表示没有标签
+            static int getHotfixType(MemberInfo memberInfo)
         {
             foreach(var ca in memberInfo.GetCustomAttributes(false))
             {
@@ -372,7 +384,7 @@ namespace XLua
             }
         }
 
-        public static void HotfixInject(string inject_assembly_path, IEnumerable<string> search_directorys, IEnumerable<Type> cfg_check_types = null)
+        public static void HotfixInject(string inject_assembly_path, IEnumerable<string> search_directorys, bool noGen, IEnumerable<Type> cfg_check_types = null)
         {
             AssemblyDefinition assembly = null;
             try
@@ -405,7 +417,7 @@ namespace XLua
                 var hotfixAttributeType = assembly.MainModule.Types.Single(t => t.FullName == "XLua.HotfixAttribute");
                 foreach (var type in (from module in assembly.Modules from type in module.Types select type))
                 {
-                    if (!injectType(assembly, hotfixAttributeType, type))
+                    if (!injectType(assembly, hotfixAttributeType, type, noGen))
                     {
                         return;
                     }
@@ -559,6 +571,10 @@ namespace XLua
                     {
                         processor.InsertBefore(insertPoint, processor.Create(ldargs[i]));
                     }
+                    else if (i < 256)
+                    {
+                        processor.InsertBefore(insertPoint, processor.Create(OpCodes.Ldarg_S, (byte)i));
+                    }
                     else
                     {
                         processor.InsertBefore(insertPoint, processor.Create(OpCodes.Ldarg, (short)i));
@@ -660,7 +676,7 @@ namespace XLua
                 return false;
             }
 
-            bool isFinalize = method.Name == "Finalize";
+            bool isFinalize = (method.Name == "Finalize" && method.IsSpecialName);
 
             FieldDefinition fieldDefinition = new FieldDefinition(luaDelegateName, Mono.Cecil.FieldAttributes.Static | Mono.Cecil.FieldAttributes.Private,
                 luaFunctionType);
@@ -729,6 +745,10 @@ namespace XLua
                             {
                                 processor.InsertBefore(insertPoint, processor.Create(ldargs[i]));
                             }
+                            else if (i < 256)
+                            {
+                                processor.InsertBefore(insertPoint, processor.Create(OpCodes.Ldarg_S, (byte)i));
+                            }
                             else
                             {
                                 processor.InsertBefore(insertPoint, processor.Create(OpCodes.Ldarg, (short)i));
@@ -777,6 +797,10 @@ namespace XLua
                         if (arg_pos < ldargs.Length)
                         {
                             processor.InsertBefore(insertPoint, processor.Create(ldargs[arg_pos]));
+                        }
+                        else if (arg_pos < 256)
+                        {
+                            processor.InsertBefore(insertPoint, processor.Create(OpCodes.Ldarg_S, (byte)arg_pos));
                         }
                         else
                         {
@@ -871,7 +895,13 @@ namespace XLua
 
             var assembly_csharp_path = "./Library/ScriptAssemblies/Assembly-CSharp.dll";
 
-            List<string> args = new List<string>() { inject_tool_path, assembly_csharp_path};
+            List<string> args = new List<string>() { inject_tool_path, assembly_csharp_path,
+#if NO_HOTFIX_GEN
+                "nogen"
+#else
+                "gen"
+#endif
+            };
 
             foreach (var path in
                 (from asm in AppDomain.CurrentDomain.GetAssemblies() select asm.ManifestModule.FullyQualifiedName)

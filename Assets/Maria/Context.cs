@@ -5,8 +5,11 @@ using Maria.Network;
 using System;
 using Sproto;
 using System.Text;
+using XLua;
 
 namespace Maria {
+
+    [LuaCallCSharp]
     public class Context : DisposeObject, INetwork {
 
         protected Application _application;

@@ -49,7 +49,7 @@ namespace XLua
         internal object luaEnvLock = new object();
 #endif
 
-        const int LIB_VERSION_EXPECT = 100;
+        const int LIB_VERSION_EXPECT = 101;
 
         public LuaEnv()
         {
@@ -530,7 +530,7 @@ namespace XLua
                     xlua.access(cs, cflag .. '__Hitfix0_'..k, f) -- at least one
                     pcall(function()
                         for i = 1, 99 do
-                            xlua.access(cs, '__Hitfix'..i..'_'..k, f)
+                            xlua.access(cs, cflag .. '__Hitfix'..i..'_'..k, f)
                         end
                     end)
                 end

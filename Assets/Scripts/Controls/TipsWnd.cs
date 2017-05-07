@@ -28,7 +28,7 @@ public class TipsWnd : MonoBehaviour {
 
     public void OnClose() {
         if (gameObject.activeSelf) {
-            gameObject.SetActive(true);
+            gameObject.SetActive(false);
         }
     }
 }

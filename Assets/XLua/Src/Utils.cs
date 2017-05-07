@@ -618,6 +618,27 @@ namespace XLua
                 }
             }
 
+
+            IEnumerable<MethodInfo> extend_methods = GetExtensionMethodsOf(type);
+            if (extend_methods != null)
+            {
+                foreach (var extend_method in extend_methods)
+                {
+                    MethodKey method_key = new MethodKey { Name = extend_method.Name, IsStatic = false };
+                    List<MemberInfo> overloads;
+                    if (pending_methods.TryGetValue(method_key, out overloads))
+                    {
+                        overloads.Add(extend_method);
+                        continue;
+                    }
+                    else
+                    {
+                        overloads = new List<MemberInfo>() { extend_method };
+                        pending_methods.Add(method_key, overloads);
+                    }
+                }
+            }
+
             foreach (var kv in pending_methods)
             {
                 if (kv.Key.Name.StartsWith("op_")) // 操作符
@@ -633,17 +654,6 @@ namespace XLua
                     translator.PushFixCSFunction(L,
                         new LuaCSFunction(translator.methodWrapsCache._GenMethodWrap(type, kv.Key.Name, kv.Value.ToArray()).Call));
                     LuaAPI.lua_rawset(L, kv.Key.IsStatic ? cls_field : obj_field);
-                }
-            }
-
-            IEnumerable<MethodInfo> extend_methods = GetExtensionMethodsOf(type);
-            if (extend_methods != null)
-            {
-                foreach (var kv in (from extend_method in extend_methods select (MemberInfo)extend_method into member group member by member.Name))
-                {
-                    LuaAPI.xlua_pushasciistring(L, kv.Key);
-                    translator.PushFixCSFunction(L, new LuaCSFunction(translator.methodWrapsCache._GenMethodWrap(type, kv.Key, kv).Call));
-                    LuaAPI.lua_rawset(L, obj_field);
                 }
             }
         }
@@ -1284,41 +1294,6 @@ namespace XLua
                 }
             }
             return hasValidGenericParameter;
-        }
-
-        public static bool IsSupportedExtensionMethod(MethodBase method,Type extendedType)
-        {
-            if (!method.IsDefined(typeof(ExtensionAttribute), false))
-                return false;
-            var methodParameters = method.GetParameters();
-            if (methodParameters.Length < 1)
-                return false;
-
-            var hasValidGenericParameter = false;
-            for (var i = 0; i < methodParameters.Length; i++)
-            {
-                var parameterType = methodParameters[i].ParameterType;
-                if (i == 0)
-                {
-                    if (parameterType.IsGenericParameter)
-                    {
-                        var parameterConstraints = parameterType.GetGenericParameterConstraints();
-                        if (parameterConstraints.Length == 0 || !parameterConstraints[0].IsAssignableFrom(extendedType))
-                            return false;
-                        hasValidGenericParameter = true;
-                    }
-                    else if (!parameterType.IsAssignableFrom(extendedType))
-                        return false;
-                }
-                else if (parameterType.IsGenericParameter)
-                {
-                    var parameterConstraints = parameterType.GetGenericParameterConstraints();
-                    if (parameterConstraints.Length == 0 || !parameterConstraints[0].IsClass())
-                        return false;
-                    hasValidGenericParameter = true;
-                }
-            }
-            return hasValidGenericParameter || !method.ContainsGenericParameters;
         }
 
         private static Type getExtendedType(MethodInfo method)

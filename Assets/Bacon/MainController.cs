@@ -8,6 +8,9 @@ using UnityEngine;
 using XLua;
 
 namespace Bacon {
+
+    [Hotfix]
+    [LuaCallCSharp]
     class MainController : Controller {
         private InitService _service = null;
         private GameObject _uiroot = null;
@@ -17,7 +20,6 @@ namespace Bacon {
         private MsgItem.Type _curtype;
         private string _tipscontent = string.Empty;
 
-        [Hotfix]
         public MainController(Context ctx) : base(ctx) {
             _name = "main";
 
