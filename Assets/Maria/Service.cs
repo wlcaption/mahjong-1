@@ -14,7 +14,7 @@ namespace Maria {
             _ctx = ctx;
         }
 
-        public virtual void Update(float delta) {}
+        public virtual void Update(float delta) { }
 
         public object this[string key] {
             get {

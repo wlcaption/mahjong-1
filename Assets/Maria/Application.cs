@@ -53,6 +53,7 @@ namespace Maria {
                 UnityEngine.Debug.LogWarning("create co success.");
             }
             _luaenv = new XLua.LuaEnv();
+            _luaenv.AddBuildin("cjson", XLua.LuaDLL.Lua.LoadCJson);
             _luaenv.AddBuildin("lpeg", XLua.LuaDLL.Lua.LoadLpeg);
             _luaenv.AddBuildin("sproto.core", XLua.LuaDLL.Lua.LoadSprotoCore);
             _luaenv.AddLoader((ref string filepath) => {
@@ -71,6 +72,10 @@ namespace Maria {
                 if (file != null) {
                     return file.bytes;
                 } else {
+                    file = ABLoader.current.LoadAsset<TextAsset>(path+"/lualib", xpaths[idx] + ".lua");
+                    if (file != null) {
+                        return file.bytes;
+                    }
                     return null;
                 }
             });

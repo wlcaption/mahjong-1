@@ -1,0 +1,90 @@
+local assert = assert
+local errorcode = require "errorcode"
+local cls = class("request")
+
+function cls:ctor(env, clientsock)
+	-- body
+	self._env = env
+	self._clientsock = clientsock
+	return self
+end
+
+function cls:handshake(args, ... )
+	-- body
+	local res = {}
+	res.errorcode = errorcode.SUCCESS
+	return res
+end
+
+function cls:enter_room(args, ... )
+	-- body
+	local controller = self._env:top()
+	local res = controller:on_enter_room(args)
+	assert(res)
+	return res
+end
+
+function cls:join(args, ... )
+	-- body
+	local controller = self._env:top()
+	local res = controller:on_join(args)
+	return res
+end
+
+function cls:ready(args, ... )
+	-- body
+	local controller = self._env:get_controller("game")
+	local res = controller:on_ready(args)
+	assert(res)
+	return res
+end
+
+function cls:mp(args, ... )
+	-- body
+	local controller = self._env:get_controller("game")
+	local res = controller:mp(args)
+	assert(res)
+	return res
+end
+
+function cls:am(args, ... )
+	-- body
+	local controller = self._env:get_controller("game")
+	local res = controller:am(args)
+	assert(res)
+	return res
+end
+
+function cls:rob(args, ... )
+	-- body
+	local controller = self._env:get_controller("game")
+	local res = controller:on_rob(args)
+	assert(res)
+	return res
+end
+
+function cls:lead(args, ... )
+	-- body
+	local controller = self._env:get_controller("game")
+	local res = controller:on_lead(args)
+	assert(res)
+	return res
+end
+
+function cls:dealed(args, ... )
+	-- body
+	local controller = self._env:get_controller("game")
+	local res = controller:on_dealed(args)
+	assert(res)
+	return res
+end
+
+function cls:identity(args, ... )
+	-- body
+	local controller = self._env:get_controller("game")
+	local res = controller:on_identity(args)
+	assert(res)
+	return res
+end
+
+return cls
