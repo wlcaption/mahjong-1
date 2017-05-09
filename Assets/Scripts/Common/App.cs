@@ -1,9 +1,19 @@
-﻿using Bacon;
-using Maria;
+﻿using Maria;
 using UnityEngine;
 using System.Collections.Generic;
+using XLua;
+using System;
 
 public class App : MonoBehaviour {
+
+    [CSharpCallLua]
+    public static List<Type> CSCallLuaModule {
+        get {
+            return new List<Type>() {
+                    typeof(Action<Context>)
+                };
+        }
+    }
 
     public static App current = null;
 

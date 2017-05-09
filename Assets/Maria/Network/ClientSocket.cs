@@ -7,6 +7,8 @@ using System.Net.Sockets;
 using Maria.Encrypt;
 
 namespace Maria.Network {
+
+    [XLua.LuaCallCSharp]
     public class ClientSocket : DisposeObject {
 
         public delegate void AuthedCb(int ok);
@@ -85,6 +87,7 @@ namespace Maria.Network {
         public DisconnectedCb OnDisconnected { get; set; }
         public PackageSocketUdp.RecvCB OnRecvUdp { get; set; }
         public PackageSocketUdp.SyncCB OnSyncUdp { get; set; }
+        public Lua.ClientSock ClintSockscript { get; set; }
 
         // Update is called once per frame
         public void Update() {
@@ -102,6 +105,13 @@ namespace Maria.Network {
 
         public void RegisterRequest(int tag, ReqCb cb) {
             _req[tag] = cb;
+        }
+
+        public uint genSession() {
+            ++_session;
+            if (_session == 0)
+                ++_session;
+            return _session;
         }
 
         public void SendReq<T>(int tag, SprotoTypeBase obj, object ud = null) {
@@ -218,6 +228,8 @@ namespace Maria.Network {
                         UnityEngine.Debug.LogException(ex);
                     }
                 }
+
+
             }
         }
 
@@ -227,13 +239,6 @@ namespace Maria.Network {
             if (OnDisconnected != null) {
                 OnDisconnected();
             }
-        }
-
-        private uint genSession() {
-            ++_session;
-            if (_session == 0)
-                ++_session;
-            return _session;
         }
 
         private string idToHex(uint id) {

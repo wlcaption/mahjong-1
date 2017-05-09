@@ -16,6 +16,17 @@ xlua.hotfix(CS.Bacon.MainController, "First", function (self, obj, ... )
 	service.Board = obj.board
 	service.Adver = obj.adver
 
-	self.Ctx:EnqueueRenderQueue(self.RenderFirst)
+	-- local func = CS.Bacon.MainController.RenderFirst
+	-- assert(func)
 
+
+	-- self.Ctx:EnqueueRenderQueue(func)
+	-- self.Ctx:EnqueueRenderQueue(self.RenderFirst)
+
+	local function test( ... )
+		-- body
+		print("test lua")
+	end
+
+	self.Ctx:EnqueueRenderQueue(test)
 end)

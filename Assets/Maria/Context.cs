@@ -9,6 +9,7 @@ using XLua;
 
 namespace Maria {
 
+    [CSharpCallLua]
     [LuaCallCSharp]
     public class Context : DisposeObject, INetwork {
 
@@ -22,8 +23,8 @@ namespace Maria {
         protected Dictionary<string, Controller> _hash = new Dictionary<string, Controller>();
         protected Stack<Controller> _stack = new Stack<Controller>();
 
-        private Dictionary<string, Timer> _timer = new Dictionary<string, Timer>();
-        private Dictionary<string, Service> _services = new Dictionary<string, Service>();
+        protected Dictionary<string, Timer> _timer = new Dictionary<string, Timer>();
+        protected Dictionary<string, Service> _services = new Dictionary<string, Service>();
 
         protected ClientLogin _login = null;
         protected ClientSocket _client = null;
@@ -33,6 +34,7 @@ namespace Maria {
         protected bool _authudp = false;
         protected bool _logined = false;
         protected System.Random _rand = new System.Random();
+        protected Lua.Env _envScript = null;
 
         public Context(Application application, Config config, TimeSync ts) {
             _application = application;
@@ -69,6 +71,7 @@ namespace Maria {
         public virtual void Update(float delta) {
             _login.Update();
             _client.Update();
+            //_env.update();
 
             int now = _ts.LocalTime();
             foreach (var item in _timer) {
@@ -108,8 +111,10 @@ namespace Maria {
         public TimeSync TiSync { get { return _ts; } }
         public SharpC SharpC { get { return _sharpc; } }
         public bool Logined { get { return _logined; } set { _logined = value; } }
+        public ClientSocket Client { get { return _client; } }
 
         public User U { get { return _user; } }
+        public Lua.Env EnvScript { get { return _envScript; } set { _envScript = value; } }
 
         public T GetController<T>(string name) where T : Controller {
             try {

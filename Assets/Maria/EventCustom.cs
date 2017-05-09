@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace Maria {
+
+    [XLua.LuaCallCSharp]
     public class EventCustom : Event {
         public static string OnDisconnected = "OnDisconnected";
         public static string OnAuthed = "OnAuthed";

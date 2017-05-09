@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
+[XLua.LuaCallCSharp]
 public class ABLoader : MonoBehaviour {
 
     enum PathType {
@@ -146,6 +147,10 @@ public class ABLoader : MonoBehaviour {
         return res;
     }
 
+    public TextAsset LoadTextAsset(string path, string name) {
+        return LoadAsset<TextAsset>(path, name);
+    }
+
     public void LoadAssetAsync<T>(string path, string name, Action<T> cb) where T : UnityEngine.Object {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         string res_path = "WIN64/" + path.ToLower();
@@ -254,7 +259,7 @@ public class ABLoader : MonoBehaviour {
 
         if (_manifest == null) {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-            string manifest = "Win";
+            string manifest = "Win64";
 #elif UNITY_IOS
                 string manifest = "iOS";
 #elif UNITY_ANDROID

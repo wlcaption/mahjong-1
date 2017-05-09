@@ -1,0 +1,85 @@
+local sproto = require "lualib.sproto"
+local parser = require "lualib.sprotoparser"
+local core = require "sproto.core"
+local request = require "request"
+local response = require "response"
+local assert = assert
+
+local cls = {}
+
+function cls:ctor(env, ... )
+	-- body
+	self._env = env
+	self._g = env._ctx.Client
+	
+	self._REQUEST  = request.new(env, self)
+	self._RESPONSE = response.new(env, self)
+
+	-- sproto
+	local proto = {}
+	proto.c2s = CS.ABLoader.current:LoadTextAsset("proto", "proto.c2s.sproto").text
+	proto.s2c = CS.ABLoader.current:LoadTextAsset("proto", "proto.s2c.sproto").text
+	assert(type(proto.s2c) == "string")
+	assert(type(proto.c2s) == "string")
+	local s2c_sp = core.newproto(parser.parse(proto.s2c))
+	local host = sproto.sharenew(s2c_sp):host "package"
+	local c2s_sp = core.newproto(parser.parse(proto.c2s))
+	local send_request = host:attach(sproto.sharenew(c2s_sp))
+
+	self._host = host
+	self._send_request = send_request
+
+	return self
+end
+
+function cls:send_request(name, args, ... )
+	-- body
+	local session = self._g:genSession()
+	self._RESPONSE_SESSION_NAME[self._response_session] = name
+	local v = self._send_request(name, args, self._response_session)
+	self._g:send(v)
+end
+
+function cls:response(session, args, ... )
+	-- body
+	local name = self._RESPONSE_SESSION_NAME[session]
+	local RESPONSE = self._RESPONSE
+	local f = RESPONSE[name]
+	local ok, err = pcall(f, RESPONSE, args, ...)
+	if not ok then
+		printError(err)
+	end
+	printInfo("response %s: %s", name, session)
+end
+
+function cls:request(name, args, response, ... )
+	-- body
+	printInfo("request %s.", name)
+	local REQUEST = self._REQUEST
+	local f = REQUEST[name]
+	local ok, err = pcall(f, REQUEST, args)
+	if ok then
+		return response(err)
+	else
+		printError(err)
+	end
+end
+
+function cls:dispatch(type, ... )
+	-- body
+	if type == "REQUEST" then
+		local ok, result = pcall(cls.request, self, ...)
+		if ok then
+			ps.send(self._g, self._gate_fd, result)
+		end
+	elseif type == "RESPONSE" then
+		pcall(cls.response, self, ... )
+	end
+end
+
+function cls:recv(package, ... )
+	-- body
+	self:dispatch(self._host:dispatch(package))
+end
+
+return cls

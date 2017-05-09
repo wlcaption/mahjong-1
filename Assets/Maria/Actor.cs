@@ -9,7 +9,6 @@ namespace Maria {
     public class Actor : DisposeObject {
 
         [XLua.LuaCallCSharp]
-        [XLua.CSharpCallLua]
         public delegate void RenderHandler();
 
         protected Context _ctx = null;

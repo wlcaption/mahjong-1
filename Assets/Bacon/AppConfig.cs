@@ -12,7 +12,7 @@ namespace Bacon {
 
             VTYPE = VERSION_TYPE.PUBLIC;
             UpdateRes = false;
-            if (VTYPE == VERSION_TYPE.PUBLIC) {
+            if (VTYPE == VERSION_TYPE.DEV) {
                 _loginIp = "120.76.248.223";
                 _loginPort = 3002;
                 _gateIp = "120.76.248.223";

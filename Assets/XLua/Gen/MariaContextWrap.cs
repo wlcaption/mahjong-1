@@ -20,7 +20,7 @@ namespace XLua.CSObjectWrap
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			Utils.BeginObjectRegister(typeof(Maria.Context), L, translator, 0, 21, 6, 1);
+			Utils.BeginObjectRegister(typeof(Maria.Context), L, translator, 0, 21, 8, 2);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Update", _m_Update);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Range", _m_Range);
@@ -50,9 +50,12 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "TiSync", _g_get_TiSync);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "SharpC", _g_get_SharpC);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "Logined", _g_get_Logined);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "Client", _g_get_Client);
             Utils.RegisterFunc(L, Utils.GETTER_IDX, "U", _g_get_U);
+            Utils.RegisterFunc(L, Utils.GETTER_IDX, "EnvScript", _g_get_EnvScript);
             
 			Utils.RegisterFunc(L, Utils.SETTER_IDX, "Logined", _s_set_Logined);
+            Utils.RegisterFunc(L, Utils.SETTER_IDX, "EnvScript", _s_set_EnvScript);
             
 			Utils.EndObjectRegister(typeof(Maria.Context), L, translator, null, null,
 			    null, null, null);
@@ -773,6 +776,20 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_Client(RealStatePtr L)
+        {
+            ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            try {
+			
+                Maria.Context __cl_gen_to_be_invoked = (Maria.Context)translator.FastGetCSObj(L, 1);
+                translator.Push(L, __cl_gen_to_be_invoked.Client);
+            } catch(System.Exception __gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + __gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _g_get_U(RealStatePtr L)
         {
             ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
@@ -780,6 +797,20 @@ namespace XLua.CSObjectWrap
 			
                 Maria.Context __cl_gen_to_be_invoked = (Maria.Context)translator.FastGetCSObj(L, 1);
                 translator.Push(L, __cl_gen_to_be_invoked.U);
+            } catch(System.Exception __gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + __gen_e);
+            }
+            return 1;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _g_get_EnvScript(RealStatePtr L)
+        {
+            ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            try {
+			
+                Maria.Context __cl_gen_to_be_invoked = (Maria.Context)translator.FastGetCSObj(L, 1);
+                translator.Push(L, __cl_gen_to_be_invoked.EnvScript);
             } catch(System.Exception __gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + __gen_e);
             }
@@ -796,6 +827,21 @@ namespace XLua.CSObjectWrap
 			
                 Maria.Context __cl_gen_to_be_invoked = (Maria.Context)translator.FastGetCSObj(L, 1);
                 __cl_gen_to_be_invoked.Logined = LuaAPI.lua_toboolean(L, 2);
+            
+            } catch(System.Exception __gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + __gen_e);
+            }
+            return 0;
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _s_set_EnvScript(RealStatePtr L)
+        {
+            ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            try {
+			
+                Maria.Context __cl_gen_to_be_invoked = (Maria.Context)translator.FastGetCSObj(L, 1);
+                __cl_gen_to_be_invoked.EnvScript = (Maria.Lua.Env)translator.GetObject(L, 2, typeof(Maria.Lua.Env));
             
             } catch(System.Exception __gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + __gen_e);

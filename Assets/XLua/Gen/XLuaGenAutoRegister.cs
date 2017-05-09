@@ -35,6 +35,20 @@ namespace XLua.CSObjectWrap
 				
 				translator.DelayWrapLoader(typeof(Maria.EventCmd), MariaEventCmdWrap.__Register);
 				
+				translator.DelayWrapLoader(typeof(Maria.EventCustom), MariaEventCustomWrap.__Register);
+				
+				translator.DelayWrapLoader(typeof(Maria.EventDispatcher), MariaEventDispatcherWrap.__Register);
+				
+				translator.DelayWrapLoader(typeof(Maria.EventListener), MariaEventListenerWrap.__Register);
+				
+				translator.DelayWrapLoader(typeof(Maria.EventListenerCmd), MariaEventListenerCmdWrap.__Register);
+				
+				translator.DelayWrapLoader(typeof(Maria.EventListenerCustom), MariaEventListenerCustomWrap.__Register);
+				
+				translator.DelayWrapLoader(typeof(Maria.Network.ClientSocket), MariaNetworkClientSocketWrap.__Register);
+				
+				translator.DelayWrapLoader(typeof(ABLoader), ABLoaderWrap.__Register);
+				
 				translator.DelayWrapLoader(typeof(Tutorial.BaseClass), TutorialBaseClassWrap.__Register);
 				
 				translator.DelayWrapLoader(typeof(Tutorial.TestEnum), TutorialTestEnumWrap.__Register);
@@ -47,6 +61,10 @@ namespace XLua.CSObjectWrap
 				
 				translator.DelayWrapLoader(typeof(Tutorial.DrivenClassExtensions), TutorialDrivenClassExtensionsWrap.__Register);
 				
+				
+				translator.AddInterfaceBridgeCreator(typeof(Maria.Lua.ClientSock), MariaLuaClientSockBridge.__Create);
+				
+				translator.AddInterfaceBridgeCreator(typeof(Maria.Lua.Env), MariaLuaEnvBridge.__Create);
 				
 				translator.AddInterfaceBridgeCreator(typeof(CSCallLua.ItfD), CSCallLuaItfDBridge.__Create);
 				

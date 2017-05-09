@@ -39,7 +39,8 @@ namespace Maria {
             _lastTi = _tiSync.LocalTime();
 
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-            _cotype = CoType.THREAD;
+            //_cotype = CoType.THREAD;
+            _cotype = CoType.CO;
 #elif UNITY_IOS || UNITY_ANDROID
             _cotype = CoType.CO;
 #endif
@@ -192,7 +193,7 @@ require 'main'
         }
 
         // Update is called once per frame
-        public void Update() {
+        public virtual void Update() {
             _luaenv.Tick();
 
             if (_cotype == CoType.CO) {
