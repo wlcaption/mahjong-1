@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.SceneManagement;
+﻿using System.Collections.Generic;
 using Maria.Network;
 using System;
 
@@ -22,6 +19,18 @@ namespace Maria {
 
         public string Name { get { return _name; } }
 
+        public virtual void OnEnter() {
+            foreach (var item in _actors) {
+                item.OnEnter();
+            }
+        }
+
+        public virtual void OnExit() {
+            foreach (var item in _actors) {
+                item.OnExit();
+            }
+        }
+
         // Update is called once per frame
         public virtual void Update(float delta) {
             foreach (var item in _actors) {
@@ -37,14 +46,26 @@ namespace Maria {
             return _actors.Remove(item);
         }
 
-        public virtual void Enter() { }
+        
 
-        public virtual void Exit() { }
+        public virtual void OnLoginAuthed(int code, byte[] secret, string dummy) {
+        }
+
+        public virtual void OnLoginConnected(bool connected) {
+
+        }
+
+        public virtual void OnLoginDisconnected() {
+        }
 
         public virtual void OnGateAuthed(int code) {
             if (code == 200) {
                 _authtcp = true;
             }
+        }
+
+        public virtual void OnGateConnected(bool connected) {
+
         }
 
         public virtual void OnGateDisconnected() {

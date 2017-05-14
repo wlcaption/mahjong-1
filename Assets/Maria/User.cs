@@ -7,7 +7,7 @@ namespace Maria {
         public string Server { get; set; }    // 没有啥用
         public string Username { set; get; }  // 没有啥用
         public string Password { set; get; }  // 没有啥用
-        public string Uid { get; set; }
+        public int Uid { get; set; }
         public int Subid { set; get; }
         public byte[] Secret { set; get; }
     }

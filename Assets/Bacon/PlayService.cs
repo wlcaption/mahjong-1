@@ -36,7 +36,7 @@ namespace Bacon {
                         for (int j = 0; j < args.list.Count; j++) {
                             C2sSprotoType.player player = new C2sSprotoType.player();
                             JSONObject p = args.list[i];
-                            if (p["uid"].str == _ctx.U.Uid) {
+                            if (p["uid"].i == _ctx.U.Uid) {
                                 player.idx = p["idx"].i;
                                 obj.me = player;
                             } else {

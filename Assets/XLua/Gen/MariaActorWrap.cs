@@ -20,8 +20,10 @@ namespace XLua.CSObjectWrap
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			Utils.BeginObjectRegister(typeof(Maria.Actor), L, translator, 0, 1, 3, 3);
+			Utils.BeginObjectRegister(typeof(Maria.Actor), L, translator, 0, 3, 3, 3);
 			
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnEnter", _m_OnEnter);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnExit", _m_OnExit);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Update", _m_Update);
 			
 			
@@ -109,6 +111,60 @@ namespace XLua.CSObjectWrap
         
         
         
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_OnEnter(RealStatePtr L)
+        {
+            
+            ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            Maria.Actor __cl_gen_to_be_invoked = (Maria.Actor)translator.FastGetCSObj(L, 1);
+            
+            
+            try {
+                
+                {
+                    
+                    __cl_gen_to_be_invoked.OnEnter(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception __gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + __gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_OnExit(RealStatePtr L)
+        {
+            
+            ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            Maria.Actor __cl_gen_to_be_invoked = (Maria.Actor)translator.FastGetCSObj(L, 1);
+            
+            
+            try {
+                
+                {
+                    
+                    __cl_gen_to_be_invoked.OnExit(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception __gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + __gen_e);
+            }
+            
+        }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_Update(RealStatePtr L)

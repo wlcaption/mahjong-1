@@ -23,6 +23,8 @@ public class MUIRoot : MonoBehaviour {
     public GameObject _Tips;
     public GameObject _Title;
 
+    public GameObject _Extra;
+
     // Use this for initialization
     void Start() {
         Command cmd = new Command(MyEventCmd.EVENT_SETUP_MUI, gameObject);

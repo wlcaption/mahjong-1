@@ -13,13 +13,13 @@ namespace Bacon {
             _startActor = new StartActor(ctx, this);
         }
 
-        public override void Enter() {
-            base.Enter();
+        public override void OnEnter() {
+            base.OnEnter();
             // 一般是加载场景在这里
         }
 
-        public override void Exit() {
-            base.Exit();
+        public override void OnExit() {
+            base.OnExit();
         }
     }
 }

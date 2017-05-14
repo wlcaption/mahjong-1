@@ -23,5 +23,4 @@ public class ABBuild : EditorWindow {
         BuildPipeline.BuildAssetBundles("Assets/streamingAssets/Win64", BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows64);
         BuildPipeline.BuildAssetBundles("Assets/streamingAssets/Android", BuildAssetBundleOptions.None, BuildTarget.Android);
     }
-
 }

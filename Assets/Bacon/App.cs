@@ -24,7 +24,7 @@ namespace Bacon {
             _envScript = main(_ctx);
             _ctx.EnvScript = _envScript;
             _envScript.update();
-
+            _ctx.Client.ClintSockscript = _envScript.clientsock();
             //Action<Context> main = _luaenv.Global.Get<Action<Context>>("main");
             //main(_ctx);
         }

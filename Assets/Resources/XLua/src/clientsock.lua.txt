@@ -37,7 +37,7 @@ function cls:send_request(name, args, ... )
 	local session = self._g:genSession()
 	self._RESPONSE_SESSION_NAME[self._response_session] = name
 	local v = self._send_request(name, args, self._response_session)
-	self._g:send(v)
+	self._g:Send(v)
 end
 
 function cls:response(session, args, ... )
@@ -45,41 +45,70 @@ function cls:response(session, args, ... )
 	local name = self._RESPONSE_SESSION_NAME[session]
 	local RESPONSE = self._RESPONSE
 	local f = RESPONSE[name]
-	local ok, err = pcall(f, RESPONSE, args, ...)
-	if not ok then
-		printError(err)
+	if f then
+		local ok, err = pcall(f, RESPONSE, args, ...)
+		if not ok then
+			print(err)
+		end
+		return true
+	else
+		return false
 	end
-	printInfo("response %s: %s", name, session)
 end
 
 function cls:request(name, args, response, ... )
 	-- body
-	printInfo("request %s.", name)
 	local REQUEST = self._REQUEST
 	local f = REQUEST[name]
-	local ok, err = pcall(f, REQUEST, args)
-	if ok then
-		return response(err)
+	print("request :", name)
+	if f then
+		local ok, err = pcall(f, REQUEST, args)
+		if ok then
+			local resp = response(err)
+			self._g:send(resp)
+		else
+			print(err)
+		end
+		return true
 	else
-		printError(err)
+		print("not found request:", name)
+		return false
 	end
 end
 
 function cls:dispatch(type, ... )
 	-- body
 	if type == "REQUEST" then
-		local ok, result = pcall(cls.request, self, ...)
-		if ok then
-			ps.send(self._g, self._gate_fd, result)
-		end
+		return self:request(...)
 	elseif type == "RESPONSE" then
-		pcall(cls.response, self, ... )
+		return self:response(...)
 	end
+end
+
+function cls:enable( ... )
+	-- body
+	return true
 end
 
 function cls:recv(package, ... )
 	-- body
-	self:dispatch(self._host:dispatch(package))
+	-- pcall report session error, but for response
+	assert(package)
+	local ok, err = pcall(function (arg, ... )
+		-- body
+		assert(arg)
+		self:dispatch(self._host:dispatch(arg))
+	end, package)
+	if ok then
+		if err then
+			return true
+		else
+			return false
+		end
+	else
+		print("pcall error:", err)
+		return false
+	end
 end
 
 return cls

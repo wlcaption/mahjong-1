@@ -94,8 +94,8 @@ namespace Bacon {
             }
         }
 
-        public override void Enter() {
-            base.Enter();
+        public override void OnEnter() {
+            base.OnEnter();
             InitService service = _ctx.QueryService<InitService>(InitService.Name);
             if (service != null) {
                 SMActor actor = service.SMActor;
@@ -103,8 +103,8 @@ namespace Bacon {
             }
         }
 
-        public override void Exit() {
-            base.Exit();
+        public override void OnExit() {
+            base.OnExit();
         }
 
         public Desk Desk { get { return _desk; } }

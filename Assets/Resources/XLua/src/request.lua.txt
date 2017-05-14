@@ -9,12 +9,12 @@ function cls:ctor(env, clientsock)
 	return self
 end
 
-function cls:handshake(args, ... )
-	-- body
-	local res = {}
-	res.errorcode = errorcode.SUCCESS
-	return res
-end
+-- function cls:handshake(args, ... )
+-- 	-- body
+-- 	local res = {}
+-- 	res.errorcode = errorcode.SUCCESS
+-- 	return res
+-- end
 
 
 

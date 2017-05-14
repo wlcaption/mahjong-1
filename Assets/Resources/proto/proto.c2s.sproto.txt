@@ -121,7 +121,6 @@ create 4 {
         errorcode 0 : integer
         roomid    1 : integer
         room_max  2 : integer
-        me        3 : player
     }
 }
 
@@ -228,6 +227,24 @@ record 16 {
 logout 17 {
     response {
         errorcode 0 : integer
+    }
+}
+
+test 18 {
+    request {
+        id 0 : integer
+    }
+    response {
+        errorcode 0 : integer
+    }
+}
+
+avatar 19 {
+    response {
+        errorcode 0 : integer
+        nickname 1 : string
+        nameid 2 : string
+        rcard 3 : integer
     }
 }
 

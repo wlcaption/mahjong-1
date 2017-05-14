@@ -7,6 +7,7 @@ namespace Maria.Lua {
 
     [XLua.CSharpCallLua]
     public interface ClientSock {
-        void recv(string package);
+        bool enable();
+        bool recv(string package);
     }
 }

@@ -20,16 +20,18 @@ namespace XLua.CSObjectWrap
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			Utils.BeginObjectRegister(typeof(Maria.Context), L, translator, 0, 21, 8, 2);
+			Utils.BeginObjectRegister(typeof(Maria.Context), L, translator, 0, 23, 8, 2);
 			
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Update", _m_Update);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Range", _m_Range);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LoginAuth", _m_LoginAuth);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LoginAuthCb", _m_LoginAuthCb);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LoginDisconnect", _m_LoginDisconnect);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnLoginAuthed", _m_OnLoginAuthed);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnLoginConnected", _m_OnLoginConnected);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnLoginDisconnected", _m_OnLoginDisconnected);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "GateAuth", _m_GateAuth);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UdpAuth", _m_UdpAuth);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SendUdp", _m_SendUdp);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnGateAuthed", _m_OnGateAuthed);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnGateConnected", _m_OnGateConnected);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnGateDisconnected", _m_OnGateDisconnected);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Peek", _m_Peek);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Push", _m_Push);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Pop", _m_Pop);
@@ -39,8 +41,8 @@ namespace XLua.CSObjectWrap
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "QueryService", _m_QueryService);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Enqueue", _m_Enqueue);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "EnqueueRenderQueue", _m_EnqueueRenderQueue);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnGateAuthed", _m_OnGateAuthed);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnGateDisconnected", _m_OnGateDisconnected);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UdpAuth", _m_UdpAuth);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SendUdp", _m_SendUdp);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnUdpSync", _m_OnUdpSync);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnUdpRecv", _m_OnUdpRecv);
 			
@@ -192,7 +194,7 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_LoginAuthCb(RealStatePtr L)
+        static int _m_OnLoginAuthed(RealStatePtr L)
         {
             
             ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
@@ -208,7 +210,7 @@ namespace XLua.CSObjectWrap
                     byte[] secret = LuaAPI.lua_tobytes(L, 3);
                     string dummy = LuaAPI.lua_tostring(L, 4);
                     
-                    __cl_gen_to_be_invoked.LoginAuthCb( code, secret, dummy );
+                    __cl_gen_to_be_invoked.OnLoginAuthed( code, secret, dummy );
                     
                     
                     
@@ -222,7 +224,35 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_LoginDisconnect(RealStatePtr L)
+        static int _m_OnLoginConnected(RealStatePtr L)
+        {
+            
+            ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            Maria.Context __cl_gen_to_be_invoked = (Maria.Context)translator.FastGetCSObj(L, 1);
+            
+            
+            try {
+                
+                {
+                    bool connected = LuaAPI.lua_toboolean(L, 2);
+                    
+                    __cl_gen_to_be_invoked.OnLoginConnected( connected );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception __gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + __gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_OnLoginDisconnected(RealStatePtr L)
         {
             
             ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
@@ -235,7 +265,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                    __cl_gen_to_be_invoked.LoginDisconnect(  );
+                    __cl_gen_to_be_invoked.OnLoginDisconnected(  );
                     
                     
                     
@@ -276,7 +306,7 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_UdpAuth(RealStatePtr L)
+        static int _m_OnGateAuthed(RealStatePtr L)
         {
             
             ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
@@ -288,11 +318,9 @@ namespace XLua.CSObjectWrap
             try {
                 
                 {
-                    long session = LuaAPI.lua_toint64(L, 2);
-                    string ip = LuaAPI.lua_tostring(L, 3);
-                    int port = LuaAPI.xlua_tointeger(L, 4);
+                    int code = LuaAPI.xlua_tointeger(L, 2);
                     
-                    __cl_gen_to_be_invoked.UdpAuth( session, ip, port );
+                    __cl_gen_to_be_invoked.OnGateAuthed( code );
                     
                     
                     
@@ -306,7 +334,7 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_SendUdp(RealStatePtr L)
+        static int _m_OnGateConnected(RealStatePtr L)
         {
             
             ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
@@ -318,9 +346,36 @@ namespace XLua.CSObjectWrap
             try {
                 
                 {
-                    byte[] data = LuaAPI.lua_tobytes(L, 2);
+                    bool connected = LuaAPI.lua_toboolean(L, 2);
                     
-                    __cl_gen_to_be_invoked.SendUdp( data );
+                    __cl_gen_to_be_invoked.OnGateConnected( connected );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception __gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + __gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_OnGateDisconnected(RealStatePtr L)
+        {
+            
+            ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            Maria.Context __cl_gen_to_be_invoked = (Maria.Context)translator.FastGetCSObj(L, 1);
+            
+            
+            try {
+                
+                {
+                    
+                    __cl_gen_to_be_invoked.OnGateDisconnected(  );
                     
                     
                     
@@ -593,7 +648,7 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_OnGateAuthed(RealStatePtr L)
+        static int _m_UdpAuth(RealStatePtr L)
         {
             
             ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
@@ -605,9 +660,11 @@ namespace XLua.CSObjectWrap
             try {
                 
                 {
-                    int code = LuaAPI.xlua_tointeger(L, 2);
+                    long session = LuaAPI.lua_toint64(L, 2);
+                    string ip = LuaAPI.lua_tostring(L, 3);
+                    int port = LuaAPI.xlua_tointeger(L, 4);
                     
-                    __cl_gen_to_be_invoked.OnGateAuthed( code );
+                    __cl_gen_to_be_invoked.UdpAuth( session, ip, port );
                     
                     
                     
@@ -621,7 +678,7 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_OnGateDisconnected(RealStatePtr L)
+        static int _m_SendUdp(RealStatePtr L)
         {
             
             ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
@@ -633,8 +690,9 @@ namespace XLua.CSObjectWrap
             try {
                 
                 {
+                    byte[] data = LuaAPI.lua_tobytes(L, 2);
                     
-                    __cl_gen_to_be_invoked.OnGateDisconnected(  );
+                    __cl_gen_to_be_invoked.SendUdp( data );
                     
                     
                     

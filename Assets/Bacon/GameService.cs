@@ -60,23 +60,10 @@ namespace Bacon {
                     _max = obj.room_max;
                     _host = true;
 
-                    _controller = (GameController)_ctx.Push(typeof(GameController));
+                    C2sSprotoType.join.request request = new C2sSprotoType.join.request();
+                    request.roomid = _roomid;
+                    _ctx.SendReq<C2sProtocol.join>(C2sProtocol.join.Tag, request);
 
-                    Player player = new BottomPlayer(_ctx, this);
-                    player.Idx = (int)obj.me.idx;
-                    player.Chip = (int)obj.me.chip;
-                    player.Sid = (int)obj.me.sid;
-                    player.Sex = (int)obj.me.sex;
-                    player.Name = obj.me.name;
-                    player.Controller = _controller;
-                    player.Init();
-
-                    _myidx = obj.me.idx;
-                    _playes[_myidx] = player;
-                    UnityEngine.Debug.Assert(_ctx.U.Subid == obj.me.sid);
-
-                    _joined++;
-                    _online++;
                 } catch (Exception ex) {
                     UnityEngine.Debug.LogException(ex);
                 }

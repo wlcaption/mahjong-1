@@ -52,8 +52,8 @@ namespace Bacon {
 
         }
 
-        public override void Enter() {
-            base.Enter();
+        public override void OnEnter() {
+            base.OnEnter();
             if (_service == null) {
                 _service = _ctx.QueryService<InitService>(InitService.Name);
             }
@@ -64,8 +64,8 @@ namespace Bacon {
             //_ctx.EnqueueRenderQueue(RenderEnter);
         }
 
-        public override void Exit() {
-            base.Exit();
+        public override void OnExit() {
+            base.OnExit();
             _ctx.EnqueueRenderQueue(RenderExit);
         }
 
@@ -134,6 +134,10 @@ namespace Bacon {
                 }
             }
 
+        }
+
+        public static void test() {
+            UnityEngine.Debug.Log("abc");
         }
 
         public void FetchSysmail(SprotoTypeBase responseObj) {

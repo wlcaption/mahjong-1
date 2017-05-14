@@ -7,6 +7,7 @@ namespace Maria.Lua {
     [XLua.CSharpCallLua]
     public interface Env {
         //void ctor(Context ctx);
+        ClientSock clientsock();
         void update();
         //int f1 { get; set; }
         //int f2 { get; set; }

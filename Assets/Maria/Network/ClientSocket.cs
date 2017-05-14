@@ -12,8 +12,9 @@ namespace Maria.Network {
     public class ClientSocket : DisposeObject {
 
         public delegate void AuthedCb(int ok);
+        public delegate void ConnectedCb(bool connected);
         public delegate void DisconnectedCb();
-        
+
         public delegate void RspCb(uint session, SprotoTypeBase responseObj, object ud);
         public delegate SprotoTypeBase ReqCb(uint session, SprotoTypeBase requestObj);
 
@@ -38,11 +39,11 @@ namespace Maria.Network {
         private PackageSocket _tcp = null;
         private User _user = new User();
 
-        private string       _ip = String.Empty;
-        private int          _port = 0;
-        private int          _step = 0;
-        private bool         _handshake = false;
-        
+        private string _ip = String.Empty;
+        private int _port = 0;
+        private int _step = 0;
+        private bool _handshake = false;
+
         private int _index = 0;
         private int _version = 0;
         private uint _session = 0;
@@ -54,13 +55,14 @@ namespace Maria.Network {
 
         private Dictionary<string, ReqPg> _reqPg = new Dictionary<string, ReqPg>();
         private Dictionary<string, RspPg> _rspPg = new Dictionary<string, RspPg>();
+        private Lua.ClientSock _clientSockScript = null;
 
         // udp
         private PackageSocketUdp _udp = null;
-        private long             _udpsession = 0;
-        private string           _udpip = null;
-        private int              _udpport = 0;
-        private bool             _udpflag = false;
+        private long _udpsession = 0;
+        private string _udpip = null;
+        private int _udpport = 0;
+        private bool _udpflag = false;
 
         public ClientSocket(Context ctx, ProtocolBase s2c, ProtocolBase c2s) {
             _ctx = ctx;
@@ -84,10 +86,11 @@ namespace Maria.Network {
         }
 
         public AuthedCb OnAuthed { get; set; }
+        public ConnectedCb OnConnected { get; set; }
         public DisconnectedCb OnDisconnected { get; set; }
         public PackageSocketUdp.RecvCB OnRecvUdp { get; set; }
         public PackageSocketUdp.SyncCB OnSyncUdp { get; set; }
-        public Lua.ClientSock ClintSockscript { get; set; }
+        public Lua.ClientSock ClintSockscript { get { return _clientSockScript; } set { _clientSockScript = value; } }
 
         // Update is called once per frame
         public void Update() {
@@ -136,6 +139,38 @@ namespace Maria.Network {
             }
         }
 
+        public void Send(string pack) {
+            if (_tcpflag) {
+                byte[] d = ASCIIEncoding.ASCII.GetBytes(pack);
+                _tcp.Send(d, 0, d.Length);
+            }
+        }
+
+        public void Auth(string ipstr, int pt, User u) {
+            _step = 0;
+            _index++;   // index increment.
+            _ip = ipstr;
+            _port = pt;
+            _user = u;
+            _handshake = true;
+
+            // TODO:
+            // 这里可能需要修改下
+            _tcp = new PackageSocket();
+            _tcp.OnConnect = OnConnect;
+            _tcp.OnRecvive = OnRecvive;
+            _tcp.OnDisconnect = OnDisconnect;
+            _tcp.SetEnabledPing(false);
+            _tcp.SetPackageSocketType(PackageSocketType.Header);
+            _tcp.Connect(_ip, _port);
+        }
+
+        public void Reset() {
+            _user = null;
+            _step = 0;
+            _handshake = false;
+        }
+
         private byte[] WriteToken() {
             string u = Encoding.ASCII.GetString(Crypt.base64encode(Encoding.ASCII.GetBytes(string.Format("{0}", _user.Uid))));
             string s = Encoding.ASCII.GetString(Crypt.base64encode(Encoding.ASCII.GetBytes(_user.Server)));
@@ -161,7 +196,7 @@ namespace Maria.Network {
                 if (_handshake)
                     DoAuth();
             } else {
-                Auth(_ip, _port, _user);
+                OnConnected(connected);
             }
         }
 
@@ -204,6 +239,11 @@ namespace Maria.Network {
             } else {
                 byte[] buffer = new byte[length];
                 Array.Copy(data, start, buffer, 0, length);
+                if (_clientSockScript.enable()) {
+                    if (_clientSockScript.recv(Encoding.ASCII.GetString(buffer))) {
+                        return;
+                    }
+                }
                 SprotoRpc.RpcInfo sinfo = _host.Dispatch(buffer);
                 if (sinfo.type == SprotoRpc.RpcType.REQUEST) {
                     int tag = (int)sinfo.tag;
@@ -251,31 +291,7 @@ namespace Maria.Network {
             return Encoding.ASCII.GetString(tmp);
         }
 
-        public void Auth(string ipstr, int pt, User u) {
-            _step = 0;
-            _index++;   // index increment.
-            _ip = ipstr;
-            _port = pt;
-            _user = u;
-            _handshake = true;
-
-            // TODO:
-            // 这里可能需要修改下
-            _tcp = new PackageSocket();
-            _tcp.OnConnect = OnConnect;
-            _tcp.OnRecvive = OnRecvive;
-            _tcp.OnDisconnect = OnDisconnect;
-            _tcp.SetEnabledPing(false);
-            _tcp.SetPackageSocketType(PackageSocketType.Header);
-            _tcp.Connect(_ip, _port);
-        }
-
-        public void Reset() {
-            _user = null;
-            _step = 0;
-            _handshake = false;
-        }
-
+       
         // UDP
         public void UdpAuth(long session, string ip, int port) {
             UnityEngine.Debug.Assert(_udpflag == false);
@@ -283,7 +299,7 @@ namespace Maria.Network {
             _udpsession = session;
             _udpip = ip;
             _udpport = port;
-            
+
             TimeSync ts = _ctx.TiSync;
             _udp = new PackageSocketUdp(_ctx, _user.Secret, (uint)session);
             _udp.OnRecv = UdpRecv;

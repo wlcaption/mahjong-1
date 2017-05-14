@@ -67,10 +67,11 @@ public class App : MonoBehaviour {
         if (_app != null) {
             _app.OnApplicationQuit();
         }
-        ABLoader.current.Unload();
+        //ABLoader.current.Unload();
     }
 
     public void Enqueue(Command cmd) {
+        UnityEngine.Debug.Assert(cmd != null);
         _app.Enqueue(cmd);
     }
 

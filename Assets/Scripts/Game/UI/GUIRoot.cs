@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Maria;
 using Bacon;
+using System;
 
 public class GUIRoot : MonoBehaviour {
 
@@ -28,13 +29,13 @@ public class GUIRoot : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-
+        _Time.text = DateTime.Now.ToShortTimeString();
     }
 
     public void InitUI(int id) {
-        string name = string.Format("Room ID: {0}", id);
+        string name = string.Format("房间号: {0:000000}", id);
         if (_RoomId != null) {
-            _RoomId.GetComponent<Text>().text = name;
+            _RoomId.GetComponent<TextMesh>().text = name;
         }
     }
 
@@ -72,6 +73,10 @@ public class GUIRoot : MonoBehaviour {
         if (_ChatWnd != null) {
             _ChatWnd.GetComponent<ChatWnd>().Show();
         }
+    }
+
+    public void OnInvite() {
+
     }
 
     public void ShowOver() {

@@ -44,11 +44,13 @@ namespace Maria {
             _dispatcher = new EventDispatcher(this);
 
             _login = new ClientLogin(this);
-            _login.OnLogined = LoginAuthCb;
-            _login.OnDisconnected = LoginDisconnect;
+            _login.OnLogined = OnLoginAuthed;
+            _login.OnConnected = OnLoginConnected;
+            _login.OnDisconnected = OnLoginDisconnected;
 
             _client = new ClientSocket(this, _config.s2c, _config.c2s);
             _client.OnAuthed = OnGateAuthed;
+            _client.OnConnected = OnGateConnected;
             _client.OnDisconnected = OnGateDisconnected;
             _client.OnSyncUdp = OnUdpSync;
             _client.OnRecvUdp = OnUdpRecv;
@@ -137,6 +139,7 @@ namespace Maria {
 
         // login
         public void LoginAuth(string s, string u, string pwd) {
+
             _authtcp = false;
             _logined = false;
 
@@ -148,13 +151,13 @@ namespace Maria {
             _login.Auth(ip, port, s, u, pwd);
         }
 
-        public void LoginAuthCb(int code, byte[] secret, string dummy) {
+        public void OnLoginAuthed(int code, byte[] secret, string dummy) {
             if (code == 200) {
                 int _1 = dummy.IndexOf('#');
                 int _2 = dummy.IndexOf('@', _1);
                 int _3 = dummy.IndexOf(':', _2);
 
-                string uid = dummy.Substring(0, _1);
+                int uid = Int32.Parse(dummy.Substring(0, _1));
                 int sid = Int32.Parse(dummy.Substring(_1 + 1, _2 - _1 - 1));
                 string gip = dummy.Substring(_2 + 1, _3 - _2 - 1);
                 int gpt = Int32.Parse(dummy.Substring(_3 + 1));
@@ -168,12 +171,28 @@ namespace Maria {
 
                 //_config.GateIp = gip;
                 //_config.GatePort = gpt;
+
                 GateAuth();
             } else {
+
+            }
+            if (_stack.Count > 0) {
+                _stack.Peek().OnLoginAuthed(code, secret, dummy);
             }
         }
 
-        public virtual void LoginDisconnect() {
+        public void OnLoginConnected(bool connected) {
+            if (!connected) {
+                if (_stack.Count > 0) {
+                    _stack.Peek().OnLoginConnected(connected);
+                }
+            }
+        }
+
+        public void OnLoginDisconnected() {
+            if (_stack.Count > 0) {
+                _stack.Peek().OnLoginDisconnected();
+            }
         }
 
         // TCP
@@ -185,17 +204,53 @@ namespace Maria {
             _client.Auth(Config.GateIp, Config.GatePort, _user);
         }
 
-        // UDP
-        public void UdpAuth(long session, string ip, int port) {
-            _client.UdpAuth(session, ip, port);
-        }
+        public void OnGateAuthed(int code) {
+            if (code == 200) {
+                _authtcp = true;
+                _logined = true;
 
+                string dummy = string.Empty;
+                //
+                EventDispatcher.FireCustomEvent(EventCustom.OnAuthed, null);
 
-        public void SendUdp(byte[] data) {
-            if (_authudp) {
-                _client.SendUdp(data);
+                //
+                if (_stack.Count > 0) {
+                    Controller controller = Peek();
+
+                    controller.OnGateAuthed(code);
+                }
+            } else if (code == 403) {
+                //LoginAuth(_user.Server, _user.Username, _user.Password);
             }
         }
+
+        public void OnGateConnected(bool connected) {
+            if (!connected) {
+                if (_stack.Count > 0) {
+                    _stack.Peek().OnGateConnected(connected);
+                }
+            }
+        }
+
+        public void OnGateDisconnected() {
+            if (_logined) {
+                EventDispatcher.FireCustomEvent(EventCustom.OnDisconnected, null);
+                var controller = Peek();
+                if (controller != null) {
+                    controller.OnGateDisconnected();
+                }
+            } else {
+                if (_stack.Count > 0) {
+                    var controller = Peek();
+                    if (controller != null) {
+                        controller.Logout();
+                    }
+                }
+            }
+
+        }
+
+
 
         public Controller Peek() {
             if (_stack.Count > 0) {
@@ -214,20 +269,20 @@ namespace Maria {
         public Controller Push(Type type) {
             Controller controller = (Controller)Activator.CreateInstance(type, this);
             if (_stack.Count > 0) {
-                _stack.Peek().Exit();
+                _stack.Peek().OnExit();
             }
             _stack.Push(controller);
-            controller.Enter();
+            controller.OnEnter();
             return controller;
         }
 
         public T Push<T>() where T : Controller {
             T controller = Activator.CreateInstance(typeof(T), this) as T;
             if (_stack.Count > 0) {
-                _stack.Peek().Exit();
+                _stack.Peek().OnExit();
             }
             _stack.Push(controller);
-            controller.Enter();
+            controller.OnEnter();
             return controller;
         }
 
@@ -235,11 +290,11 @@ namespace Maria {
             Controller controller = null;
             if (_stack.Count > 0) {
                 controller = _stack.Peek();
-                controller.Exit();
+                controller.OnExit();
                 _stack.Pop();
             }
             if (_stack.Count > 0) {
-                _stack.Peek().Enter();
+                _stack.Peek().OnEnter();
             }
             return controller;
         }
@@ -248,11 +303,11 @@ namespace Maria {
             T controller = null;
             if (_stack.Count > 0) {
                 controller = _stack.Peek() as T;
-                controller.Exit();
+                controller.OnExit();
                 _stack.Pop();
             }
             if (_stack.Count > 0) {
-                _stack.Peek().Enter();
+                _stack.Peek().OnEnter();
             }
             return controller;
         }
@@ -323,42 +378,16 @@ namespace Maria {
             _application.EnqueueRenderQueue(handler);
         }
 
-        public void OnGateAuthed(int code) {
-            if (code == 200) {
-                _authtcp = true;
-                _logined = true;
-
-                string dummy = string.Empty;
-                //
-                EventDispatcher.FireCustomEvent(EventCustom.OnAuthed, null);
-
-                //
-                if (_stack.Count > 0) {
-                    Controller controller = Peek();
-
-                    controller.OnGateAuthed(code);
-                }
-            } else if (code == 403) {
-                //LoginAuth(_user.Server, _user.Username, _user.Password);
-            }
+        // UDP
+        public void UdpAuth(long session, string ip, int port) {
+            _client.UdpAuth(session, ip, port);
         }
 
-        public void OnGateDisconnected() {
-            if (_logined) {
-                EventDispatcher.FireCustomEvent(EventCustom.OnDisconnected, null);
-                var controller = Peek();
-                if (controller != null) {
-                    controller.OnGateDisconnected();
-                }
-            } else {
-                if (_stack.Count > 0) {
-                    var controller = Peek();
-                    if (controller != null) {
-                        controller.Logout();
-                    }
-                }
-            }
 
+        public void SendUdp(byte[] data) {
+            if (_authudp) {
+                _client.SendUdp(data);
+            }
         }
 
         public void OnUdpSync() {

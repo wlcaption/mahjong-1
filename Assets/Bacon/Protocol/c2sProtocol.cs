@@ -6,6 +6,9 @@ using System.Collections.Generic;
 public class C2sProtocol : ProtocolBase {
 	public static  C2sProtocol Instance = new C2sProtocol();
 	private C2sProtocol() {
+		Protocol.SetProtocol<avatar> (avatar.Tag);
+		Protocol.SetResponse<C2sSprotoType.avatar.response> (avatar.Tag);
+
 		Protocol.SetProtocol<call> (call.Tag);
 		Protocol.SetRequest<C2sSprotoType.call.request> (call.Tag);
 		Protocol.SetResponse<C2sSprotoType.call.response> (call.Tag);
@@ -80,6 +83,10 @@ public class C2sProtocol : ProtocolBase {
 		Protocol.SetRequest<C2sSprotoType.syncsysmail.request> (syncsysmail.Tag);
 		Protocol.SetResponse<C2sSprotoType.syncsysmail.response> (syncsysmail.Tag);
 
+		Protocol.SetProtocol<test> (test.Tag);
+		Protocol.SetRequest<C2sSprotoType.test.request> (test.Tag);
+		Protocol.SetResponse<C2sSprotoType.test.response> (test.Tag);
+
 		Protocol.SetProtocol<toast1> (toast1.Tag);
 		Protocol.SetResponse<C2sSprotoType.toast1.response> (toast1.Tag);
 
@@ -98,6 +105,10 @@ public class C2sProtocol : ProtocolBase {
 		Protocol.SetRequest<C2sSprotoType.xuanque.request> (xuanque.Tag);
 		Protocol.SetResponse<C2sSprotoType.xuanque.response> (xuanque.Tag);
 
+	}
+
+	public class avatar {
+		public const int Tag = 19;
 	}
 
 	public class call {
@@ -178,6 +189,10 @@ public class C2sProtocol : ProtocolBase {
 
 	public class syncsysmail {
 		public const int Tag = 13;
+	}
+
+	public class test {
+		public const int Tag = 18;
 	}
 
 	public class toast1 {

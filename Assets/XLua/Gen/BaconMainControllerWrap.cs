@@ -22,8 +22,8 @@ namespace XLua.CSObjectWrap
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			Utils.BeginObjectRegister(typeof(Bacon.MainController), L, translator, 0, 28, 0, 0);
 			
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Enter", _m_Enter);
-			Utils.RegisterFunc(L, Utils.METHOD_IDX, "Exit", _m_Exit);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnEnter", _m_OnEnter);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "OnExit", _m_OnExit);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "SetupUI", _m_SetupUI);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "RenderSetupUI", _m_RenderSetupUI);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "First", _m_First);
@@ -57,8 +57,9 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(typeof(Bacon.MainController), L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(typeof(Bacon.MainController), L, __CreateInstance, 1, 0, 0);
-			
+		    Utils.BeginClassRegister(typeof(Bacon.MainController), L, __CreateInstance, 2, 0, 0);
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "test", _m_test_xlua_st_);
+            
 			
             
             Utils.RegisterObject(L, translator, Utils.CLS_IDX, "UnderlyingSystemType", typeof(Bacon.MainController));
@@ -99,7 +100,7 @@ namespace XLua.CSObjectWrap
         
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_Enter(RealStatePtr L)
+        static int _m_OnEnter(RealStatePtr L)
         {
             
             ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
@@ -112,7 +113,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                    __cl_gen_to_be_invoked.Enter(  );
+                    __cl_gen_to_be_invoked.OnEnter(  );
                     
                     
                     
@@ -126,7 +127,7 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_Exit(RealStatePtr L)
+        static int _m_OnExit(RealStatePtr L)
         {
             
             ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
@@ -139,7 +140,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                    __cl_gen_to_be_invoked.Exit(  );
+                    __cl_gen_to_be_invoked.OnExit(  );
                     
                     
                     
@@ -250,6 +251,29 @@ namespace XLua.CSObjectWrap
                 {
                     
                     __cl_gen_to_be_invoked.RenderFirst(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception __gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + __gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_test_xlua_st_(RealStatePtr L)
+        {
+            
+            
+            
+            try {
+                
+                {
+                    
+                    Bacon.MainController.test(  );
                     
                     
                     

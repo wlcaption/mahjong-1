@@ -43,7 +43,33 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp1(Maria.EventCmd p0)
+		public void __Gen_Delegate_Imp1()
+		{
+#if THREAD_SAFT || HOTFIX_ENABLE
+            lock (luaEnv.luaEnvLock)
+            {
+#endif
+                RealStatePtr L = luaEnv.rawL;
+                int err_func =LuaAPI.load_error_func(L, errorFuncRef);
+                
+                
+                LuaAPI.lua_getref(L, luaReference);
+                
+                
+                int __gen_error = LuaAPI.lua_pcall(L, 0, 0, err_func);
+                if (__gen_error != 0)
+                    luaEnv.ThrowExceptionFromError(err_func - 1);
+                
+                
+                
+                LuaAPI.lua_settop(L, err_func - 1);
+                
+#if THREAD_SAFT || HOTFIX_ENABLE
+            }
+#endif
+		}
+        
+		public void __Gen_Delegate_Imp2(Maria.EventCmd p0)
 		{
 #if THREAD_SAFT || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -70,7 +96,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp2(Maria.EventCustom p0)
+		public void __Gen_Delegate_Imp3(Maria.EventCustom p0)
 		{
 #if THREAD_SAFT || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -97,7 +123,7 @@ namespace XLua
 #endif
 		}
         
-		public int __Gen_Delegate_Imp3(int p0, string p1, out CSCallLua.DClass p2)
+		public int __Gen_Delegate_Imp4(int p0, string p1, out CSCallLua.DClass p2)
 		{
 #if THREAD_SAFT || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -126,7 +152,7 @@ namespace XLua
 #endif
 		}
         
-		public System.Action __Gen_Delegate_Imp4()
+		public System.Action __Gen_Delegate_Imp5()
 		{
 #if THREAD_SAFT || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -152,7 +178,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp5(object p0)
+		public void __Gen_Delegate_Imp6(object p0)
 		{
 #if THREAD_SAFT || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -179,7 +205,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp6(object p0, object p1)
+		public void __Gen_Delegate_Imp7(object p0, object p1)
 		{
 #if THREAD_SAFT || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -207,7 +233,7 @@ namespace XLua
 #endif
 		}
         
-		public Sproto.SprotoTypeBase __Gen_Delegate_Imp7(object p0, object p1)
+		public Sproto.SprotoTypeBase __Gen_Delegate_Imp8(object p0, object p1)
 		{
 #if THREAD_SAFT || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -235,7 +261,7 @@ namespace XLua
 #endif
 		}
         
-		public void __Gen_Delegate_Imp8(object p0, bool p1)
+		public void __Gen_Delegate_Imp9(object p0, bool p1)
 		{
 #if THREAD_SAFT || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -263,7 +289,7 @@ namespace XLua
 #endif
 		}
         
-		public XLua.LuaEnv __Gen_Delegate_Imp9(object p0)
+		public XLua.LuaEnv __Gen_Delegate_Imp10(object p0)
 		{
 #if THREAD_SAFT || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -290,7 +316,7 @@ namespace XLua
 #endif
 		}
         
-		public System.Collections.IEnumerator __Gen_Delegate_Imp10(object p0, object p1)
+		public System.Collections.IEnumerator __Gen_Delegate_Imp11(object p0, object p1)
 		{
 #if THREAD_SAFT || HOTFIX_ENABLE
             lock (luaEnv.luaEnvLock)
@@ -332,39 +358,44 @@ namespace XLua
 			    return new Bacon.App.Main(__Gen_Delegate_Imp0);
 			}
 		
-		    if (type == typeof(Maria.EventListenerCmd.OnEventCmdHandler))
+		    if (type == typeof(Maria.Actor.RenderHandler))
 			{
-			    return new Maria.EventListenerCmd.OnEventCmdHandler(__Gen_Delegate_Imp1);
-			}
-		
-		    if (type == typeof(Maria.EventListenerCustom.OnEventCustomHandler))
-			{
-			    return new Maria.EventListenerCustom.OnEventCustomHandler(__Gen_Delegate_Imp2);
-			}
-		
-		    if (type == typeof(CSCallLua.FDelegate))
-			{
-			    return new CSCallLua.FDelegate(__Gen_Delegate_Imp3);
-			}
-		
-		    if (type == typeof(CSCallLua.GetE))
-			{
-			    return new CSCallLua.GetE(__Gen_Delegate_Imp4);
-			}
-		
-		    if (type == typeof(__Gen_Hotfix_Delegate0))
-			{
-			    return new __Gen_Hotfix_Delegate0(__Gen_Delegate_Imp5);
-			}
-		
-		    if (type == typeof(__Gen_Hotfix_Delegate1))
-			{
-			    return new __Gen_Hotfix_Delegate1(__Gen_Delegate_Imp6);
+			    return new Maria.Actor.RenderHandler(__Gen_Delegate_Imp1);
 			}
 		
 		    if (type == typeof(__Gen_Hotfix_Delegate2))
 			{
-			    return new __Gen_Hotfix_Delegate2(__Gen_Delegate_Imp7);
+			    return new __Gen_Hotfix_Delegate2(__Gen_Delegate_Imp1);
+			}
+		
+		    if (type == typeof(Maria.EventListenerCmd.OnEventCmdHandler))
+			{
+			    return new Maria.EventListenerCmd.OnEventCmdHandler(__Gen_Delegate_Imp2);
+			}
+		
+		    if (type == typeof(Maria.EventListenerCustom.OnEventCustomHandler))
+			{
+			    return new Maria.EventListenerCustom.OnEventCustomHandler(__Gen_Delegate_Imp3);
+			}
+		
+		    if (type == typeof(CSCallLua.FDelegate))
+			{
+			    return new CSCallLua.FDelegate(__Gen_Delegate_Imp4);
+			}
+		
+		    if (type == typeof(CSCallLua.GetE))
+			{
+			    return new CSCallLua.GetE(__Gen_Delegate_Imp5);
+			}
+		
+		    if (type == typeof(__Gen_Hotfix_Delegate0))
+			{
+			    return new __Gen_Hotfix_Delegate0(__Gen_Delegate_Imp6);
+			}
+		
+		    if (type == typeof(__Gen_Hotfix_Delegate1))
+			{
+			    return new __Gen_Hotfix_Delegate1(__Gen_Delegate_Imp7);
 			}
 		
 		    if (type == typeof(__Gen_Hotfix_Delegate3))
@@ -382,6 +413,11 @@ namespace XLua
 			    return new __Gen_Hotfix_Delegate5(__Gen_Delegate_Imp10);
 			}
 		
+		    if (type == typeof(__Gen_Hotfix_Delegate6))
+			{
+			    return new __Gen_Hotfix_Delegate6(__Gen_Delegate_Imp11);
+			}
+		
 		    throw new InvalidCastException("This delegate must add to CSharpCallLua: " + type);
 		}
 	}
@@ -394,15 +430,18 @@ namespace XLua
     public delegate void __Gen_Hotfix_Delegate1(object p0, object p1);
     
     [HotfixDelegate]
-    public delegate Sproto.SprotoTypeBase __Gen_Hotfix_Delegate2(object p0, object p1);
+    public delegate void __Gen_Hotfix_Delegate2();
     
     [HotfixDelegate]
-    public delegate void __Gen_Hotfix_Delegate3(object p0, bool p1);
+    public delegate Sproto.SprotoTypeBase __Gen_Hotfix_Delegate3(object p0, object p1);
     
     [HotfixDelegate]
-    public delegate XLua.LuaEnv __Gen_Hotfix_Delegate4(object p0);
+    public delegate void __Gen_Hotfix_Delegate4(object p0, bool p1);
     
     [HotfixDelegate]
-    public delegate System.Collections.IEnumerator __Gen_Hotfix_Delegate5(object p0, object p1);
+    public delegate XLua.LuaEnv __Gen_Hotfix_Delegate5(object p0);
+    
+    [HotfixDelegate]
+    public delegate System.Collections.IEnumerator __Gen_Hotfix_Delegate6(object p0, object p1);
     
 }
