@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Maria;
 using Bacon;
+using Bacon.Game;
+using Bacon.Event;
 
 public class XuanQue : MonoBehaviour {
 

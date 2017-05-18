@@ -5,6 +5,7 @@ using Maria;
 using Bacon;
 using DG.Tweening;
 using System;
+using Bacon.Event;
 
 public class Board : MonoBehaviour {
 

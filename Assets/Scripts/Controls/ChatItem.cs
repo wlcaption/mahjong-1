@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Maria;
 using Bacon;
+using Bacon.Event;
 
 public class ChatItem : MonoBehaviour {
 

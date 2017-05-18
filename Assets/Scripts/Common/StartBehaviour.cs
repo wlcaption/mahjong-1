@@ -3,6 +3,7 @@ using System.Collections;
 using Maria;
 using Bacon;
 using UnityEngine.UI;
+using Bacon.Event;
 
 public class StartBehaviour : MonoBehaviour {
 
@@ -34,7 +35,7 @@ public class StartBehaviour : MonoBehaviour {
     }
 
     public void SetupStartRoot() {
-        Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_SETUP_STARTROOT, gameObject);
+        Maria.Command cmd = new Maria.Command(MyEventCmd.EVENT_SETUP_STARTROOT, gameObject);
         _root.App.Enqueue(cmd);
     }
 

@@ -4,6 +4,8 @@ using UnityEngine;
 using Maria;
 using Bacon;
 using UnityEngine.UI;
+using Bacon.Game;
+using Bacon.Event;
 
 public class OverWnd : MonoBehaviour {
 

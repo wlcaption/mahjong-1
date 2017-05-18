@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Maria;
 using Bacon;
+using Bacon.Event;
 
 public class JoinRoom : MonoBehaviour {
 
@@ -132,7 +133,7 @@ public class JoinRoom : MonoBehaviour {
             Maria.Message msg = new Maria.Message();
             msg["roomid"] = _num;
 
-            Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_MUI_JOIN, gameObject, msg);
+            Maria.Command cmd = new Maria.Command(MyEventCmd.EVENT_MUI_JOIN, gameObject, msg);
             GetComponent<FindApp>().App.Enqueue(cmd);
             _sended = true;
         }

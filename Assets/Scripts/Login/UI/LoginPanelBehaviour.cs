@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
-using Maria;
+using Bacon.Event;
 
 public class LoginPanelBehaviour : MonoBehaviour {
 
@@ -18,8 +17,9 @@ public class LoginPanelBehaviour : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
-        Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_SETUP_LOGINPANEL, gameObject);
+        Maria.Command cmd = new Maria.Command(MyEventCmd.EVENT_SETUP_LOGINPANEL, gameObject);
         _Root.App.Enqueue(cmd);
+        App.current.AddObserver("AndroidLogin", OnAnroidLogin);
     }
 
     // Update is called once per frame
@@ -100,12 +100,17 @@ public class LoginPanelBehaviour : MonoBehaviour {
 #elif UNITY_IOS || UNITY_ANDROID
         msg["server"] = "sample";
 #endif
-        Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_LOGIN, gameObject, msg);
+        Maria.Command cmd = new Maria.Command(MyEventCmd.EVENT_LOGIN, gameObject, msg);
         _Root.App.Enqueue(cmd);
     }
 
     public void ShowTips(string tips) {
         _Tips.text = tips;
+    }
+
+    public void OnAnroidLogin(App.Notification n) {
+        string code = n.data.ToString();
+        Login(code);
     }
 
 }

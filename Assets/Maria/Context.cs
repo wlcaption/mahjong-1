@@ -13,28 +13,31 @@ namespace Maria {
     [LuaCallCSharp]
     public class Context : DisposeObject, INetwork {
 
-        protected Application _application;
+        protected Application _application = null;
         protected Config _config = null;
         protected TimeSync _ts = null;
         protected SharpC _sharpc = null;
         protected Debug _logger = null;
 
         protected EventDispatcher _dispatcher = null;
-        protected Dictionary<string, Controller> _hash = new Dictionary<string, Controller>();
-        protected Stack<Controller> _stack = new Stack<Controller>();
-
+        
         protected Dictionary<string, Timer> _timer = new Dictionary<string, Timer>();
+        protected Stack<Controller> _stack = new Stack<Controller>();
         protected Dictionary<string, Service> _services = new Dictionary<string, Service>();
 
-        protected ClientLogin _login = null;
+        protected ClientLogin  _login = null;
         protected ClientSocket _client = null;
         protected User _user = new User();
-
         protected bool _authtcp = false;
         protected bool _authudp = false;
         protected bool _logined = false;
-        protected System.Random _rand = new System.Random();
+
+        
         protected Lua.Env _envScript = null;
+        protected System.Random _rand = new System.Random();
+        protected ModelMgr _modelmgr = null;
+        protected DataSetMgr _datasetmgr = null;
+
 
         public Context(Application application, Config config, TimeSync ts) {
             _application = application;
@@ -108,30 +111,20 @@ namespace Maria {
             }
         }
 
-        public EventDispatcher EventDispatcher { get { return _dispatcher; } }
         public Config Config { get { return _config; } }
         public TimeSync TiSync { get { return _ts; } }
         public SharpC SharpC { get { return _sharpc; } }
-        public bool Logined { get { return _logined; } set { _logined = value; } }
+        public EventDispatcher EventDispatcher { get { return _dispatcher; } }
+
         public ClientSocket Client { get { return _client; } }
-
         public User U { get { return _user; } }
+        public bool AuthTcp { get { return _authtcp; } }
+        public bool AuthUdp { get { return _authudp; } }
+        public bool Logined { get { return _logined; } set { _logined = value; } }
+        
         public Lua.Env EnvScript { get { return _envScript; } set { _envScript = value; } }
-
-        public T GetController<T>(string name) where T : Controller {
-            try {
-                if (_hash.ContainsKey(name)) {
-                    Controller controller = _hash[name];
-                    return controller as T;
-                } else {
-                    UnityEngine.Debug.LogError(string.Format("{0} no't exitstence", name));
-                    return null;
-                }
-            } catch (KeyNotFoundException ex) {
-                UnityEngine.Debug.LogError(ex.Message);
-                return null;
-            }
-        }
+        public ModelMgr ModelMgr { get { return _modelmgr; } }
+        public DataSetMgr DataSetMgr { get { return _datasetmgr; } }
 
         public int Range(int min, int max) {
             return _rand.Next(min, max);
@@ -195,7 +188,7 @@ namespace Maria {
             }
         }
 
-        // TCP
+        // Gate
         public void SendReq<T>(int tag, SprotoTypeBase obj) {
             _client.SendReq<T>(tag, obj);
         }
@@ -249,8 +242,6 @@ namespace Maria {
             }
 
         }
-
-
 
         public Controller Peek() {
             if (_stack.Count > 0) {
@@ -382,7 +373,6 @@ namespace Maria {
         public void UdpAuth(long session, string ip, int port) {
             _client.UdpAuth(session, ip, port);
         }
-
 
         public void SendUdp(byte[] data) {
             if (_authudp) {

@@ -1,4 +1,5 @@
-﻿using Maria;
+﻿using Bacon.Service;
+using Maria;
 using Maria.Network;
 
 namespace Bacon

@@ -56,6 +56,7 @@ namespace Maria.Network {
         private Dictionary<string, ReqPg> _reqPg = new Dictionary<string, ReqPg>();
         private Dictionary<string, RspPg> _rspPg = new Dictionary<string, RspPg>();
         private Lua.ClientSock _clientSockScript = null;
+        private bool _clientSockScriptEnable = false;
 
         // udp
         private PackageSocketUdp _udp = null;
@@ -90,7 +91,13 @@ namespace Maria.Network {
         public DisconnectedCb OnDisconnected { get; set; }
         public PackageSocketUdp.RecvCB OnRecvUdp { get; set; }
         public PackageSocketUdp.SyncCB OnSyncUdp { get; set; }
-        public Lua.ClientSock ClintSockscript { get { return _clientSockScript; } set { _clientSockScript = value; } }
+        public Lua.ClientSock ClintSockscript {
+            get { return _clientSockScript; }
+            set {
+                _clientSockScript = value;
+                _clientSockScriptEnable = _clientSockScript.enable();
+            }
+        }
 
         // Update is called once per frame
         public void Update() {
@@ -239,7 +246,7 @@ namespace Maria.Network {
             } else {
                 byte[] buffer = new byte[length];
                 Array.Copy(data, start, buffer, 0, length);
-                if (_clientSockScript.enable()) {
+                if (_clientSockScriptEnable) {
                     if (_clientSockScript.recv(Encoding.ASCII.GetString(buffer))) {
                         return;
                     }
@@ -291,7 +298,7 @@ namespace Maria.Network {
             return Encoding.ASCII.GetString(tmp);
         }
 
-       
+
         // UDP
         public void UdpAuth(long session, string ip, int port) {
             UnityEngine.Debug.Assert(_udpflag == false);

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Maria;
 using Bacon;
+using Bacon.Event;
 
 public class MsgItem : MonoBehaviour {
 
@@ -56,7 +57,7 @@ public class MsgItem : MonoBehaviour {
         Message msg = new Message();
         msg["id"] = _id;
         msg["type"] = _type;
-        Command cmd = new Command(Bacon.MyEventCmd.EVENT_MUI_VIEWMAIL, gameObject, msg);
+        Command cmd = new Command(MyEventCmd.EVENT_MUI_VIEWMAIL, gameObject, msg);
         GetComponent<FindApp>().App.Enqueue(cmd);
     }
 }

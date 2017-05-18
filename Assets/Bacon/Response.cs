@@ -1,4 +1,5 @@
 ﻿using Bacon;
+using Bacon.Service;
 using Sproto;
 using System;
 using System.Text;

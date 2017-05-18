@@ -19,11 +19,18 @@ namespace Bacon {
                 _gatePort = 3301;
 
             } else {
-
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
                 _loginIp = "192.168.1.123";
                 _loginPort = 3002;
                 _gateIp = "192.168.1.123";
                 _gatePort = 3301;
+#elif UNITY_IOS || UNITY_ANDROID
+                _loginIp = "192.168.1.123";
+                _loginPort = 3012;
+                _gateIp = "192.168.1.123";
+                _gatePort = 3311;
+#endif
+
             }
 
 

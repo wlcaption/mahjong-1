@@ -1,8 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
-using Bacon;
+using Bacon.Game;
+using Bacon.Event;
 
 public class CreateRoom : MonoBehaviour {
 
@@ -101,7 +100,7 @@ public class CreateRoom : MonoBehaviour {
             msg[CrCode.ju] = com.Ju;
             msg[CrCode.overtype] = _overtype;
         }
-        Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_MUI_CREATE, gameObject, msg);
+        Maria.Command cmd = new Maria.Command(MyEventCmd.EVENT_MUI_CREATE, gameObject, msg);
         GetComponent<FindApp>().App.Enqueue(cmd);
     }
 

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Bacon;
+using Bacon.Game;
+using Bacon.Event;
 
 public class BottomPlayer : MonoBehaviour {
 
@@ -61,7 +63,7 @@ public class BottomPlayer : MonoBehaviour {
                     }
                     if (flag) {
                         _touch = false;
-                        Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_LEAD, _hitGo);
+                        Maria.Command cmd = new Maria.Command(MyEventCmd.EVENT_LEAD, _hitGo);
                         _Root.App.Enqueue(cmd);
                     }
                     _hitGo = null;
@@ -98,25 +100,25 @@ public class BottomPlayer : MonoBehaviour {
 
     public void OnPeng() {
         CloseAll();
-        Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_PENG);
+        Maria.Command cmd = new Maria.Command(MyEventCmd.EVENT_PENG);
         _Root.App.Enqueue(cmd);
     }
 
     public void OnGang() {
         CloseAll();
-        Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_GANG);
+        Maria.Command cmd = new Maria.Command(MyEventCmd.EVENT_GANG);
         _Root.App.Enqueue(cmd);
     }
 
     public void OnHu() {
         CloseAll();
-        Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_HU);
+        Maria.Command cmd = new Maria.Command(MyEventCmd.EVENT_HU);
         _Root.App.Enqueue(cmd);
     }
 
     public void OnGuo() {
         CloseAll();
-        Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_GUO);
+        Maria.Command cmd = new Maria.Command(MyEventCmd.EVENT_GUO);
         _Root.App.Enqueue(cmd);
     }
 

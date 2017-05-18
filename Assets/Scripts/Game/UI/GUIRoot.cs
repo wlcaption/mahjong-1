@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using Maria;
-using Bacon;
 using System;
+using Bacon.Event;
 
 public class GUIRoot : MonoBehaviour {
 
@@ -16,6 +14,7 @@ public class GUIRoot : MonoBehaviour {
     public GameObject _HelpWnd;
     public GameObject _SettingWnd;
     public GameObject _ExitWnd;
+    public GameObject _Extra;
 
     public Text _Time;
     public Text _Left;
@@ -76,7 +75,8 @@ public class GUIRoot : MonoBehaviour {
     }
 
     public void OnInvite() {
-
+        Command cmd = new Maria.Command(MyEventCmd.EVENT_GAME_INVITE);
+        _Root.App.Enqueue(cmd);
     }
 
     public void ShowOver() {

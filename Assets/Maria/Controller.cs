@@ -2,6 +2,9 @@
 using Maria.Network;
 using System;
 
+/// <summary>
+/// Controller 主要作用就是调度Actor,分发事件
+/// </summary>
 namespace Maria {
     public class Controller : INetwork {
         protected Context _ctx = null;
@@ -46,7 +49,7 @@ namespace Maria {
             return _actors.Remove(item);
         }
 
-        
+
 
         public virtual void OnLoginAuthed(int code, byte[] secret, string dummy) {
         }

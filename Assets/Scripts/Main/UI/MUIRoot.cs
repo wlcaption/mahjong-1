@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using Maria;
 using Bacon;
 using DG.Tweening;
+using Bacon.Event;
 
 public class MUIRoot : MonoBehaviour {
 
@@ -45,7 +46,7 @@ public class MUIRoot : MonoBehaviour {
 
     #region 回掉接口
     public void OnMatch() {
-        Maria.Command cmd = new Maria.Command(Bacon.MyEventCmd.EVENT_MUI_MATCH, gameObject);
+        Maria.Command cmd = new Maria.Command(MyEventCmd.EVENT_MUI_MATCH, gameObject);
         _Root.App.Enqueue(cmd);
     }
 

@@ -1,4 +1,6 @@
-﻿using Maria;
+﻿using Bacon.Game;
+using Bacon.Service;
+using Maria;
 using Maria.Network;
 using Sproto;
 

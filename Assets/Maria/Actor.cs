@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
+/// <summary>
+/// 游戏对象的抽象
+/// </summary>
 namespace Maria {
 
     [XLua.LuaCallCSharp]
