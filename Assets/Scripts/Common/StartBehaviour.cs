@@ -8,10 +8,10 @@ using Bacon.Event;
 public class StartBehaviour : MonoBehaviour {
 
     public RootBehaviour _root = null;
-
     public GameObject _Slider;
     public GameObject _Tips;
 
+    private int   _updateres = 0; // 0: 不做任何事，1，与远程服务器对比，2：只做一个展示
     private float _progress = 0.0f;
 
     // Use this for initialization
@@ -21,15 +21,17 @@ public class StartBehaviour : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        if (_progress <= 1.0f) {
-            _progress += 0.01f;
+        if (_updateres == 2) {
+            if (_progress <= 1.0f) {
+                _progress += 0.01f;
 
-            _Slider.GetComponent<Slider>().value = _progress > 1 ? 1 : _progress;
-            _Tips.transform.FindChild("Text").GetComponent<Text>().text = string.Format("%{0}", Mathf.FloorToInt((_progress > 1 ? 1 : _progress) * 100));
+                _Slider.GetComponent<Slider>().value = _progress > 1 ? 1 : _progress;
+                _Tips.transform.FindChild("Text").GetComponent<Text>().text = string.Format("%{0}", Mathf.FloorToInt((_progress > 1 ? 1 : _progress) * 100));
 
-            if (_progress > 1.0f) {
-                Command cmd = new Command(MyEventCmd.EVENT_UPdATERES);
-                _root.App.Enqueue(cmd);
+                if (_progress > 1.0f) {
+                    Command cmd = new Command(MyEventCmd.EVENT_UPdATERES);
+                    _root.App.Enqueue(cmd);
+                }
             }
         }
     }
@@ -40,6 +42,7 @@ public class StartBehaviour : MonoBehaviour {
     }
 
     public void UpdateRes() {
+        _updateres = 1;
         ABLoader.current.LoadPath();
         ABLoader.current.FetchVersion(() => {
             Command cmd = new Command(MyEventCmd.EVENT_UPdATERES);
@@ -48,6 +51,8 @@ public class StartBehaviour : MonoBehaviour {
     }
 
     public void TestRes() {
+        _updateres = 2;
+        // 下面是测试代码
         ABLoader.current.LoadPath();
         //ABLoader.current.LoadAssetAsync<AudioClip>("Sound/Man", "peng", (AudioClip clip) => {
         //    UnityEngine.Debug.Log("ok");

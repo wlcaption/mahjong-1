@@ -21,7 +21,7 @@ namespace Maria {
 
         protected EventDispatcher _dispatcher = null;
         
-        protected Dictionary<string, Timer> _timer = new Dictionary<string, Timer>();
+        protected List<Timer> _timer = new List<Timer>();
         protected Stack<Controller> _stack = new Stack<Controller>();
         protected Dictionary<string, Service> _services = new Dictionary<string, Service>();
 
@@ -78,24 +78,24 @@ namespace Maria {
             _client.Update();
             //_env.update();
 
-            int now = _ts.LocalTime();
-            foreach (var item in _timer) {
-                Timer tm = item.Value as Timer;
-                if (!tm.Enable) {
-                    continue;
-                }
-                int past = now - tm.ST;
-                if ((past / 100) > (tm.PT + 1)) {
-                    tm.PT = tm.PT + 1;
-                    if (tm.DCB != null) {
-                        tm.DCB(tm.PT, tm.CD - tm.PT);
-                    }
-                }
-                if (tm.PT >= tm.CD) {
-                    if (tm.CB != null) {
+            //int now = _ts.LocalTime();
+            for (int i = _timer.Count -1; i >= 0; i--) {
+                Timer tm = _timer[i];
+                if (tm.CD <= 0) {
+                    if (tm.Enable && tm.CB != null) {
                         tm.CB();
                     }
-                    tm.Enable = false;
+                    _timer.RemoveAt(i);
+                } else {
+                    float cd = tm.CD;
+                    cd -= delta;
+                    if (cd <= 0) {
+                        _timer.RemoveAt(i);
+                    } else {
+                        if (tm.Enable && tm.DCB != null) {
+                            tm.DCB((int)delta, (int)tm.CD);
+                        }
+                    }
                 }
             }
 
@@ -303,34 +303,15 @@ namespace Maria {
             return controller;
         }
 
-        public void Countdown(string name, int cd, Timer.CountdownDeltaCb dcb, Timer.CountdownCb cb) {
-            if (cd < 0) {
-                if (_timer.ContainsKey(name)) {
-                    Timer tm = _timer[name];
-                    tm.Enable = false;
-                }
-            } else {
-                Timer tm;
-                if (_timer.ContainsKey(name)) {
-                    tm = _timer[name];
-                    tm.Enable = true;
-                    tm.ST = _ts.LocalTime();
-                    tm.PT = 0;
-                    tm.CD = cd;
-                    tm.DCB = dcb;
-                    tm.CB = cb;
-                } else {
-                    tm = new Timer();
-                    tm.Name = name;
-                    tm.Enable = true;
-                    tm.ST = _ts.LocalTime();
-                    tm.PT = 0;
-                    tm.CD = cd;
-                    tm.DCB = dcb;
-                    tm.CB = cb;
-                    _timer[name] = tm;
-                }
-            }
+        public Timer Countdown(string name, int cd, Timer.CountdownDeltaCb dcb, Timer.CountdownCb cb) {
+            Timer tm = new Timer();
+            tm.Name = name;
+            tm.Enable = true;
+            tm.CD = cd;
+            tm.DCB = dcb;
+            tm.CB = cb;
+            _timer.Add(tm);
+            return tm;
         }
 
         public void RegService(string name, Service s) {

@@ -47,6 +47,7 @@ namespace Maria.Network {
         private int _index = 0;
         private int _version = 0;
         private uint _session = 0;
+        private const uint _sessionmax = 2 ^ 16 - 1;
         private SprotoRpc _host = null;
         private SprotoRpc.RpcRequest _sendRequest = null;
 
@@ -119,31 +120,41 @@ namespace Maria.Network {
 
         public uint genSession() {
             ++_session;
+            _session = _session & _sessionmax;
             if (_session == 0)
                 ++_session;
             return _session;
         }
 
-        public void SendReq<T>(int tag, SprotoTypeBase obj, object ud = null) {
+        public void SendReq<T>(int tag, SprotoTypeBase obj, uint session, object ud) {
             //UnityEngine.Debug.Assert(_tcpflag == true);
             if (_tcpflag) {
-                uint id = genSession();
-
-                byte[] d = _sendRequest.Invoke<T>(obj, id);
+                
+                byte[] d = _sendRequest.Invoke<T>(obj, session);
                 UnityEngine.Debug.Assert(d != null);
 
-                RspPg pg = new RspPg();
-                pg.Tag = tag;
-                pg.Session = id;
-                pg.Index = _index;
-                pg.Version = _version;
-                pg.Ud = ud;
+                if (session > 0) {
+                    RspPg pg = new RspPg();
+                    pg.Tag = tag;
+                    pg.Session = session;
+                    pg.Index = _index;
+                    pg.Version = _version;
+                    pg.Ud = ud;
 
-                string key = idToHex(id);
-                _rspPg[key] = pg;
-
+                    string key = idToHex(session);
+                    _rspPg[key] = pg;
+                }
+                
                 _tcp.Send(d, 0, d.Length);
             }
+        }
+
+        public void SendReq<T>(int tag, SprotoTypeBase obj, object ud) {
+            SendReq<T>(tag, obj, genSession(), ud);
+        }
+
+        public void SendReq<T>(int tag, SprotoTypeBase obj) {
+            SendReq<T>(tag, obj, genSession(), null);
         }
 
         public void Send(string pack) {

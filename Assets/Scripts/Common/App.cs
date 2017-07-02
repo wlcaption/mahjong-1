@@ -98,6 +98,7 @@ public class App : MonoBehaviour {
         _app.Enqueue(cmd);
     }
 
+    // android call c#
     public void Pipe(string code, string msg) {
         PostNotification(code, this, msg);
     }

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using System.IO;
 
@@ -8,19 +6,19 @@ public class VersionFileBuild : EditorWindow {
 
     private static int _main = 1;
     private static int _mid = 0;
-    private static int _min = 0;
-    private static int _build = 12;
+    private static int _min = 1;
+    private static int _build = 13;
 
     [MenuItem("Tools/Build VersionFile")]
     public static void BuildVersionFile() {
         // 生成version.json
-        int version = (_main & 0xff << 24) | (_mid & 0xff << 16) | (_min & 0xff << 8) | (_build & 0xff);
+        int version = (_main << 24) | (_mid << 16) | (_min << 8) | (_build & 0xff);
         JSONObject root = new JSONObject(JSONObject.Type.OBJECT);
         root.AddField("version", version);
         JSONObject abs = new JSONObject(JSONObject.Type.OBJECT);
         root.AddField("abs", abs);
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-        DirectoryInfo streaming = new DirectoryInfo(Application.streamingAssetsPath + "/Win");
+        DirectoryInfo streaming = new DirectoryInfo(Application.streamingAssetsPath + "/Win64");
 #elif UNITY_IOS
         DirectoryInfo streaming = new DirectoryInfo(Application.streamingAssetsPath + "/iOS");
 #elif UNITY_ANDROID
@@ -31,7 +29,14 @@ public class VersionFileBuild : EditorWindow {
 
         string en = root.Print();
 
-        FileStream fs = new FileStream(Application.streamingAssetsPath + "/version.json", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        FileStream fs = new FileStream(Application.streamingAssetsPath + "/Win64/version.json", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+#elif UNITY_IOS
+        FileStream fs = new FileStream(Application.streamingAssetsPath + "/iOS/version.json", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+#elif UNITY_ANDROID
+        FileStream fs = new FileStream(Application.streamingAssetsPath + "/Android/version.json", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+#endif
+
         StreamWriter sw = new StreamWriter(fs);
         sw.Write(en);
         sw.Close();
@@ -45,19 +50,33 @@ public class VersionFileBuild : EditorWindow {
         }
         FileInfo[] fis = di.GetFiles();
         for (int i = 0; i < fis.Length; i++) {
-            if (fis[i].Extension == ".normal" ||
-                fis[i].Extension == ".manifest") {
-                string abpath = Application.streamingAssetsPath + "/" + path + "/" + fis[i].Name;
+            if (fis[i].Extension == ".normal") {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+                string abpath = Application.streamingAssetsPath + "/Win64/" + path + "/" + fis[i].Name;
+#elif UNITY_IOS
+                string abpath = Application.streamingAssetsPath + "/iOS/" + path + "/" + fis[i].Name;
+#elif UNITY_ANDROID
+                string abpath = Application.streamingAssetsPath + "/Android/" + path + "/" + fis[i].Name;
+#endif
                 string abname = path + "/" + fis[i].Name;
                 AssetBundle ab = AssetBundle.LoadFromFile(abpath);
                 if (ab != null) {
-
                     int hash = ab.GetHashCode();
                     root.AddField(abname, hash);
 
                     ab.Unload(true);
                 }
-                
+
+//            } else if (fis[i].Extension == ".manifest") {
+//#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+//                string abpath = Application.streamingAssetsPath + "/Win64/" + path + "/" + fis[i].Name;
+//#elif UNITY_IOS
+//                string abpath = Application.streamingAssetsPath + "/iOS/" + path + "/" + fis[i].Name;
+//#elif UNITY_ANDROID
+//                string abpath = Application.streamingAssetsPath + "/Android/" + path + "/" + fis[i].Name;
+//#endif
+//                string manifestname = path + "/" + fis[i].Name;
+//                root.AddField(manifestname, 1);
             }
         }
     }

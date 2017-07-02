@@ -15,9 +15,7 @@ namespace Maria {
 
         public string Name { get; set; }
         public bool Enable { get; set; }
-        public int ST { get; set; }
-        public int PT { get; set; }
-        public int CD { get; set; }
+        public float CD { get; set; }
         public CountdownCb CB { get; set; }
         public CountdownDeltaCb DCB { get; set; }
 

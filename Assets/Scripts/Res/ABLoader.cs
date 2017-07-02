@@ -43,7 +43,7 @@ public class ABLoader : MonoBehaviour {
     public void FetchVersion(Action cb) {
         _step = 0;
         LoadPath();
-        //StartCoroutine(FetchVersionFile(cb));
+        StartCoroutine(FetchVersionFile(cb));
     }
 
     public void LoadPath() {
@@ -58,11 +58,21 @@ public class ABLoader : MonoBehaviour {
     IEnumerator FetchVersionFile(Action cb) {
         JSONObject sjson = null;
         string url = DataConfig.Instance.GetItem(1).value;
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        url = "http://192.168.1.123:8080/mahjong/Win64";
+#elif UNITY_IOS
+        url = "http://192.168.1.123:8080/mahjong/iOS";
+#elif UNITY_ANDROID
+        url = "http://192.168.1.123:8080/mahjong/Android";
+#endif
         WWW srequest = new WWW(url + "/version.json");
         _request = srequest;
         yield return srequest;
-        if (srequest.text != null) {
+        if (srequest.text != null || srequest.text.Length > 0) {
             sjson = new JSONObject(srequest.text);
+        } else {
+            cb();
+            yield break;
         }
 
         JSONObject ljson = null;
@@ -70,39 +80,74 @@ public class ABLoader : MonoBehaviour {
         yield return lrequest;
         if (lrequest.text != null && lrequest.text != string.Empty) {
             ljson = new JSONObject(lrequest.text);
+
+            // 比较服务器与当地，不同就下载更新
+            long lversion = ljson.GetField("version").i;
+            long sversion = sjson.GetField("version").i;
+
+            if (sversion > lversion) {
+                // 下载资源
+                JSONObject sabs = sjson.GetField("abs");
+                JSONObject labs = ljson.GetField("abs");
+                for (int i = 0; i < sabs.keys.Count; i++) {
+                    JSONObject shash = sabs.GetField(sabs.keys[i]);
+                    JSONObject lhash = labs.GetField(labs.keys[i]);
+                    if (lhash == null || (shash.i != lhash.i)) {
+                        // 没有下载存储
+
+                        WWW frequest = new WWW(url + "/" + sabs.keys[i]);
+                        yield return frequest;
+                        string[] sp = sabs.keys[i].Split(new char[] { '/' });
+                        if (sp.Length > 1) {
+                            CreateDirOrFile(Application.persistentDataPath, sp, 0, frequest.bytes);
+                        }
+
+                        _path[sabs.keys[i]] = PathType.PER;
+
+                        // manifest
+                        WWW mrequest = new WWW(url + "/" + sabs.keys[i] + ".manifest");
+                        yield return mrequest;
+                        string[] msp = sabs.keys[i].Split(new char[] { '/' });
+                        if (msp.Length > 1) {
+                            CreateDirOrFile(Application.persistentDataPath, msp, 0, mrequest.bytes);
+                        }
+                        _path[sabs.keys[i] + ".manifest"] = PathType.PER;
+
+                    } else {
+                        _path[sabs.keys[i]] = PathType.STR;
+                    }
+                }
+            }
         } else {
+            // 本地不存在直接更新写入
             ResourceRequest lrrequest = Resources.LoadAsync<TextAsset>("version");
             yield return lrrequest;
             ljson = new JSONObject(((TextAsset)lrrequest.asset).text);
-        }
 
-        // 创建version
-        CreateDirOrFile(Application.persistentDataPath, new string[] { "version.json" }, 0, ASCIIEncoding.ASCII.GetBytes(srequest.text));
-
-        int lversion = (int)ljson.GetField("version").i;
-        int sversion = (int)sjson.GetField("version").i;
-        _resversion = sversion;
-
-        if (sversion > lversion) {
-            // 下载资源
-            JSONObject sabs = sjson.GetField("abs");
-            JSONObject labs = ljson.GetField("abs");
-            for (int i = 0; i < sabs.keys.Count; i++) {
-                JSONObject shash = sabs.GetField(sabs.keys[i]);
-                JSONObject lhash = labs.GetField(sabs.keys[i]);
-                if (lhash == null || (shash.i != lhash.i)) {
-                    // 没有下载存储
-
+            long sversion = sjson.GetField("version").i;
+            long lversion = ljson.GetField("version").i;
+            
+            if (sversion > lversion) {
+                // 创建version
+                CreateDirOrFile(Application.persistentDataPath, new string[] { "version.json" }, 0, ASCIIEncoding.ASCII.GetBytes(srequest.text));
+                JSONObject sabs = sjson.GetField("abs");
+                for (int i = 0; i < sabs.keys.Count; i++) {
                     WWW frequest = new WWW(url + "/" + sabs.keys[i]);
                     yield return frequest;
                     string[] sp = sabs.keys[i].Split(new char[] { '/' });
                     if (sp.Length > 1) {
                         CreateDirOrFile(Application.persistentDataPath, sp, 0, frequest.bytes);
                     }
-
                     _path[sabs.keys[i]] = PathType.PER;
-                } else {
-                    _path[sabs.keys[i]] = PathType.STR;
+
+                    // manifest
+                    WWW mrequest = new WWW(url + "/" + sabs.keys[i] + ".manifest");
+                    yield return mrequest;
+                    string[] msp = sabs.keys[i].Split(new char[] { '/' });
+                    if (msp.Length > 1) {
+                        CreateDirOrFile(Application.persistentDataPath, msp, 0, mrequest.bytes);
+                    }
+                    _path[sabs.keys[i] + ".manifest"] = PathType.PER;
                 }
             }
         }
@@ -110,12 +155,13 @@ public class ABLoader : MonoBehaviour {
     }
 
     private void CreateDirOrFile(string parent, string[] sp, int i, byte[] bytes) {
+        Debug.Assert(parent.Length > 0);
+        Debug.Assert(sp != null && sp.Length > 0);
         if (i <= (sp.Length - 2)) {
             string name = sp[i];
             string path = parent + "/" + name;
 
-            if (Directory.Exists(path)) {
-            } else {
+            if (!Directory.Exists(path)) {
                 Directory.CreateDirectory(path);
             }
             i++;
@@ -135,9 +181,9 @@ public class ABLoader : MonoBehaviour {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         string res_path = "WIN64/" + path.ToLower();
 #elif UNITY_IOS
-        string res_path = "Android/" + path.ToLower();
-#elif UNITY_ANDROID
         string res_path = "iOS/" + path.ToLower();
+#elif UNITY_ANDROID
+        string res_path = "Android/" + path.ToLower();
 #endif
         T res = LoadAB<T>(res_path, name);
         if (res == null) {
@@ -155,9 +201,9 @@ public class ABLoader : MonoBehaviour {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         string res_path = "WIN64/" + path.ToLower();
 #elif UNITY_IOS
-        string res_path = "Android/" + path.ToLower();
-#elif UNITY_ANDROID
         string res_path = "iOS/" + path.ToLower();
+#elif UNITY_ANDROID
+        string res_path = "Android/" + path.ToLower();
 #endif
         LoadABAsync<T>(res_path, name, (T asset) => {
             if (asset == null) {
@@ -188,7 +234,7 @@ public class ABLoader : MonoBehaviour {
             if (_manifest == null) {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
                 string manifest = "Win64";
-#elif UNITY_IOS
+#elif UNITY_IOS 
                 string manifest = "iOS";
 #elif UNITY_ANDROID
                 string manifest = "Android";

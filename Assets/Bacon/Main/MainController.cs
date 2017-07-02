@@ -73,15 +73,15 @@ namespace Bacon {
             _ctx.EnqueueRenderQueue(RenderCancelWaiting);
         }
 
+        public override void OnGateDisconnected() {
+            base.OnGateDisconnected();
+            _ctx.EnqueueRenderQueue(RenderWaiting);
+        }
+
         private void RenderCancelWaiting() {
             if (_uiroot && _waiting) {
                 _waiting.SetActive(false);
             }
-        }
-
-        public override void OnGateDisconnected() {
-            base.OnGateDisconnected();
-            _ctx.EnqueueRenderQueue(RenderWaiting);
         }
 
         private void RenderWaiting() {
@@ -93,8 +93,6 @@ namespace Bacon {
                 });
             }
         }
-
-
 
         private void RenderExit() {
             SoundMgr.current.StopMusic();

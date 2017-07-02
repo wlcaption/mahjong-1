@@ -87,7 +87,7 @@ end
 
 function cls:enable( ... )
 	-- body
-	return true
+	return false
 end
 
 function cls:recv(package, ... )
