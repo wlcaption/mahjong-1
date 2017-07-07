@@ -23,12 +23,13 @@ namespace Bacon.Game {
         protected Quaternion _backv = Quaternion.identity;
 
 
-        protected Orient _ori;
+        protected uint _uid;
+        protected uint _sid;
         protected int _idx;
-        protected int _sex; // 1, 男； 0， 女
-        protected int _chip;
-        protected int _sid;
+        protected int  _sex; // 1, 男； 0， 女
+        protected int  _chip;
         protected string _name;
+        protected Orient _ori;
 
         protected long _d1;  // 但前色子点数
         protected long _d2;
@@ -138,11 +139,13 @@ namespace Bacon.Game {
             : base(ctx, service) {
         }
 
-        public Orient Ori { get { return _ori; } }
+        
+        public uint Uid { get { return _uid; } set { _uid = value; } }
+        public uint Sid { get { return _sid; } set { _sid = value; } }
         public int Idx { get { return _idx; } set { _idx = value; } }
         public int Sex { get { return _sex; } set { _sex = value; } }
         public int Chip { get { return _chip; } set { _chip = value; } }
-        public int Sid { get { return _sid; } set { _sid = value; } }
+        public Orient Ori { get { return _ori; } }
         public string Name { get { return _name; } set { _name = value; } }
 
         public int Takecardsidx { get { return _takecardsidx; } set { _takecardsidx = value; } }

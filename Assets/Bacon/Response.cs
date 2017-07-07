@@ -36,6 +36,8 @@ namespace Maria.Network {
             _cs.RegisterResponse(C2sProtocol.record.Tag, record);
 
             _cs.RegisterResponse(C2sProtocol.logout.Tag, logout);
+            _cs.RegisterResponse(C2sProtocol.adver.Tag, adver);
+            _cs.RegisterResponse(C2sProtocol.board.Tag, board);
         }
 
         public void handshake(uint session, SprotoTypeBase responseObj, object ud) {
@@ -118,6 +120,16 @@ namespace Maria.Network {
         public void logout(uint session, SprotoTypeBase responseObj, object ud) {
             MainController ctr = _ctx.Peek<MainController>();
             ctr.FetchSysmail(responseObj);
+        }
+
+        public void adver(uint session, SprotoTypeBase responseObj, object ud) {
+            MainController ctr = _ctx.Peek<MainController>();
+            ctr.Adver(responseObj);
+        }
+
+        public void board(uint session, SprotoTypeBase responseObj, object ud) {
+            MainController ctr = _ctx.Peek<MainController>();
+            ctr.Board(responseObj);
         }
     }
 }

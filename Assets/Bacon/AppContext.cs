@@ -1,4 +1,5 @@
-﻿using Bacon.Service;
+﻿using Bacon.Model;
+using Bacon.Service;
 using Maria;
 using Maria.Network;
 
@@ -9,8 +10,14 @@ namespace Bacon
         private InitService _initService = null;
         private Request _request = null;
         private Response _response = null;
+        private EntityMgr _entitymgr = new EntityMgr();
+        private BoardMgr _boardmgr = null;
+        private TipsMgr _tipsmgr = null;
 
         public AppContext(Application application, Config config, TimeSync ts) : base(application, config, ts) {
+            _boardmgr = new BoardMgr(this);
+            _tipsmgr = new TipsMgr(this);
+
             _request = new Request(this, _client);
             _response = new Response(this, _client);
 
@@ -23,5 +30,8 @@ namespace Bacon
 
         public global::App GApp { get { return ((App)_application).GApp; } }
 
+        public EntityMgr GetEntityMgr() { return _entitymgr; }
+        public BoardMgr GetBoardMgr() { return _boardmgr; }
+        public TipsMgr GetTipsMgr() { return _tipsmgr; }
     }
 }

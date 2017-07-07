@@ -1,5 +1,4 @@
-﻿using Maria;
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using XLua;
 using System;
@@ -10,7 +9,7 @@ public class App : MonoBehaviour {
     public static List<Type> CSCallLuaModule {
         get {
             return new List<Type>() {
-                    typeof(Action<Context>)
+                    typeof(Action<Maria.Context>)
                 };
         }
     }
@@ -93,7 +92,7 @@ public class App : MonoBehaviour {
         //ABLoader.current.Unload();
     }
 
-    public void Enqueue(Command cmd) {
+    public void Enqueue(Maria.Command cmd) {
         UnityEngine.Debug.Assert(cmd != null);
         _app.Enqueue(cmd);
     }

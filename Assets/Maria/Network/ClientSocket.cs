@@ -19,7 +19,7 @@ namespace Maria.Network {
         public delegate SprotoTypeBase ReqCb(uint session, SprotoTypeBase requestObj);
 
         private class ReqPg {
-            public uint Session { get; set; }
+            public long Session { get; set; }
             public string Protocol { get; set; }
             public byte[] Buffer { get; set; }
             public int Version { get; set; }  // nonsence
@@ -27,7 +27,7 @@ namespace Maria.Network {
         }
 
         private class RspPg {
-            public uint Session { get; set; }
+            public long Session { get; set; }
             public int Tag { get; set; }
             public int Version { get; set; }
             public int Index { get; set; }
@@ -46,8 +46,8 @@ namespace Maria.Network {
 
         private int _index = 0;
         private int _version = 0;
-        private uint _session = 0;
-        private const uint _sessionmax = 2 ^ 16 - 1;
+        private long _session = 0;
+        private const long _sessionmax = (1 << 16 - 1);
         private SprotoRpc _host = null;
         private SprotoRpc.RpcRequest _sendRequest = null;
 
@@ -111,29 +111,39 @@ namespace Maria.Network {
         }
 
         public void RegisterResponse(int tag, RspCb cb) {
-            _rsp[tag] = cb;
+            if (_rsp.ContainsKey(tag)) {
+                throw new Exception(string.Format("tag {0} has register", tag));
+            } else {
+                _rsp[tag] = cb;
+            }
         }
 
         public void RegisterRequest(int tag, ReqCb cb) {
-            _req[tag] = cb;
+            if (_req.ContainsKey(tag)) {
+                throw new Exception(string.Format("tag {0} has register", tag));
+            } else {
+                _req[tag] = cb;
+            }
         }
 
-        public uint genSession() {
+        public long genSession() {
             ++_session;
-            _session = _session & _sessionmax;
-            if (_session == 0)
-                ++_session;
+            _session = (_session >= _sessionmax) ? 1 : _session;
             return _session;
         }
 
-        public void SendReq<T>(int tag, SprotoTypeBase obj, uint session, object ud) {
+        public void SendReq<T>(int tag, SprotoTypeBase obj, long session, object ud) {
             //UnityEngine.Debug.Assert(_tcpflag == true);
             if (_tcpflag) {
-                
-                byte[] d = _sendRequest.Invoke<T>(obj, session);
-                UnityEngine.Debug.Assert(d != null);
 
-                if (session > 0) {
+                if (session == 0) {
+                    byte[] d = _sendRequest.Invoke<T>(obj, null);
+                    UnityEngine.Debug.Assert(d != null);
+                    _tcp.Send(d, 0, d.Length);
+                } else {
+                    byte[] d = _sendRequest.Invoke<T>(obj, session);
+                    UnityEngine.Debug.Assert(d != null);
+
                     RspPg pg = new RspPg();
                     pg.Tag = tag;
                     pg.Session = session;
@@ -143,10 +153,13 @@ namespace Maria.Network {
 
                     string key = idToHex(session);
                     _rspPg[key] = pg;
+                    _tcp.Send(d, 0, d.Length);
                 }
-                
-                _tcp.Send(d, 0, d.Length);
             }
+        }
+
+        public void SendReq<T>(int tag, SprotoTypeBase obj, long session) {
+            SendReq<T>(tag, obj, session, null);
         }
 
         public void SendReq<T>(int tag, SprotoTypeBase obj, object ud) {
@@ -267,20 +280,24 @@ namespace Maria.Network {
                     int tag = (int)sinfo.tag;
                     try {
                         var cb = _req[tag];
-                        SprotoTypeBase rsp = cb(0, sinfo.requestObj);
-                        byte[] d = sinfo.Response(rsp);
-                        _tcp.Send(d, 0, d.Length);
+                        if (sinfo.session != null && sinfo.session > 0) {
+                            SprotoTypeBase rsp = cb((uint)sinfo.session, sinfo.requestObj);
+                            byte[] d = sinfo.Response(rsp);
+                            _tcp.Send(d, 0, d.Length);
+                        } else {
+                            cb(0, sinfo.requestObj);
+                        }
                     } catch (Exception ex) {
                         UnityEngine.Debug.LogException(ex);
                     }
                 } else if (sinfo.type == SprotoRpc.RpcType.RESPONSE) {
                     UnityEngine.Debug.Assert(sinfo.session != null);
-                    uint session = (uint)sinfo.session;
+                    long session = (long)sinfo.session;
                     string key = idToHex(session);
                     try {
                         RspPg pg = _rspPg[key];
                         var cb = _rsp[pg.Tag];
-                        cb(session, sinfo.responseObj, pg.Ud);
+                        cb((uint)session, sinfo.responseObj, pg.Ud);
                         _rspPg.Remove(key);
                     } catch (Exception ex) {
                         UnityEngine.Debug.LogException(ex);
@@ -299,7 +316,7 @@ namespace Maria.Network {
             }
         }
 
-        private string idToHex(uint id) {
+        private string idToHex(long id) {
             byte[] tmp = new byte[9];
             byte[] hex = new byte[16] { 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 66, 67, 68, 69, 70 };
             tmp[0] = 58;

@@ -6,8 +6,16 @@ using System.Collections.Generic;
 public class C2sProtocol : ProtocolBase {
 	public static  C2sProtocol Instance = new C2sProtocol();
 	private C2sProtocol() {
+		Protocol.SetProtocol<adver> (adver.Tag);
+		Protocol.SetRequest<C2sSprotoType.adver.request> (adver.Tag);
+		Protocol.SetResponse<C2sSprotoType.adver.response> (adver.Tag);
+
 		Protocol.SetProtocol<avatar> (avatar.Tag);
 		Protocol.SetResponse<C2sSprotoType.avatar.response> (avatar.Tag);
+
+		Protocol.SetProtocol<board> (board.Tag);
+		Protocol.SetRequest<C2sSprotoType.board.request> (board.Tag);
+		Protocol.SetResponse<C2sSprotoType.board.response> (board.Tag);
 
 		Protocol.SetProtocol<call> (call.Tag);
 		Protocol.SetRequest<C2sSprotoType.call.request> (call.Tag);
@@ -107,8 +115,16 @@ public class C2sProtocol : ProtocolBase {
 
 	}
 
+	public class adver {
+		public const int Tag = 21;
+	}
+
 	public class avatar {
 		public const int Tag = 19;
+	}
+
+	public class board {
+		public const int Tag = 20;
 	}
 
 	public class call {

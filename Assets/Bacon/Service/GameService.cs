@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Sproto;
 using Bacon.Game;
 using Bacon.Event;
+using Bacon.Model;
 
 namespace Bacon.Service {
     public class GameService : Maria.Service {
@@ -78,9 +79,9 @@ namespace Bacon.Service {
                 _controller = (GameController)_ctx.Push(typeof(GameController));
 
                 Player player = new Bacon.Game.BottomPlayer(_ctx, this);
+                player.Sid = (uint)obj.me.sid;
                 player.Idx = (int)obj.me.idx;
                 player.Chip = (int)obj.me.chip;
-                player.Sid = (int)obj.me.sid;
                 player.Sex = (int)obj.me.sex;
                 player.Name = obj.me.name;
                 player.Controller = _controller;
@@ -105,9 +106,9 @@ namespace Bacon.Service {
                         switch (offset) {
                             case 1: {
                                     var rplayer = new Bacon.Game.RightPlayer(_ctx, this);
+                                    rplayer.Sid = (uint)item.sid;
                                     rplayer.Idx = (int)item.idx;
                                     rplayer.Chip = (int)item.chip;
-                                    rplayer.Sid = (int)item.sid;
                                     rplayer.Sex = (int)item.sex;
                                     rplayer.Name = item.name;
                                     rplayer.Controller = _controller;
@@ -117,9 +118,9 @@ namespace Bacon.Service {
                                 break;
                             case 2: {
                                     var tplayer = new Bacon.Game.TopPlayer(_ctx, this);
+                                    tplayer.Sid = (uint)item.sid;
                                     tplayer.Idx = (int)item.idx;
                                     tplayer.Chip = (int)item.chip;
-                                    tplayer.Sid = (int)item.sid;
                                     tplayer.Sex = (int)item.sex;
                                     tplayer.Name = item.name;
                                     tplayer.Controller = _controller;
@@ -129,9 +130,9 @@ namespace Bacon.Service {
                                 break;
                             case 3: {
                                     var lplayer = new Bacon.Game.LeftPlayer(_ctx, this);
+                                    lplayer.Sid = (uint)item.sid;
                                     lplayer.Idx = (int)item.idx;
                                     lplayer.Chip = (int)item.chip;
-                                    lplayer.Sid = (int)item.sid;
                                     lplayer.Sex = (int)item.sex;
                                     lplayer.Name = item.name;
                                     lplayer.Controller = _controller;
@@ -148,12 +149,18 @@ namespace Bacon.Service {
                 }
                 SendStep();
             } else if (obj.errorcode == Errorcode.NOEXiST_ROOMID) {
+                AppContext ctx = _ctx as AppContext;
+                TipsMgr mgr = ctx.GetTipsMgr();
+                mgr.TipsContent = "不存在相应的房间号";
+
                 MainController controller = _ctx.Peek<MainController>();
-                controller.ShowTips("不存在相应的房间号");
+
+                //_ctx.EnqueueRenderQueue(controller.render)
+
             } else if (obj.errorcode == Errorcode.ROOM_FULL) {
 
                 MainController controller = _ctx.Peek<MainController>();
-                controller.ShowTips("房间已经满了");
+                //controller.ShowTips("房间已经满了");
             }
         }
 
@@ -169,9 +176,9 @@ namespace Bacon.Service {
                 switch (offset) {
                     case 1: {
                             var rplayer = new Game.RightPlayer(_ctx, this);
+                            rplayer.Sid = (uint)obj.p.sid;
                             rplayer.Idx = (int)obj.p.idx;
                             rplayer.Chip = (int)obj.p.chip;
-                            rplayer.Sid = (int)obj.p.sid;
                             rplayer.Sex = (int)obj.p.sex;
                             rplayer.Name = obj.p.name;
                             rplayer.Controller = _controller;
@@ -184,9 +191,9 @@ namespace Bacon.Service {
                         break;
                     case 2: {
                             var tplayer = new Bacon.Game.TopPlayer(_ctx, this);
+                            tplayer.Sid = (uint)obj.p.sid;
                             tplayer.Idx = (int)obj.p.idx;
                             tplayer.Chip = (int)obj.p.chip;
-                            tplayer.Sid = (int)obj.p.sid;
                             tplayer.Sex = (int)obj.p.sex;
                             tplayer.Name = obj.p.name;
                             tplayer.Controller = _controller;
@@ -199,9 +206,9 @@ namespace Bacon.Service {
                         break;
                     case 3: {
                             var lplayer = new Bacon.Game.LeftPlayer(_ctx, this);
+                            lplayer.Sid = (uint)obj.p.sid;
                             lplayer.Idx = (int)obj.p.idx;
                             lplayer.Chip = (int)obj.p.chip;
-                            lplayer.Sid = (int)obj.p.sid;
                             lplayer.Sex = (int)obj.p.sex;
                             lplayer.Name = obj.p.name;
                             lplayer.Controller = _controller;

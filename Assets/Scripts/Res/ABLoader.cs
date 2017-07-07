@@ -356,7 +356,12 @@ public class ABLoader : MonoBehaviour {
 
     private void LoadResAsync<T>(string path, Action<T> cb) where T : UnityEngine.Object {
         if (_res.ContainsKey(path)) {
-            cb(_res.ContainsKey(path) as T);
+            UnityEngine.Object o = _res[path];
+            if (o != null) {
+                cb(o as T);
+            } else {
+                UnityEngine.Debug.LogErrorFormat("path : {0} has been loaded res is null.");
+            }
         } else {
             StartCoroutine(LoadResAsyncImp<T>(path, cb));
         }

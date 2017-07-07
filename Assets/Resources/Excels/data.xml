@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<dict>
+  <key>1</key>
+  <dict>
+    <key>key</key>
+    <integer>1</integer>
+    <key>value</key>
+    <string>http://192.168.1.124/mahjong</string>
+  </dict>
+</dict>

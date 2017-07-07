@@ -46,6 +46,7 @@ namespace Bacon {
         }
 
         public SprotoTypeBase handshake(uint session, SprotoTypeBase requestObj) {
+            UnityEngine.Debug.LogFormat("request hanshake.");
             S2cSprotoType.handshake.response responseObj = new S2cSprotoType.handshake.response();
             responseObj.errorcode = Errorcode.SUCCESS;
             return responseObj;

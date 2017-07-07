@@ -43,6 +43,12 @@ public class StartBehaviour : MonoBehaviour {
 
     public void UpdateRes() {
         _updateres = 1;
+
+        TextAsset data = ABLoader.current.LoadTextAsset("Excels", "data");
+        Configs.dataConfig dataconfig = new Configs.dataConfig();
+        dataconfig.Load(data.text);
+        //dataconfig.Items;
+
         ABLoader.current.LoadPath();
         ABLoader.current.FetchVersion(() => {
             Command cmd = new Command(MyEventCmd.EVENT_UPdATERES);

@@ -4,6 +4,7 @@ using UnityEngine;
 using Maria.Network;
 using Bacon.Service;
 using Bacon.Helper;
+using Bacon.Model;
 
 namespace Bacon.Login {
     class LoginController : Controller {
@@ -41,6 +42,15 @@ namespace Bacon.Login {
 
         public override void OnLoginAuthed(int code, byte[] secret, string dummy) {
             if (code == 200) {
+                int uid = _ctx.U.Uid;
+                int subid = _ctx.U.Subid;
+
+                AppContext ctx = _ctx as AppContext;
+                EntityMgr mgr = ctx.GetEntityMgr();
+                UEntity e = new UEntity(_ctx, (uint)uid);
+                mgr.AddEntity(e);
+                mgr.MyEntity = e;
+
                 _loginActor.ShowTips("提示：成功登陆");
             } else if (code == 401) {
                 _loginActor.EnableCommitOk();
