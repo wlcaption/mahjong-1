@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Bacon.DataSet;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -32,7 +33,7 @@ public class RightPlayer : MonoBehaviour {
     }
 
     public void Say(long code) {
-        SayItem item = SayConfig.Instance.GetItem((int)code);
+        SayDataSet.SayItem item = SayDataSet.Instance.GetSayItem(code);
         Head.ShowSay(item.text);
         string path = item.sound;
         int idx = path.IndexOf('.');

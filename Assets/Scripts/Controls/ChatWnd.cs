@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Bacon.DataSet;
 
 public class ChatWnd : MonoBehaviour {
 
@@ -11,9 +12,10 @@ public class ChatWnd : MonoBehaviour {
     // Use this for initialization
     void Start() {
         Transform pa = _Page.transform.FindChild("Viewport").FindChild("Content");
-        SayItem[] data = SayConfig.Instance.GetAllItem();
-        for (int i = 0; i < data.Length; i++) {
-            SayItem item = data[i];
+        var data = SayDataSet.Instance.GetSays();
+        foreach (var kv in data) {
+
+            SayDataSet.SayItem item = kv.Value;
             //ResourceManager.Instance.LoadAssetAsync<GameObject>("Prefabs/UI/ChatItem.prefab", "ChatItem", (GameObject go) => {
             //    GameObject inst = Instantiate<GameObject>(go);
             //    inst.GetComponent<ChatItem>().Init(item.code, item.text);
@@ -21,7 +23,7 @@ public class ChatWnd : MonoBehaviour {
             //});
             ABLoader.current.LoadAssetAsync<GameObject>("Prefabs/UI", "ChatItem", (GameObject go) => {
                 GameObject inst = Instantiate<GameObject>(go);
-                inst.GetComponent<ChatItem>().Init(item.code, item.text);
+                inst.GetComponent<ChatItem>().Init((int)item.code, item.text);
                 inst.transform.SetParent(pa);
             });
         }

@@ -4,6 +4,7 @@ using Maria;
 using Bacon;
 using UnityEngine.UI;
 using Bacon.Event;
+using Bacon.DataSet;
 
 public class StartBehaviour : MonoBehaviour {
 
@@ -43,6 +44,9 @@ public class StartBehaviour : MonoBehaviour {
 
     public void UpdateRes() {
         _updateres = 1;
+
+        SayDataSet.Instance.Load();
+        UnityEngine.Debug.Log(SayDataSet.Instance.GetSayItem(1).text);
 
         TextAsset data = ABLoader.current.LoadTextAsset("Excels", "data");
         Configs.dataConfig dataconfig = new Configs.dataConfig();

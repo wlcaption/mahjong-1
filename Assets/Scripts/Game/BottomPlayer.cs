@@ -4,6 +4,7 @@ using UnityEngine;
 using Bacon;
 using Bacon.Game;
 using Bacon.Event;
+using Bacon.DataSet;
 
 public class BottomPlayer : MonoBehaviour {
 
@@ -162,7 +163,7 @@ public class BottomPlayer : MonoBehaviour {
     }
 
     public void Say(long code) {
-        SayItem item = SayConfig.Instance.GetItem((int)code);
+        SayDataSet.SayItem item = SayDataSet.Instance.GetSayItem(code);
         Head.ShowSay(item.text);
         string path = item.sound;
         int idx = path.IndexOf('.');

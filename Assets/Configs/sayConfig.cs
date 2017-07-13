@@ -17,6 +17,6 @@ namespace Configs {
                 key = value.NextSibling;
             }
         }
-        Dictionary<long, Dictionary<string, Value>> Items { get { return _items; } }
+        public Dictionary<long, Dictionary<string, Value>> Items { get { return _items; } }
     }
 }
