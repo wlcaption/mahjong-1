@@ -26,9 +26,6 @@ public class S2cProtocol : ProtocolBase {
 		Protocol.SetRequest<S2cSprotoType.dice.request> (dice.Tag);
 		Protocol.SetResponse<S2cSprotoType.dice.response> (dice.Tag);
 
-		Protocol.SetProtocol<exit_room> (exit_room.Tag);
-		Protocol.SetResponse<S2cSprotoType.exit_room.response> (exit_room.Tag);
-
 		Protocol.SetProtocol<final_settle> (final_settle.Tag);
 		Protocol.SetRequest<S2cSprotoType.final_settle.request> (final_settle.Tag);
 		Protocol.SetResponse<S2cSprotoType.final_settle.response> (final_settle.Tag);
@@ -55,6 +52,10 @@ public class S2cProtocol : ProtocolBase {
 		Protocol.SetProtocol<leave> (leave.Tag);
 		Protocol.SetRequest<S2cSprotoType.leave.request> (leave.Tag);
 		Protocol.SetResponse<S2cSprotoType.leave.response> (leave.Tag);
+
+		Protocol.SetProtocol<logout> (logout.Tag);
+		Protocol.SetRequest<S2cSprotoType.logout.request> (logout.Tag);
+		Protocol.SetResponse<S2cSprotoType.logout.response> (logout.Tag);
 
 		Protocol.SetProtocol<match> (match.Tag);
 		Protocol.SetRequest<S2cSprotoType.match.request> (match.Tag);
@@ -120,11 +121,11 @@ public class S2cProtocol : ProtocolBase {
 	}
 
 	public class afk {
-		public const int Tag = 25;
+		public const int Tag = 4;
 	}
 
 	public class authed {
-		public const int Tag = 26;
+		public const int Tag = 3;
 	}
 
 	public class call {
@@ -137,10 +138,6 @@ public class S2cProtocol : ProtocolBase {
 
 	public class dice {
 		public const int Tag = 506;
-	}
-
-	public class exit_room {
-		public const int Tag = 100;
 	}
 
 	public class final_settle {
@@ -160,7 +157,7 @@ public class S2cProtocol : ProtocolBase {
 	}
 
 	public class join {
-		public const int Tag = 3;
+		public const int Tag = 401;
 	}
 
 	public class lead {
@@ -168,11 +165,15 @@ public class S2cProtocol : ProtocolBase {
 	}
 
 	public class leave {
-		public const int Tag = 4;
+		public const int Tag = 402;
+	}
+
+	public class logout {
+		public const int Tag = 2;
 	}
 
 	public class match {
-		public const int Tag = 2;
+		public const int Tag = 5;
 	}
 
 	public class over {
@@ -184,11 +185,11 @@ public class S2cProtocol : ProtocolBase {
 	}
 
 	public class radio {
-		public const int Tag = 31;
+		public const int Tag = 102;
 	}
 
 	public class rcard {
-		public const int Tag = 30;
+		public const int Tag = 101;
 	}
 
 	public class rchat {

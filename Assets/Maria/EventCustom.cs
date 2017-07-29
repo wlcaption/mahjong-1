@@ -6,8 +6,9 @@ namespace Maria {
 
     [XLua.LuaCallCSharp]
     public class EventCustom : Event {
-        public static string OnDisconnected = "OnDisconnected";
-        public static string OnAuthed = "OnAuthed";
+
+        public static readonly string OnGateAuthed = "OnGateAuthed";
+        public static readonly string OnGateDisconnected = "OnGateDisconnected";
 
         private Context _ctx = null;
         private string _name = string.Empty;

@@ -43,13 +43,13 @@ public class SettingWnd : MonoBehaviour {
         }
         _et = et;
         if (et == ExitType.EXIT_LOGIN) {
-            var txt = _ExitBtn.transform.FindChild("Text").transform;
+            var txt = _ExitBtn.transform.Find("Text").transform;
             txt.GetComponent<Text>().text = "退出登录";
         } else if (et == ExitType.EXIT_ROOM) {
-            var txt = _ExitBtn.transform.FindChild("Text").transform;
+            var txt = _ExitBtn.transform.Find("Text").transform;
             txt.GetComponent<Text>().text = "退出房间";
         } else if (et == ExitType.JIESHAN_ROOM) {
-            var txt = _ExitBtn.transform.FindChild("Text").transform;
+            var txt = _ExitBtn.transform.Find("Text").transform;
             txt.GetComponent<Text>().text = "解散房间";
         }
     }

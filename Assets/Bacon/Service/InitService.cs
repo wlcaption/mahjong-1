@@ -23,9 +23,9 @@ namespace Bacon.Service {
         public InitService(Context ctx) : base(ctx) {
             _ts = ctx.TiSync;
             _smactor = new SMActor(ctx, this);
-           
-            _ctx.EventDispatcher.AddCustomEventListener(EventCustom.OnDisconnected, OnDiconnected, null);
-            _ctx.EventDispatcher.AddCustomEventListener(EventCustom.OnAuthed, OnAuthed, null);
+
+            _ctx.EventDispatcher.AddCustomEventListener(EventCustom.OnGateAuthed, OnAuthed, null);
+            _ctx.EventDispatcher.AddCustomEventListener(EventCustom.OnGateDisconnected, OnDiconnected, null);
             _ctx.EventDispatcher.AddCustomEventListener(MyEventCustom.LOGOUT, Logout, null);
         }
 
@@ -39,9 +39,7 @@ namespace Bacon.Service {
         public object DataTime { get; private set; }
     
         public void SendHandshake(float delta) {
-            if (!_ctx.Logined) {
-                return;
-            }
+            
             if (!_authed) {
                 return;
             }

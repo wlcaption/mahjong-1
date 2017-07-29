@@ -35,7 +35,7 @@ namespace Bacon {
                 _centerMat = _go.transform.localToWorldMatrix;
                 _centerPos = _go.transform.localPosition;
 
-                _camera = _go.transform.FindChild("Main Camera").gameObject;
+                _camera = _go.transform.Find("Main Camera").gameObject;
                 
                 _viewQuat = Quaternion.AngleAxis(90, new Vector3(1.0f, 0.0f, 0.0f));
                 Matrix4x4 r = Matrix4x4.TRS(Vector3.zero, _viewQuat, Vector3.one);

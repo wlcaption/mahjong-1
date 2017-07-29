@@ -67,7 +67,7 @@ public class PlayerHeadBase : MonoBehaviour {
         if (!_Mark.activeSelf) {
             _Mark.SetActive(true);
         }
-        _Mark.transform.FindChild("Content").GetComponent<Text>().text = m;
+        _Mark.transform.Find("Content").GetComponent<Text>().text = m;
     }
 
     public virtual void CloseMark() {

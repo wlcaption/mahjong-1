@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using Bacon.DataSet;
 
 [XLua.LuaCallCSharp]
 public class ABLoader : MonoBehaviour {
@@ -57,13 +58,13 @@ public class ABLoader : MonoBehaviour {
 
     IEnumerator FetchVersionFile(Action cb) {
         JSONObject sjson = null;
-        string url = DataConfig.Instance.GetItem(1).value;
+        string url = SayDataSet.Instance.GetDataItem(1).value;
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-        url = "http://192.168.1.123:8080/mahjong/Win64";
+        url = "http://127.0.0.1:80/mahjong/Win64";
 #elif UNITY_IOS
-        url = "http://192.168.1.123:8080/mahjong/iOS";
+        url = "http://127.0.0.1:80/mahjong/iOS";
 #elif UNITY_ANDROID
-        url = "http://192.168.1.123:8080/mahjong/Android";
+        url = "http://127.0.0.1:80/mahjong/Android";
 #endif
         WWW srequest = new WWW(url + "/version.json");
         _request = srequest;

@@ -38,7 +38,7 @@ public class Title : MonoBehaviour {
                 _MsgRed.SetActive(true);
             }
             string text = string.Format("{0}", num);
-            _MsgRed.transform.FindChild("Text").GetComponent<Text>().text = text;
+            _MsgRed.transform.Find("Text").GetComponent<Text>().text = text;
         } else {
             if (_MsgRed.activeSelf) {
                 _MsgRed.SetActive(false);
@@ -51,7 +51,7 @@ public class Title : MonoBehaviour {
             _RecordRed.SetActive(true);
         }
         string text = string.Format("{0}", num);
-        _RecordRed.transform.FindChild("Text").GetComponent<Text>().text = text;
+        _RecordRed.transform.Find("Text").GetComponent<Text>().text = text;
     }
 
     public void CloseRecordRed() {

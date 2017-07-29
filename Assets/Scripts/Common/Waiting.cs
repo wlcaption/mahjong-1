@@ -5,7 +5,6 @@ using UnityEngine;
 public class Waiting : MonoBehaviour {
 
     public GameObject _Tips;
-    public 
 
 	// Use this for initialization
 	void Start () {

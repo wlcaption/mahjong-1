@@ -210,7 +210,6 @@ namespace Bacon {
         }
 
         public void OnLogout(EventCmd e) {
-            _ctx.Logined = false;
             _ctx.SendReq<C2sProtocol.logout>(C2sProtocol.logout.Tag, null);
         }
         #endregion
@@ -319,7 +318,9 @@ namespace Bacon {
         }
 
         public void RenderShowCreate() {
-            //_uiroot.GetComponent<MUIRoot>().ShowCreate((int)_service.User.RCard);
+            AppContext ctx = _ctx as AppContext;
+            long num = ctx.GetEntityMgr().MyEntity.GetComponent<UComUser>().RCard;
+            _uiroot.GetComponent<MUIRoot>().ShowCreate(num);
         }
 
         public void RenderSyncSysMail() {
@@ -347,11 +348,11 @@ namespace Bacon {
 
         private void RenderWaiting() {
             if (_uiroot) {
-                MUIRoot com = _uiroot.GetComponent<global::MUIRoot>();
-                ABLoader.current.LoadAssetAsync<GameObject>("Prefabs/Common", "Waiting", (GameObject go) => {
-                    _waiting = go;
-                    go.transform.SetParent(com._Extra.transform);
-                });
+                //MUIRoot com = _uiroot.GetComponent<global::MUIRoot>();
+                //ABLoader.current.LoadAssetAsync<GameObject>("Prefabs/Common", "Waiting", (GameObject go) => {
+                //    _waiting = go;
+                //    go.transform.SetParent(com._Extra.transform);
+                //});
             }
         }
 

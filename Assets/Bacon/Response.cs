@@ -14,20 +14,22 @@ namespace Maria.Network {
             _cs = cs;
 
             _cs.RegisterResponse(C2sProtocol.handshake.Tag, handshake);
+            _cs.RegisterResponse(C2sProtocol.logout.Tag, logout);
             _cs.RegisterResponse(C2sProtocol.match.Tag, match);
             _cs.RegisterResponse(C2sProtocol.create.Tag, create);
             _cs.RegisterResponse(C2sProtocol.join.Tag, join);
             _cs.RegisterResponse(C2sProtocol.leave.Tag, leave);
+            _cs.RegisterResponse(C2sProtocol.first.Tag, first);
 
             _cs.RegisterResponse(C2sProtocol.call.Tag, call);
             _cs.RegisterResponse(C2sProtocol.lead.Tag, lead);
             _cs.RegisterResponse(C2sProtocol.step.Tag, step);
-
-            _cs.RegisterResponse(C2sProtocol.restart.Tag, restart);
-
-            _cs.RegisterResponse(C2sProtocol.first.Tag, first);
+            _cs.RegisterResponse(C2sProtocol.toast1.Tag, board);
+            _cs.RegisterResponse(C2sProtocol.toast2.Tag, adver);
             _cs.RegisterResponse(C2sProtocol.fetchsysmail.Tag, fetchsysmail);
             _cs.RegisterResponse(C2sProtocol.syncsysmail.Tag, syncsysmail);
+
+            _cs.RegisterResponse(C2sProtocol.restart.Tag, restart);
             _cs.RegisterResponse(C2sProtocol.rchat.Tag, rchat);
             _cs.RegisterResponse(C2sProtocol.xuanpao.Tag, xuanpao);
             _cs.RegisterResponse(C2sProtocol.xuanque.Tag, xuanque);
@@ -35,9 +37,6 @@ namespace Maria.Network {
             _cs.RegisterResponse(C2sProtocol.records.Tag, records);
             _cs.RegisterResponse(C2sProtocol.record.Tag, record);
 
-            _cs.RegisterResponse(C2sProtocol.logout.Tag, logout);
-            _cs.RegisterResponse(C2sProtocol.adver.Tag, adver);
-            _cs.RegisterResponse(C2sProtocol.board.Tag, board);
         }
 
         public void handshake(uint session, SprotoTypeBase responseObj, object ud) {
@@ -45,6 +44,11 @@ namespace Maria.Network {
             if (service != null) {
                 service.Handshake(responseObj);
             }
+        }
+
+        public void logout(uint session, SprotoTypeBase responseObj, object ud) {
+            MainController ctr = _ctx.Peek<MainController>();
+            ctr.FetchSysmail(responseObj);
         }
 
         public void match(uint session, SprotoTypeBase responseObj, object ud) {
@@ -117,10 +121,7 @@ namespace Maria.Network {
             service.record(responseObj);
         }
 
-        public void logout(uint session, SprotoTypeBase responseObj, object ud) {
-            MainController ctr = _ctx.Peek<MainController>();
-            ctr.FetchSysmail(responseObj);
-        }
+
 
         public void adver(uint session, SprotoTypeBase responseObj, object ud) {
             MainController ctr = _ctx.Peek<MainController>();

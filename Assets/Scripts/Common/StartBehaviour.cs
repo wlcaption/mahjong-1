@@ -27,7 +27,7 @@ public class StartBehaviour : MonoBehaviour {
                 _progress += 0.01f;
 
                 _Slider.GetComponent<Slider>().value = _progress > 1 ? 1 : _progress;
-                _Tips.transform.FindChild("Text").GetComponent<Text>().text = string.Format("%{0}", Mathf.FloorToInt((_progress > 1 ? 1 : _progress) * 100));
+                _Tips.transform.Find("Text").GetComponent<Text>().text = string.Format("%{0}", Mathf.FloorToInt((_progress > 1 ? 1 : _progress) * 100));
 
                 if (_progress > 1.0f) {
                     Command cmd = new Command(MyEventCmd.EVENT_UPdATERES);

@@ -28,10 +28,9 @@ namespace Maria {
         protected ClientLogin  _login = null;
         protected ClientSocket _client = null;
         protected User _user = new User();
+        protected bool _logined = false;
         protected bool _authtcp = false;
         protected bool _authudp = false;
-        protected bool _logined = false;
-
         
         protected Lua.Env _envScript = null;
         protected System.Random _rand = new System.Random();
@@ -120,7 +119,7 @@ namespace Maria {
         public User U { get { return _user; } }
         public bool AuthTcp { get { return _authtcp; } }
         public bool AuthUdp { get { return _authudp; } }
-        public bool Logined { get { return _logined; } set { _logined = value; } }
+        public bool Logined { get { return _logined; } }
         
         public Lua.Env EnvScript { get { return _envScript; } set { _envScript = value; } }
         public ModelMgr ModelMgr { get { return _modelmgr; } }
@@ -133,9 +132,9 @@ namespace Maria {
         // login
         public void LoginAuth(string s, string u, string pwd) {
 
-            _authtcp = false;
             _logined = false;
-
+            _authtcp = false;
+            
             _user.Server = s;
             _user.Username = u;
             _user.Password = pwd;
@@ -162,6 +161,7 @@ namespace Maria {
                 _user.Uid = uid;
                 _user.Subid = sid;
 
+                _logined = true;
                 //_config.GateIp = gip;
                 //_config.GatePort = gpt;
 
@@ -200,16 +200,14 @@ namespace Maria {
         public void OnGateAuthed(int code) {
             if (code == 200) {
                 _authtcp = true;
-                _logined = true;
-
+                
                 string dummy = string.Empty;
                 //
-                EventDispatcher.FireCustomEvent(EventCustom.OnAuthed, null);
+                EventDispatcher.FireCustomEvent(EventCustom.OnGateAuthed, null);
 
                 //
                 if (_stack.Count > 0) {
                     Controller controller = Peek();
-
                     controller.OnGateAuthed(code);
                 }
             } else if (code == 403) {
@@ -220,27 +218,19 @@ namespace Maria {
         public void OnGateConnected(bool connected) {
             if (!connected) {
                 if (_stack.Count > 0) {
-                    _stack.Peek().OnGateConnected(connected);
+                    Controller controller = Peek();
+                    controller.OnGateConnected(connected);
                 }
             }
         }
 
         public void OnGateDisconnected() {
-            if (_logined) {
-                EventDispatcher.FireCustomEvent(EventCustom.OnDisconnected, null);
+            UnityEngine.Debug.Assert(_authtcp);
+            EventDispatcher.FireCustomEvent(EventCustom.OnGateDisconnected, null);
+            if (_stack.Count > 0) {
                 var controller = Peek();
-                if (controller != null) {
-                    controller.OnGateDisconnected();
-                }
-            } else {
-                if (_stack.Count > 0) {
-                    var controller = Peek();
-                    if (controller != null) {
-                        controller.Logout();
-                    }
-                }
+                controller.OnGateDisconnected();
             }
-
         }
 
         public Controller Peek() {

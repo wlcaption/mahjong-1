@@ -184,7 +184,7 @@ namespace Bacon.Game {
         }
 
         private void RenderLoadCard() {
-            _cardsgo = _scene.Go.transform.FindChild("cards").gameObject;
+            _cardsgo = _scene.Go.transform.Find("cards").gameObject;
             string path = "Prefabs/Mahjongs";
             for (int i = 1; i < 4; i++) {
                 string prefix = string.Empty;

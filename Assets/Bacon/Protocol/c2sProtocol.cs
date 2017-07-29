@@ -6,16 +6,8 @@ using System.Collections.Generic;
 public class C2sProtocol : ProtocolBase {
 	public static  C2sProtocol Instance = new C2sProtocol();
 	private C2sProtocol() {
-		Protocol.SetProtocol<adver> (adver.Tag);
-		Protocol.SetRequest<C2sSprotoType.adver.request> (adver.Tag);
-		Protocol.SetResponse<C2sSprotoType.adver.response> (adver.Tag);
-
 		Protocol.SetProtocol<avatar> (avatar.Tag);
 		Protocol.SetResponse<C2sSprotoType.avatar.response> (avatar.Tag);
-
-		Protocol.SetProtocol<board> (board.Tag);
-		Protocol.SetRequest<C2sSprotoType.board.request> (board.Tag);
-		Protocol.SetResponse<C2sSprotoType.board.response> (board.Tag);
 
 		Protocol.SetProtocol<call> (call.Tag);
 		Protocol.SetRequest<C2sSprotoType.call.request> (call.Tag);
@@ -91,14 +83,12 @@ public class C2sProtocol : ProtocolBase {
 		Protocol.SetRequest<C2sSprotoType.syncsysmail.request> (syncsysmail.Tag);
 		Protocol.SetResponse<C2sSprotoType.syncsysmail.response> (syncsysmail.Tag);
 
-		Protocol.SetProtocol<test> (test.Tag);
-		Protocol.SetRequest<C2sSprotoType.test.request> (test.Tag);
-		Protocol.SetResponse<C2sSprotoType.test.response> (test.Tag);
-
 		Protocol.SetProtocol<toast1> (toast1.Tag);
+		Protocol.SetRequest<C2sSprotoType.toast1.request> (toast1.Tag);
 		Protocol.SetResponse<C2sSprotoType.toast1.response> (toast1.Tag);
 
 		Protocol.SetProtocol<toast2> (toast2.Tag);
+		Protocol.SetRequest<C2sSprotoType.toast2.request> (toast2.Tag);
 		Protocol.SetResponse<C2sSprotoType.toast2.response> (toast2.Tag);
 
 		Protocol.SetProtocol<viewedsysmail> (viewedsysmail.Tag);
@@ -115,16 +105,8 @@ public class C2sProtocol : ProtocolBase {
 
 	}
 
-	public class adver {
-		public const int Tag = 21;
-	}
-
 	public class avatar {
-		public const int Tag = 19;
-	}
-
-	public class board {
-		public const int Tag = 20;
+		public const int Tag = 113;
 	}
 
 	public class call {
@@ -132,15 +114,15 @@ public class C2sProtocol : ProtocolBase {
 	}
 
 	public class checkindaily {
-		public const int Tag = 8;
+		public const int Tag = 105;
 	}
 
 	public class cmatch {
-		public const int Tag = 3;
+		public const int Tag = 4;
 	}
 
 	public class create {
-		public const int Tag = 4;
+		public const int Tag = 101;
 	}
 
 	public class dice {
@@ -148,11 +130,11 @@ public class C2sProtocol : ProtocolBase {
 	}
 
 	public class fetchsysmail {
-		public const int Tag = 12;
+		public const int Tag = 108;
 	}
 
 	public class first {
-		public const int Tag = 7;
+		public const int Tag = 104;
 	}
 
 	public class handshake {
@@ -160,7 +142,7 @@ public class C2sProtocol : ProtocolBase {
 	}
 
 	public class join {
-		public const int Tag = 5;
+		public const int Tag = 102;
 	}
 
 	public class lead {
@@ -168,15 +150,15 @@ public class C2sProtocol : ProtocolBase {
 	}
 
 	public class leave {
-		public const int Tag = 6;
+		public const int Tag = 103;
 	}
 
 	public class logout {
-		public const int Tag = 17;
+		public const int Tag = 2;
 	}
 
 	public class match {
-		public const int Tag = 2;
+		public const int Tag = 3;
 	}
 
 	public class rchat {
@@ -184,11 +166,11 @@ public class C2sProtocol : ProtocolBase {
 	}
 
 	public class record {
-		public const int Tag = 16;
+		public const int Tag = 112;
 	}
 
 	public class records {
-		public const int Tag = 15;
+		public const int Tag = 111;
 	}
 
 	public class restart {
@@ -204,23 +186,19 @@ public class C2sProtocol : ProtocolBase {
 	}
 
 	public class syncsysmail {
-		public const int Tag = 13;
-	}
-
-	public class test {
-		public const int Tag = 18;
+		public const int Tag = 109;
 	}
 
 	public class toast1 {
-		public const int Tag = 9;
+		public const int Tag = 106;
 	}
 
 	public class toast2 {
-		public const int Tag = 10;
+		public const int Tag = 107;
 	}
 
 	public class viewedsysmail {
-		public const int Tag = 14;
+		public const int Tag = 110;
 	}
 
 	public class xuanpao {

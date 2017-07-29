@@ -30,7 +30,7 @@ public class MUIRoot : MonoBehaviour {
     void Start() {
         Command cmd = new Command(MyEventCmd.EVENT_SETUP_MUI, gameObject);
         _Root.App.Enqueue(cmd);
-        GameObject go = _Adver.transform.FindChild("Mask").FindChild("Text").gameObject;
+        GameObject go = _Adver.transform.Find("Mask").Find("Text").gameObject;
 
         go.transform.localPosition.Set(750.0f, 0.0f, 0.0f);
         Sequence s = DOTween.Sequence();
@@ -55,7 +55,7 @@ public class MUIRoot : MonoBehaviour {
         _Root.App.Enqueue(cmd);
     }
 
-    public void ShowCreate(int num) {
+    public void ShowCreate(long num) {
         if (_CreatePanel != null) {
             _CreatePanel.GetComponent<CreateRoom>().Show(num);
         }
@@ -105,12 +105,12 @@ public class MUIRoot : MonoBehaviour {
     #endregion
 
     public void SetBoard(string board) {
-        Text content = _Board.transform.FindChild("Content").GetComponent<Text>();
+        Text content = _Board.transform.Find("Content").GetComponent<Text>();
         content.text = board;
     }
 
     public void SetAdver(string adver) {
-        Text content = _Adver.transform.FindChild("Mask").FindChild("Text").GetComponent<Text>();
+        Text content = _Adver.transform.Find("Mask").Find("Text").GetComponent<Text>();
         content.text = adver;
     }
 

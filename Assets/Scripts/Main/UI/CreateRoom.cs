@@ -24,11 +24,11 @@ public class CreateRoom : MonoBehaviour {
     void Update() {
     }
 
-    public void Show(int num) {
+    public void Show(long num) {
         if (!gameObject.activeSelf) {
             gameObject.SetActive(true);
+            _RCard.GetComponent<Text>().text = string.Format("已有房卡{0}张", num);
         }
-        _RCard.GetComponent<Text>().text = string.Format("已有房卡{0}张", num);
     }
 
     public void OnClose() {

@@ -113,23 +113,23 @@ public class Board : MonoBehaviour {
         Action<int, GameObject> act = delegate (int d, GameObject go) {
             switch (d) {
                 case 1:
-                    go.transform.FindChild("Dice").localRotation = Quaternion.AngleAxis(-180.0f, Vector3.forward);
+                    go.transform.Find("Dice").localRotation = Quaternion.AngleAxis(-180.0f, Vector3.forward);
                     break;
                 case 2:
-                    go.transform.FindChild("Dice").localRotation = Quaternion.AngleAxis(180.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
+                    go.transform.Find("Dice").localRotation = Quaternion.AngleAxis(180.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
                     break;
                 case 3:
-                    go.transform.FindChild("Dice").localRotation = Quaternion.AngleAxis(-90.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
+                    go.transform.Find("Dice").localRotation = Quaternion.AngleAxis(-90.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
                     break;
                 case 4:
-                    go.transform.FindChild("Dice").localRotation = Quaternion.AngleAxis(270.0f, Vector3.forward);
+                    go.transform.Find("Dice").localRotation = Quaternion.AngleAxis(270.0f, Vector3.forward);
 
                     break;
                 case 5:
-                    go.transform.FindChild("Dice").localRotation = Quaternion.AngleAxis(90.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
+                    go.transform.Find("Dice").localRotation = Quaternion.AngleAxis(90.0f, Vector3.right) * Quaternion.AngleAxis(270.0f, Vector3.forward);
                     break;
                 case 6:
-                    go.transform.FindChild("Dice").localRotation = Quaternion.AngleAxis(0.0f, Vector3.right);
+                    go.transform.Find("Dice").localRotation = Quaternion.AngleAxis(0.0f, Vector3.right);
                     break;
                 default:
                     UnityEngine.Debug.Assert(false);

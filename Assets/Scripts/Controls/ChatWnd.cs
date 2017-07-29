@@ -11,7 +11,7 @@ public class ChatWnd : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
-        Transform pa = _Page.transform.FindChild("Viewport").FindChild("Content");
+        Transform pa = _Page.transform.Find("Viewport").Find("Content");
         var data = SayDataSet.Instance.GetSays();
         foreach (var kv in data) {
 

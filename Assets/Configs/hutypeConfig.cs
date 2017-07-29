@@ -6,7 +6,7 @@ namespace Configs {
         private Dictionary<long, Dictionary<string, Value>> _items = new Dictionary<long, Dictionary<string, Value>>();
         public void Load(string xml) {
             XmlDocument doc = new XmlDocument();
-            doc.LoadXml(xml.Substring(1));
+            doc.LoadXml(xml);
             XmlNode root = doc.LastChild;
             XmlNode key = root.FirstChild; // key
             while (key != null) {
