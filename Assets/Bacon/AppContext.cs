@@ -10,11 +10,12 @@ namespace Bacon
         private InitService _initService = null;
         private Request _request = null;
         private Response _response = null;
-        private EntityMgr _entitymgr = new EntityMgr();
+        private EntityMgr _entitymgr = null;
         private BoardMgr _boardmgr = null;
         private TipsMgr _tipsmgr = null;
 
         public AppContext(Application application, Config config, TimeSync ts) : base(application, config, ts) {
+            _entitymgr = new EntityMgr();
             _boardmgr = new BoardMgr(this);
             _tipsmgr = new TipsMgr(this);
 
@@ -28,7 +29,7 @@ namespace Bacon
             Push(typeof(StartController));
         }
 
-        public global::App GApp { get { return ((App)_application).GApp; } }
+        public Maria.Util.App GApp { get { return ((App)_application).GApp; } }
 
         public EntityMgr GetEntityMgr() { return _entitymgr; }
         public BoardMgr GetBoardMgr() { return _boardmgr; }

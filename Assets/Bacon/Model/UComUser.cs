@@ -28,7 +28,11 @@ namespace Bacon.Model {
             RCard = obj.rcard;
             Sex = obj.sex;
 
-            //_ctx.EnqueueRenderQueue(RenderFirst);
+            UnityEngine.Debug.LogFormat("name = {0}, nameid = {1}, rcard = {2}, sex = {3}", Name, NameId, RCard, Sex);
+            var controller = _entity.Ctx.Peek<MainController>();
+            if (controller != null) {
+                _entity.Ctx.EnqueueRenderQueue(controller.RenderFirst);
+            }
         }
 
        

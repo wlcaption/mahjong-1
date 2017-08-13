@@ -7,6 +7,7 @@ using System.Threading;
 using UnityEngine;
 using XLua;
 using System.Reflection;
+using Maria.Util;
 
 namespace Maria {
 
@@ -20,7 +21,7 @@ namespace Maria {
             CO = 2,
         }
 
-        protected global::App _app;
+        protected Maria.Util.App _app;
         protected CommandQueue _queue = new CommandQueue();
         protected Queue<Actor.RenderHandler> _renderQueue = new Queue<Actor.RenderHandler>();
         protected Semaphore _semaphore = null;
@@ -32,7 +33,7 @@ namespace Maria {
         protected CoType _cotype = CoType.THREAD;
         protected XLua.LuaEnv _luaenv = null;
 
-        public Application(global::App app) {
+        public Application(Maria.Util.App app) {
             _app = app;
             _tiSync = new TimeSync();
             _tiSync.LocalTime();

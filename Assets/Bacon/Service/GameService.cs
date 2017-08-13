@@ -23,10 +23,10 @@ namespace Bacon.Service {
         private bool _loadedcards = false;
 
         public GameService(Context ctx) : base(ctx) {
-            EventListenerCmd listener1 = new EventListenerCmd(MyEventCmd.EVENT_LOADEDCARDS, LoadedCards);
+            EventListenerCmd listener1 = new EventListenerCmd(MyEventCmd.EVENT_LOADEDCARDS, OnEventLoadedCards);
             _ctx.EventDispatcher.AddCmdEventListener(listener1);
 
-            EventListenerCmd listener2 = new EventListenerCmd(MyEventCmd.EVENT_EXITROOM, SendLeave);
+            EventListenerCmd listener2 = new EventListenerCmd(MyEventCmd.EVENT_EXITROOM, OnEventLeave);
             _ctx.EventDispatcher.AddCmdEventListener(listener2);
         }
 
@@ -50,8 +50,106 @@ namespace Bacon.Service {
             }
         }
 
-        public void Create(SprotoTypeBase responseObj) {
+        public SprotoTypeBase OnReqJoin(SprotoTypeBase requestObj) {
+            S2cSprotoType.join.request obj = requestObj as S2cSprotoType.join.request;
+            if (obj != null) {
+                long offset = 0;
+                if (obj.p.idx > _myidx) {
+                    offset = obj.p.idx - _myidx;
+                } else {
+                    offset = obj.p.idx + 4 - _myidx;
+                }
+                switch (offset) {
+                    case 1: {
+                            var rplayer = new Game.RightPlayer(_ctx, this);
+                            rplayer.Sid = (uint)obj.p.sid;
+                            rplayer.Idx = (int)obj.p.idx;
+                            rplayer.Chip = (int)obj.p.chip;
+                            rplayer.Sex = (int)obj.p.sex;
+                            rplayer.Name = obj.p.name;
+                            rplayer.Controller = _controller;
+                            rplayer.Init();
+                            _playes[obj.p.idx] = rplayer;
+                            if (_loadedcards) {
+                                _controller.Scene.SetupRightPlayer();
+                            }
+                        }
+                        break;
+                    case 2: {
+                            var tplayer = new Bacon.Game.TopPlayer(_ctx, this);
+                            tplayer.Sid = (uint)obj.p.sid;
+                            tplayer.Idx = (int)obj.p.idx;
+                            tplayer.Chip = (int)obj.p.chip;
+                            tplayer.Sex = (int)obj.p.sex;
+                            tplayer.Name = obj.p.name;
+                            tplayer.Controller = _controller;
+                            tplayer.Init();
+                            _playes[obj.p.idx] = tplayer;
+                            if (_loadedcards) {
+                                _controller.Scene.SetupTopPlayer();
+                            }
+                        }
+                        break;
+                    case 3: {
+                            var lplayer = new Bacon.Game.LeftPlayer(_ctx, this);
+                            lplayer.Sid = (uint)obj.p.sid;
+                            lplayer.Idx = (int)obj.p.idx;
+                            lplayer.Chip = (int)obj.p.chip;
+                            lplayer.Sex = (int)obj.p.sex;
+                            lplayer.Name = obj.p.name;
+                            lplayer.Controller = _controller;
+                            lplayer.Init();
+                            _playes[obj.p.idx] = lplayer;
+                            if (_loadedcards) {
+                                _controller.Scene.SetupLeftPlayer();
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            _joined++;
+            _online++;
+            SendStep();
 
+            S2cSprotoType.join.response responseObj = new S2cSprotoType.join.response();
+            responseObj.errorcode = Errorcode.SUCCESS;
+            return responseObj;
+        }
+
+        public SprotoTypeBase OnReqLeave(SprotoTypeBase requestObj) {
+            //S2cSprotoType.leave.request obj = requestObj as S2cSprotoType.leave.request;
+            _joined--;
+            _online--;
+
+            S2cSprotoType.leave.response responseObj = new S2cSprotoType.leave.response();
+            responseObj.errorcode = Errorcode.SUCCESS;
+            return responseObj;
+        }
+
+        public SprotoTypeBase OnReqAuthed(SprotoTypeBase requestObj) {
+            S2cSprotoType.authed.request obj = requestObj as S2cSprotoType.authed.request;
+
+            _online++;
+
+            S2cSprotoType.authed.response responseObj = new S2cSprotoType.authed.response();
+            responseObj.errorcode = Errorcode.SUCCESS;
+            return responseObj;
+        }
+
+        public SprotoTypeBase OnReqAfk(SprotoTypeBase requestObj) {
+            S2cSprotoType.afk.request obj = requestObj as S2cSprotoType.afk.request;
+            //_playes[obj.idx]:Afk()
+
+            _online--;
+
+            S2cSprotoType.afk.response responseObj = new S2cSprotoType.afk.response();
+            responseObj.errorcode = Errorcode.SUCCESS;
+            return responseObj;
+        }
+
+        public void OnRspCreate(SprotoTypeBase responseObj) {
             C2sSprotoType.create.response obj = responseObj as C2sSprotoType.create.response;
             if (obj.errorcode == Errorcode.SUCCESS) {
                 try {
@@ -69,12 +167,12 @@ namespace Bacon.Service {
             }
         }
 
-        public void Join(SprotoTypeBase responseObj) {
+        public void OnRspJoin(SprotoTypeBase responseObj) {
             C2sSprotoType.join.response obj = responseObj as C2sSprotoType.join.response;
             if (obj.errorcode == Errorcode.SUCCESS) {
                 _roomid = obj.roomid;
                 _max = obj.room_max;
-                _host = false;
+                //_host = false;
 
                 _controller = (GameController)_ctx.Push(typeof(GameController));
 
@@ -164,110 +262,16 @@ namespace Bacon.Service {
             }
         }
 
-        public SprotoTypeBase OnJoin(SprotoTypeBase requestObj) {
-            S2cSprotoType.join.request obj = requestObj as S2cSprotoType.join.request;
-            if (obj != null) {
-                long offset = 0;
-                if (obj.p.idx > _myidx) {
-                    offset = obj.p.idx - _myidx;
-                } else {
-                    offset = obj.p.idx + 4 - _myidx;
-                }
-                switch (offset) {
-                    case 1: {
-                            var rplayer = new Game.RightPlayer(_ctx, this);
-                            rplayer.Sid = (uint)obj.p.sid;
-                            rplayer.Idx = (int)obj.p.idx;
-                            rplayer.Chip = (int)obj.p.chip;
-                            rplayer.Sex = (int)obj.p.sex;
-                            rplayer.Name = obj.p.name;
-                            rplayer.Controller = _controller;
-                            rplayer.Init();
-                            _playes[obj.p.idx] = rplayer;
-                            if (_loadedcards) {
-                                _controller.Scene.SetupRightPlayer();
-                            }
-                        }
-                        break;
-                    case 2: {
-                            var tplayer = new Bacon.Game.TopPlayer(_ctx, this);
-                            tplayer.Sid = (uint)obj.p.sid;
-                            tplayer.Idx = (int)obj.p.idx;
-                            tplayer.Chip = (int)obj.p.chip;
-                            tplayer.Sex = (int)obj.p.sex;
-                            tplayer.Name = obj.p.name;
-                            tplayer.Controller = _controller;
-                            tplayer.Init();
-                            _playes[obj.p.idx] = tplayer;
-                            if (_loadedcards) {
-                                _controller.Scene.SetupTopPlayer();
-                            }
-                        }
-                        break;
-                    case 3: {
-                            var lplayer = new Bacon.Game.LeftPlayer(_ctx, this);
-                            lplayer.Sid = (uint)obj.p.sid;
-                            lplayer.Idx = (int)obj.p.idx;
-                            lplayer.Chip = (int)obj.p.chip;
-                            lplayer.Sex = (int)obj.p.sex;
-                            lplayer.Name = obj.p.name;
-                            lplayer.Controller = _controller;
-                            lplayer.Init();
-                            _playes[obj.p.idx] = lplayer;
-                            if (_loadedcards) {
-                                _controller.Scene.SetupLeftPlayer();
-                            }
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-            _joined++;
-            _online++;
-            SendStep();
-
-            S2cSprotoType.join.response responseObj = new S2cSprotoType.join.response();
-            responseObj.errorcode = Errorcode.SUCCESS;
-            return responseObj;
-        }
-
-        public void Leave(SprotoTypeBase responseObj) {
+        public void OnRspLeave(SprotoTypeBase responseObj) {
             C2sSprotoType.leave.response obj = responseObj as C2sSprotoType.leave.response;
             if (obj.errorcode == Errorcode.SUCCESS) {
                 _ctx.Pop();
             }
         }
 
-        public SprotoTypeBase OnLeave(SprotoTypeBase requestObj) {
-            //S2cSprotoType.leave.request obj = requestObj as S2cSprotoType.leave.request;
-            _joined--;
-            _online--;
-
-            S2cSprotoType.leave.response responseObj = new S2cSprotoType.leave.response();
-            responseObj.errorcode = Errorcode.SUCCESS;
-            return responseObj;
-        }
-
-        public SprotoTypeBase OnAfk(SprotoTypeBase requestObj) {
-            S2cSprotoType.afk.request obj = requestObj as S2cSprotoType.afk.request;
-            //_playes[obj.idx]:Afk()
-
-            _online--;
-
-            S2cSprotoType.afk.response responseObj = new S2cSprotoType.afk.response();
-            responseObj.errorcode = Errorcode.SUCCESS;
-            return responseObj;
-        }
-
-        public SprotoTypeBase OnAuthed(SprotoTypeBase requestObj) {
-            S2cSprotoType.authed.request obj = requestObj as S2cSprotoType.authed.request;
-
-            _online++;
-
-            S2cSprotoType.authed.response responseObj = new S2cSprotoType.authed.response();
-            responseObj.errorcode = Errorcode.SUCCESS;
-            return responseObj;
+        public void OnRspStep(SprotoTypeBase responseObj) {
+            C2sSprotoType.step.response obj = responseObj as C2sSprotoType.step.response;
+            UnityEngine.Debug.Assert(obj.errorcode == Errorcode.SUCCESS);
         }
 
         public void SendStep() {
@@ -279,12 +283,13 @@ namespace Bacon.Service {
             }
         }
 
-        public void Step(SprotoTypeBase responseObj) {
-            C2sSprotoType.step.response obj = responseObj as C2sSprotoType.step.response;
-            UnityEngine.Debug.Assert(obj.errorcode == Errorcode.SUCCESS);
+        public void OnEventLeave(EventCmd e) {
+            C2sSprotoType.leave.request request = new C2sSprotoType.leave.request();
+            request.idx = _myidx;
+            _ctx.SendReq<C2sProtocol.leave>(C2sProtocol.leave.Tag, request);
         }
 
-        public void LoadedCards(EventCmd e) {
+        public void OnEventLoadedCards(EventCmd e) {
             _loadedcards = true;
             _controller.FlushUI();
             for (int i = 1; i <= _max; i++) {
@@ -304,10 +309,6 @@ namespace Bacon.Service {
             SendStep();
         }
 
-        private void SendLeave(EventCmd e) {
-            C2sSprotoType.leave.request request = new C2sSprotoType.leave.request();
-            request.idx = _myidx;
-            _ctx.SendReq<C2sProtocol.leave>(C2sProtocol.leave.Tag, request);
-        }
+        
     }
 }

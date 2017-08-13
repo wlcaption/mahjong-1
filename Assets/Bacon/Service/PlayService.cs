@@ -16,7 +16,7 @@ namespace Bacon.Service {
         public PlayService(Context ctx) : base(ctx) {
         }
 
-        public void record(SprotoTypeBase responseObj) {
+        public void OnRspRecord(SprotoTypeBase responseObj) {
             C2sSprotoType.record.response obj = responseObj as C2sSprotoType.record.response;
             _r = obj.r;
             _controller = (GameController)_ctx.Push(typeof(GameController));
@@ -49,7 +49,7 @@ namespace Bacon.Service {
                             }
                         }
                         GameService service = _ctx.QueryService<GameService>(GameService.Name);
-                        service.OnJoin(obj);
+                        service.OnRspJoin(obj);
                     } else if (protocol == "peng") {
                         _ctx.Countdown(key, (int)pt, null, () => {
                             S2cSprotoType.peng.request request = new S2cSprotoType.peng.request();

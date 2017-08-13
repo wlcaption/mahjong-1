@@ -24,9 +24,9 @@ namespace Bacon.Service {
             _ts = ctx.TiSync;
             _smactor = new SMActor(ctx, this);
 
-            _ctx.EventDispatcher.AddCustomEventListener(EventCustom.OnGateAuthed, OnAuthed, null);
-            _ctx.EventDispatcher.AddCustomEventListener(EventCustom.OnGateDisconnected, OnDiconnected, null);
-            _ctx.EventDispatcher.AddCustomEventListener(MyEventCustom.LOGOUT, Logout, null);
+            _ctx.EventDispatcher.AddCustomEventListener(EventCustom.OnGateAuthed, OnEventAuthed, null);
+            _ctx.EventDispatcher.AddCustomEventListener(EventCustom.OnGateDisconnected, OnEventDiconnected, null);
+            _ctx.EventDispatcher.AddCustomEventListener(MyEventCustom.LOGOUT, OnEventLogout, null);
         }
 
         public override void Update(float delta) {
@@ -54,29 +54,29 @@ namespace Bacon.Service {
             }
         }
 
-        public void Handshake(SprotoTypeBase responseObj) {
+        public void OnRspHandshake(SprotoTypeBase responseObj) {
             C2sSprotoType.handshake.response o = responseObj as C2sSprotoType.handshake.response;
 
             long lag = _ts.GetTimeMs() - _last; // ms
             UnityEngine.Debug.LogFormat("handshake code {0}, tts: {1} ms", o.errorcode, lag);
         }
 
-        private void OnAuthed(EventCustom e) {
+        private void OnEventAuthed(EventCustom e) {
             _authed = true;
         }
 
-        private void OnDiconnected(EventCustom e) {
+        private void OnEventDiconnected(EventCustom e) {
             _authed = false;
             if (_ctx.Logined) {
                 _ctx.GateAuth();
             }
         }
 
-        private void Logout(EventCustom e) {
+        private void OnEventLogout(EventCustom e) {
             _authed = false;
         }
 
-        public SprotoTypeBase OnRadio(SprotoTypeBase requestObj) {
+        public SprotoTypeBase OnReqRadio(SprotoTypeBase requestObj) {
             S2cSprotoType.radio.request obj = requestObj as S2cSprotoType.radio.request;
           
 

@@ -32,7 +32,7 @@ namespace Bacon.Login {
         }
 
         public void LoginAuth(string server, string username, string password) {
-            if (((AppConfig)_ctx.Config).VTYPE == AppConfig.VERSION_TYPE.TEST) {
+            if (((AppConfig)_ctx.Config).VTYPE == AppConfig.VERSION_TYPE.DEV) {
                 _ctx.Push(typeof(MainController));
             } else {
                 _ctx.LoginAuth(server, username, password);

@@ -12,13 +12,10 @@ function cls:ctor(env, ... )
 	self._env = env
 	self._g = env._ctx.Client
 	
-	self._REQUEST  = request.new(env, self)
-	self._RESPONSE = response.new(env, self)
-
 	-- sproto
 	local proto = {}
-	proto.c2s = CS.ABLoader.current:LoadTextAsset("proto", "proto.c2s.sproto").text
-	proto.s2c = CS.ABLoader.current:LoadTextAsset("proto", "proto.s2c.sproto").text
+	proto.c2s = CS.Maria.Util.ABLoader.current:LoadTextAsset("proto", "proto.c2s.sproto").text
+	proto.s2c = CS.Maria.Util.ABLoader.current:LoadTextAsset("proto", "proto.s2c.sproto").text
 	assert(type(proto.s2c) == "string")
 	assert(type(proto.c2s) == "string")
 	local s2c_sp = core.newproto(parser.parse(proto.s2c))
@@ -43,39 +40,38 @@ end
 function cls:response(session, args, ... )
 	-- body
 	local name = self._RESPONSE_SESSION_NAME[session]
-	local RESPONSE = self._RESPONSE
-	local f = RESPONSE[name]
+	local f = response[name]
 	if f then
-		local ok, err = pcall(f, RESPONSE, args, ...)
+		local ok, err = pcall(f, self._env, args, ...)
 		if not ok then
 			print(err)
 		end
-		return true
-	else
 		return false
+	else
+		return true
 	end
 end
 
+-- @return continue to exe
 function cls:request(name, args, response, ... )
 	-- body
-	local REQUEST = self._REQUEST
-	local f = REQUEST[name]
 	print("request :", name)
+	local f = request[name]
 	if f then
-		local ok, err = pcall(f, REQUEST, args)
+		local ok, err = pcall(f, env, args)
 		if ok then
 			local resp = response(err)
 			self._g:send(resp)
 		else
 			print(err)
 		end
-		return true
-	else
-		print("not found request:", name)
 		return false
+	else
+		return true
 	end
 end
 
+-- @return continue to exe
 function cls:dispatch(type, ... )
 	-- body
 	if type == "REQUEST" then

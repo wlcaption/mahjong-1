@@ -6,6 +6,7 @@ using Maria;
 using UnityEngine;
 using Bacon.Service;
 using Bacon.Event;
+using Bacon.GL.Controls;
 
 namespace Bacon.Game {
     class GUIRootActor : Actor {
@@ -29,7 +30,7 @@ namespace Bacon.Game {
         }
 
         public void RenderRoomId(int roomid) {
-            _go.GetComponent<GUIRoot>().InitUI(roomid);
+            _go.GetComponent<GL.Game.UI.UIRoot>().InitUI(roomid);
         }
 
         public void ShowOver() {
@@ -37,7 +38,7 @@ namespace Bacon.Game {
         }
 
         public void RenderShowOver() {
-            _go.GetComponent<GUIRoot>().ShowOver();
+            _go.GetComponent<GL.Game.UI.UIRoot>().ShowOver();
         }
 
         public void CloseOver() {
@@ -45,7 +46,7 @@ namespace Bacon.Game {
         }
 
         private void RenderCloseOver() {
-            _go.GetComponent<GUIRoot>().CloseOver();
+            _go.GetComponent<GL.Game.UI.UIRoot>().CloseOver();
         }
 
         private void OnSendRestart(EventCmd e) {
@@ -64,9 +65,9 @@ namespace Bacon.Game {
         private void RenderOpenSetting() {
             GameService service = _ctx.QueryService<GameService>(GameService.Name);
             if (service.Host) {
-                _go.GetComponent<GUIRoot>().ShowSetting(SettingWnd.ExitType.JIESHAN_ROOM);
+                _go.GetComponent<GL.Game.UI.UIRoot>().ShowSetting(SettingWnd.ExitType.JIESHAN_ROOM);
             } else {
-                _go.GetComponent<GUIRoot>().ShowSetting(SettingWnd.ExitType.EXIT_ROOM);
+                _go.GetComponent<GL.Game.UI.UIRoot>().ShowSetting(SettingWnd.ExitType.EXIT_ROOM);
             }
         }
 

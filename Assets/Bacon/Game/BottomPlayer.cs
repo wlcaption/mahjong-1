@@ -4,6 +4,8 @@ using UnityEngine;
 using DG.Tweening;
 using Bacon.Service;
 using Bacon.Event;
+using Maria.Util;
+using Bacon.GL.Game;
 
 namespace Bacon.Game {
     class BottomPlayer : Player {
@@ -11,7 +13,7 @@ namespace Bacon.Game {
         private Card _leadcard1 = null;
         private GameObject _xuanpao = null;
         private GameObject _xuanque = null;
-        private global::BottomPlayer _com;
+        private Bacon.GL.Game.BottomPlayer _com;
 
         public BottomPlayer(Context ctx, GameService service) : base(ctx, service) {
             _upv = Quaternion.AngleAxis(0.0f, Vector3.up);
@@ -93,7 +95,7 @@ namespace Bacon.Game {
         }
 
         private void RenderSetup() {
-            _com = _go.GetComponent<global::BottomPlayer>();
+            _com = _go.GetComponent<Bacon.GL.Game.BottomPlayer>();
             _com.ShowUI();
             _com.Head.SetGold(_chip);
             UnityEngine.Debug.Log("2");
@@ -388,7 +390,7 @@ namespace Bacon.Game {
                         for (int j = 0; j < _cards.Count; j++) {
                             Vector3 dst = CalcPos(j);
                             _cards[j].Go.transform.localPosition = dst;
-                            _go.GetComponent<global::BottomPlayer>().Add(_cards[j]);
+                            _go.GetComponent<GL.Game.BottomPlayer>().Add(_cards[j]);
                         }
                     })
                     .Append(_cards[i].Go.transform.DORotateQuaternion(Quaternion.AngleAxis(-25.0f, Vector3.right), _sortcardsdelta))
@@ -409,16 +411,16 @@ namespace Bacon.Game {
                     GameObject inst = GameObject.Instantiate<GameObject>(go);
                     if (inst) {
                         _xuanpao = inst;
-                        _xuanpao.transform.SetParent(_go.GetComponent<global::BottomPlayer>()._Canvas.transform);
+                        _xuanpao.transform.SetParent(_go.GetComponent<GL.Game.BottomPlayer>()._Canvas.transform);
                     }
                 });
             } else {
-                _xuanpao.GetComponent<XuanPao>().Show();
+                _xuanpao.GetComponent<GL.Game.UI.XuanPao>().Show();
             }
         }
 
         protected override void RenderXuanPao() {
-            _go.GetComponent<global::BottomPlayer>().Head.ShowMark(string.Format("{0}", _fen));
+            _go.GetComponent<GL.Game.BottomPlayer>().Head.ShowMark(string.Format("{0}", _fen));
         }
 
         protected override void RenderTakeFirstCard() {
@@ -438,11 +440,11 @@ namespace Bacon.Game {
                     GameObject inst = GameObject.Instantiate<GameObject>(go);
                     if (inst) {
                         _xuanque = inst;
-                        _xuanque.transform.SetParent(_go.GetComponent<global::BottomPlayer>()._Canvas.transform);
+                        _xuanque.transform.SetParent(_go.GetComponent<GL.Game.BottomPlayer>()._Canvas.transform);
                     }
                 });
             } else {
-                _xuanque.GetComponent<XuanQue>().Show();
+                _xuanque.GetComponent<GL.Game.UI.XuanQue>().Show();
             }
         }
 
@@ -452,11 +454,11 @@ namespace Bacon.Game {
             }
 
             if (_que == Card.CardType.Bam) {
-                _go.GetComponent<global::BottomPlayer>().Head.ShowMark("条");
+                _go.GetComponent<GL.Game.BottomPlayer>().Head.ShowMark("条");
             } else if (_que == Card.CardType.Crak) {
-                _go.GetComponent<global::BottomPlayer>().Head.ShowMark("万");
+                _go.GetComponent<GL.Game.BottomPlayer>().Head.ShowMark("万");
             } else if (_que == Card.CardType.Dot) {
-                _go.GetComponent<global::BottomPlayer>().Head.ShowMark("筒");
+                _go.GetComponent<GL.Game.BottomPlayer>().Head.ShowMark("筒");
             }
             RenderSortCardsToDo(0.0f, () => {
                 for (int i = 0; i < _cards.Count; i++) {
@@ -487,11 +489,11 @@ namespace Bacon.Game {
                 mySequence.Append(_holdcard.Go.transform.DOLocalMove(dst, _holdafterpengdelta))
                     .AppendCallback(() => {
                         UnityEngine.Debug.Assert(_hashu == false);
-                        _go.GetComponent<global::BottomPlayer>().SwitchOnTouch();
+                        _go.GetComponent<GL.Game.BottomPlayer>().SwitchOnTouch();
                     });
             } else if (_turntype == 2) {
                 if (_xuanque) {
-                    _xuanque.GetComponent<XuanQue>().Close();
+                    _xuanque.GetComponent<GL.Game.UI.XuanQue>().Close();
                 }
 
                 UnityEngine.Debug.Assert(_hashu == false);
@@ -569,15 +571,15 @@ namespace Bacon.Game {
                             }
                         } else {
                             if (Call.Peng == OpCodes.OPCODE_PENG) {
-                                _go.GetComponent<global::BottomPlayer>().ShowPeng();
+                                _go.GetComponent<GL.Game.BottomPlayer>().ShowPeng();
                             }
                             if (Call.Gang == OpCodes.OPCODE_ANGANG || Call.Gang == OpCodes.OPCODE_BUGANG || Call.Gang == OpCodes.OPCODE_ZHIGANG) {
-                                _go.GetComponent<global::BottomPlayer>().ShowGang();
+                                _go.GetComponent<GL.Game.BottomPlayer>().ShowGang();
                             }
                             if (Call.Hu.Code != HuType.NONE) {
-                                _go.GetComponent<global::BottomPlayer>().ShowHu();
+                                _go.GetComponent<GL.Game.BottomPlayer>().ShowHu();
                             }
-                            _go.GetComponent<global::BottomPlayer>().ShowGuo();
+                            _go.GetComponent<GL.Game.BottomPlayer>().ShowGuo();
                         }
                     });
 
@@ -592,15 +594,15 @@ namespace Bacon.Game {
                     }
                 } else {
                     if (Call.Peng == OpCodes.OPCODE_PENG) {
-                        _go.GetComponent<global::BottomPlayer>().ShowPeng();
+                        _go.GetComponent<GL.Game.BottomPlayer>().ShowPeng();
                     }
                     if (Call.Gang == OpCodes.OPCODE_ANGANG || Call.Gang == OpCodes.OPCODE_BUGANG || Call.Gang == OpCodes.OPCODE_ZHIGANG) {
-                        _go.GetComponent<global::BottomPlayer>().ShowGang();
+                        _go.GetComponent<GL.Game.BottomPlayer>().ShowGang();
                     }
                     if (Call.Hu.Code != HuType.NONE) {
-                        _go.GetComponent<global::BottomPlayer>().ShowHu();
+                        _go.GetComponent<GL.Game.BottomPlayer>().ShowHu();
                     }
-                    _go.GetComponent<global::BottomPlayer>().ShowGuo();
+                    _go.GetComponent<GL.Game.BottomPlayer>().ShowGuo();
                 }
             }
         }

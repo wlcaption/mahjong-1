@@ -1,4 +1,5 @@
 ﻿using Bacon.Event;
+using Bacon.GL.Login.UI;
 using Maria;
 
 namespace Bacon.Login {
@@ -36,7 +37,7 @@ namespace Bacon.Login {
         }
 
         private void RenderEnableCommitOk() {
-            var com = _go.GetComponent<LoginPanelBehaviour>();
+            var com = _go.GetComponent<LoginPanel>();
             com.EnableCommitOk(_commit);
         }
 
@@ -46,7 +47,7 @@ namespace Bacon.Login {
         }
 
         public void RenderShowTips() {
-            var com = _go.GetComponent<LoginPanelBehaviour>();
+            var com = _go.GetComponent<LoginPanel>();
             com.ShowTips(_tips);
         }
 

@@ -4,11 +4,12 @@ using UnityEngine;
 using DG.Tweening;
 using Bacon.Service;
 using Bacon.Event;
+using Maria.Util;
 
 namespace Bacon.Game {
     class TopPlayer : Player {
 
-        private global::TopPlayer _com;
+        private Bacon.GL.Game.TopPlayer _com;
 
         public TopPlayer(Context ctx, GameService service) : base(ctx, service) {
             _upv = Quaternion.AngleAxis(180.0f, Vector3.up);
@@ -72,7 +73,7 @@ namespace Bacon.Game {
         }
 
         private void RenderSetup() {
-            _com = _go.GetComponent<global::TopPlayer>();
+            _com = _go.GetComponent<Bacon.GL.Game.TopPlayer>();
             _com.ShowUI();
             _com.Head.SetGold(_chip);
         }
@@ -209,8 +210,8 @@ namespace Bacon.Game {
             mySequence.Append(t)
                 .AppendCallback(() => {
                     // 2.0 丢色子
-                    Hand hand = _rhand.GetComponent<Hand>();
-                    hand.Rigster(Hand.EVENT.DIUSHAIZI_COMPLETED, () => {
+                    Bacon.GL.Game.Hand hand = _rhand.GetComponent<Bacon.GL.Game.Hand>();
+                    hand.Rigster(Bacon.GL.Game.Hand.EVENT.DIUSHAIZI_COMPLETED, () => {
                         // 3.1
                         UnityEngine.Debug.Log("top diu saizi ");
                         ((GameController)_controller).RenderThrowDice(_d1, _d2);
@@ -308,7 +309,7 @@ namespace Bacon.Game {
         }
 
         protected override void RenderTakeXuanPao() {
-            _go.GetComponent<global::TopPlayer>().Head.ShowMark(string.Format("{0}", _fen));
+            _go.GetComponent<Bacon.GL.Game.TopPlayer>().Head.ShowMark(string.Format("{0}", _fen));
         }
 
         protected override void RenderXuanPao() {
@@ -328,11 +329,11 @@ namespace Bacon.Game {
 
         protected override void RenderXuanQue() {
             if (_que == Card.CardType.Bam) {
-                _go.GetComponent<global::TopPlayer>().Head.ShowMark("条");
+                _go.GetComponent<Bacon.GL.Game.TopPlayer>().Head.ShowMark("条");
             } else if (_que == Card.CardType.Crak) {
-                _go.GetComponent<global::TopPlayer>().Head.ShowMark("万");
+                _go.GetComponent<Bacon.GL.Game.TopPlayer>().Head.ShowMark("万");
             } else if (_que == Card.CardType.Dot) {
-                _go.GetComponent<global::TopPlayer>().Head.ShowMark("同");
+                _go.GetComponent<Bacon.GL.Game.TopPlayer>().Head.ShowMark("同");
             }
             RenderSortCardsToDo(_sortcardsdelta, () => {
             });

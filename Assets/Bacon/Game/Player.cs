@@ -6,6 +6,8 @@ using UnityEngine;
 using DG.Tweening;
 using Bacon.Service;
 using Bacon.Event;
+using Maria.Util;
+using Bacon.GL.Game;
 
 namespace Bacon.Game {
     public class Player : Actor {

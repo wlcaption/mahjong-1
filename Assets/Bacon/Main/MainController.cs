@@ -8,6 +8,9 @@ using Bacon.Game;
 using Bacon.Helper;
 using Bacon.Event;
 using Bacon.Model;
+using Maria.Util;
+using Bacon.GL.Controls;
+using Bacon.GL.Main.UI;
 
 namespace Bacon {
 
@@ -107,7 +110,7 @@ namespace Bacon {
         }
 
         public void OnSendMatch(EventCmd e) {
-            if (((AppConfig)_ctx.Config).VTYPE == AppConfig.VERSION_TYPE.TEST) {
+            if (((AppConfig)_ctx.Config).VTYPE == AppConfig.VERSION_TYPE.TEST_WIN) {
                 _ctx.Push(typeof(GameController));
             } else {
                 C2sSprotoType.match.request request = new C2sSprotoType.match.request();
@@ -312,7 +315,7 @@ namespace Bacon {
         }
 
         public void RenderFetchSysmail() {
-            var com = _uiroot.GetComponent<MUIRoot>();
+            var com = _uiroot.GetComponent<UIRoot>();
             var title = com._Title.GetComponent<Title>();
             //title.SetMsgRed(_service.SysInBox.Count);
         }
@@ -320,16 +323,16 @@ namespace Bacon {
         public void RenderShowCreate() {
             AppContext ctx = _ctx as AppContext;
             long num = ctx.GetEntityMgr().MyEntity.GetComponent<UComUser>().RCard;
-            _uiroot.GetComponent<MUIRoot>().ShowCreate(num);
+            _uiroot.GetComponent<UIRoot>().ShowCreate(num);
         }
 
         public void RenderSyncSysMail() {
-            var com = _uiroot.GetComponent<MUIRoot>();
+            var com = _uiroot.GetComponent<UIRoot>();
             var msgwnd = com._MailWnd.GetComponent<MailWnd>();
             //msgwnd.ShowSysMsg(_service.SysInBox);
         }
 
-        private void RenderViewMail() {
+        public void RenderViewMail() {
             //if (_curtype == MsgItem.Type.Sys) {
             //    Sysmail mail = _service.SysInBox.GetMail(_curmsgid);
             //    var com = _uiroot.GetComponent<MUIRoot>();
@@ -340,13 +343,13 @@ namespace Bacon {
 
         public void RenderViewedMail() { }
 
-        private void RenderCancelWaiting() {
+        public void RenderCancelWaiting() {
             if (_uiroot && _waiting) {
                 _waiting.SetActive(false);
             }
         }
 
-        private void RenderWaiting() {
+        public void RenderWaiting() {
             if (_uiroot) {
                 //MUIRoot com = _uiroot.GetComponent<global::MUIRoot>();
                 //ABLoader.current.LoadAssetAsync<GameObject>("Prefabs/Common", "Waiting", (GameObject go) => {
@@ -356,27 +359,27 @@ namespace Bacon {
             }
         }
 
-        private void RenderShowTips() {
+        public void RenderShowTips() {
             //_uiroot.GetComponent<MUIRoot>().ShowTips(_tipscontent);
         }
 
         public void RenderAdver() {
             BoardMgr mgr = ((AppContext)_ctx).GetBoardMgr();
 
-            MUIRoot muiroot = _uiroot.GetComponent<MUIRoot>();
+            UIRoot muiroot = _uiroot.GetComponent<UIRoot>();
             muiroot.SetAdver(mgr.AdverMsg);
         }
 
         public void RenderBoard() {
             BoardMgr mgr = ((AppContext)_ctx).GetBoardMgr();
 
-            MUIRoot muiroot = _uiroot.GetComponent<MUIRoot>();
+            UIRoot muiroot = _uiroot.GetComponent<UIRoot>();
             muiroot.SetBoard(mgr.BoardMsg);
         }
 
         public void RenderFirst() {
 
-            MUIRoot com = _uiroot.GetComponent<global::MUIRoot>();
+            UIRoot com = _uiroot.GetComponent<UIRoot>();
             var title = com._Title.GetComponent<Title>();
 
             AppContext ctx = _ctx as AppContext;

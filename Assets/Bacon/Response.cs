@@ -42,7 +42,7 @@ namespace Maria.Network {
         public void handshake(uint session, SprotoTypeBase responseObj, object ud) {
             InitService service = _ctx.QueryService<InitService>(InitService.Name);
             if (service != null) {
-                service.Handshake(responseObj);
+                service.OnRspHandshake(responseObj);
             }
         }
 
@@ -59,20 +59,20 @@ namespace Maria.Network {
         public void create(uint session, SprotoTypeBase responseObj, object ud) {
             GameService service = _ctx.QueryService<GameService>(GameService.Name);
             UnityEngine.Debug.Assert(service != null);
-            service.Create(responseObj);
+            service.OnRspCreate(responseObj);
         }
 
         public void join(uint session, SprotoTypeBase responseObj, object ud) {
             GameService service = _ctx.QueryService<GameService>(GameService.Name);
             if (service != null) {
-                service.Join(responseObj);
+                service.OnRspJoin(responseObj);
             }
         }
 
         public void leave(uint session, SprotoTypeBase responseObj, object ud) {
             GameService service = _ctx.QueryService<GameService>(GameService.Name);
             if (service != null) {
-                service.Leave(responseObj);
+                service.OnRspLeave(responseObj);
             }
         }
 
@@ -83,7 +83,7 @@ namespace Maria.Network {
         public void step(uint session, SprotoTypeBase responseObj, object ud) {
             GameService service = _ctx.QueryService<GameService>(GameService.Name);
             if (service != null) {
-                service.Step(responseObj);
+                service.OnRspStep(responseObj);
             }
         }
 
@@ -118,7 +118,7 @@ namespace Maria.Network {
         public void record(uint session, SprotoTypeBase responseObj, object ud) {
             PlayService service = _ctx.QueryService<PlayService>(PlayService.Name);
             UnityEngine.Debug.Assert(service != null);
-            service.record(responseObj);
+            service.OnRspRecord(responseObj);
         }
 
 

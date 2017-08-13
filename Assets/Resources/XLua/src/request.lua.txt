@@ -1,13 +1,7 @@
 local assert = assert
 local errorcode = require "errorcode"
-local cls = class("request")
 
-function cls:ctor(env, clientsock)
-	-- body
-	self._env = env
-	self._clientsock = clientsock
-	return self
-end
+local _M = {}
 
 -- function cls:handshake(args, ... )
 -- 	-- body
@@ -16,6 +10,4 @@ end
 -- 	return res
 -- end
 
-
-
-return cls
+return _M

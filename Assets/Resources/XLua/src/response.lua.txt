@@ -1,18 +1,11 @@
 local assert = assert
 local errorcode = require "errorcode"
-local cls = class("response")
+local _M = {}
 
-function cls:ctor(env, clientsock, ... )
-	-- body
-	self._env = env
-	self._clientsock = clientsock
-	return self
-end
-
-function cls:handshake(args, ... )
+function _M.handshake(env, args, ... )
 	-- body
 	assert(args.errorcode == errorcode.SUCCESS)
-	printInfo("handshake")
+	print("handshake")
 end
 
-return cls
+return _M

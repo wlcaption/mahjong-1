@@ -61,23 +61,23 @@ namespace Bacon {
         public SprotoTypeBase join(uint session, SprotoTypeBase requestObj) {
             GameService service = _ctx.QueryService<GameService>(GameService.Name);
             UnityEngine.Debug.Assert(service != null);
-            return service.OnJoin(requestObj);
+            return service.OnReqJoin(requestObj);
         }
 
         public SprotoTypeBase leave(uint session, SprotoTypeBase requestObj) {
             GameService service = _ctx.QueryService<GameService>(GameService.Name);
             UnityEngine.Debug.Assert(service != null);
-            return service.OnLeave(requestObj);
+            return service.OnReqLeave(requestObj);
         }
 
         public SprotoTypeBase afk(uint session, SprotoTypeBase requestObj) {
             GameService service = _ctx.QueryService<GameService>(GameService.Name);
-            return service.OnAfk(requestObj);
+            return service.OnReqAfk(requestObj);
         }
 
         public SprotoTypeBase authed(uint session, SprotoTypeBase requestObj) {
             GameService service = _ctx.QueryService<GameService>(GameService.Name);
-            return service.OnAuthed(requestObj);
+            return service.OnReqAuthed(requestObj);
         }
         #endregion
 
@@ -184,7 +184,7 @@ namespace Bacon {
 
         public SprotoTypeBase radio(uint session, SprotoTypeBase requestObj) {
             InitService service = _ctx.QueryService<InitService>(InitService.Name);
-            return service.OnRadio(requestObj);
+            return service.OnReqRadio(requestObj);
         }
 
     }

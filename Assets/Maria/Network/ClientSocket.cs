@@ -303,8 +303,6 @@ namespace Maria.Network {
                         UnityEngine.Debug.LogException(ex);
                     }
                 }
-
-
             }
         }
 

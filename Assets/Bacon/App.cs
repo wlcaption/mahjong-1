@@ -3,7 +3,6 @@ using XLua;
 
 namespace Bacon {
 
-    [CSharpCallLua]
     class App : Application {
 
         [CSharpCallLua]
@@ -12,24 +11,20 @@ namespace Bacon {
         private AppConfig _config = null;
         private Maria.Lua.Env _envScript = null;
 
-        public App(global::App app) : base(app) {
+        public App(Maria.Util.App app) : base(app) {
             _config = new AppConfig();
             _ctx = new AppContext(this, _config, _tiSync);
             _dispatcher = _ctx.EventDispatcher;
 
-            //var env = _luaenv.Global.Get<Maria.Lua.Env>("g");
-            //env.update();
-
+            // enter for lua
             Main main = _luaenv.Global.Get<Main>("main");
             _envScript = main(_ctx);
             _ctx.EnvScript = _envScript;
             _envScript.update();
             _ctx.Client.ClintSockscript = _envScript.clientsock();
-            //Action<Context> main = _luaenv.Global.Get<Action<Context>>("main");
-            //main(_ctx);
         }
 
-        public global::App GApp {
+        public Maria.Util.App GApp {
             get { return _app; }
         }
 

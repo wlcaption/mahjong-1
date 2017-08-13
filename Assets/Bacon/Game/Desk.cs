@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Maria;
 using UnityEngine;
+using Bacon.GL.Game;
 
 namespace Bacon.Game {
     public class Desk : Actor {

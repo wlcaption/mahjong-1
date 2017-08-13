@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
+using Maria.Util;
 
 public static class TableParser {
     private static void ParsePropertyValue<T>(T obj, FieldInfo fieldInfo, string valueStr) {

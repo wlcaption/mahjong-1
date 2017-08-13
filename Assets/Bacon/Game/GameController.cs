@@ -2,6 +2,7 @@
 using Bacon.Helper;
 using Bacon.Service;
 using Maria;
+using Maria.Util;
 using Sproto;
 using System;
 using System.Collections.Generic;
